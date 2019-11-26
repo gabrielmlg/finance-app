@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from Model import db, Category, CategorySchema
+from marshmallow import ValidationError
 
 categories_schema = CategorySchema(many=True)
 category_schema = CategorySchema()
@@ -14,15 +15,38 @@ class CategoryResource(Resource):
 
     def post(self):
         json_data = request.get_json(force=True)
+        print('====== json_data ======')
+        print(json_data)
+        print('=======================')
+
         if not json_data:
                return {'message': 'No input data provided'}, 400
         # Validate and deserialize input
-        data, errors = category_schema.load(json_data)
+        print('passou do if')
+
+        errors = False
+
+        try:
+            category_schema.load(json_data)
+        except ValidationError as error:
+            print("====== ERROR: package.json is invalid")
+            print(error.messages)
+            # sys.exit(1)
+            errors = error.messages
+
+        # data, errors = category_schema.load(json_data)
+
+        # print(data)
+        # print(errors)
+
         if errors:
             return errors, 422
-        category = Category.query.filter_by(name=data['name']).first()
+
+        category = Category.query.filter_by(name=json_data['name']).first()
+        
         if category:
             return {'message': 'Category already exists'}, 400
+        
         category = Category(
             name=json_data['name']
             )
@@ -30,7 +54,7 @@ class CategoryResource(Resource):
         db.session.add(category)
         db.session.commit()
 
-        result = category_schema.dump(category).data
+        result = category_schema.dump(category)
 
         return { "status": 'success', 'data': result }, 201
 

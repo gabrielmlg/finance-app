@@ -1,3 +1,6 @@
 .vscode
 env
 *.pyc
+Backend/__pycache__
+.DS_Store
+ibov-MGLU3_max.json

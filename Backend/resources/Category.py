@@ -15,21 +15,17 @@ class CategoryResource(Resource):
 
     def post(self):
         json_data = request.get_json(force=True)
-        print('====== json_data ======')
-        print(json_data)
-        print('=======================')
 
         if not json_data:
                return {'message': 'No input data provided'}, 400
-        # Validate and deserialize input
-        print('passou do if')
-
+        
         errors = False
 
+        # Validate and deserialize input
         try:
             category_schema.load(json_data)
         except ValidationError as error:
-            print("====== ERROR: package.json is invalid")
+            print("ERROR: package.json is invalid")
             print(error.messages)
             # sys.exit(1)
             errors = error.messages

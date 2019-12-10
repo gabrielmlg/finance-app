@@ -8,11 +8,13 @@ import json
 import boto3
 from botocore.exceptions import NoCredentialsError
 
+from Backend import config
+
 stocks_schema = StockSchema(many=True)
 stock_schema = StockSchema()
 
-ACCESS_KEY = 'XXX'
-SECRET_KEY = 'XXX'
+ACCESS_KEY = config.ACCESS_KEY
+SECRET_KEY = config.SECRET_KEY
 
 def upload_to_aws(local_file, bucket, s3_file):
     s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,
@@ -53,7 +55,7 @@ class StockResouce(Resource):
             querystring = {"region":"Brasil","lang":"en","symbol":symbol_string,"interval":"1d","range":"max"}
             headers = {
                 'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
-                'x-rapidapi-key': "XXX"
+                'x-rapidapi-key': config.RAPIDAPI_KEY
                 }
 
             response = requests.request("GET", url, headers=headers, params=querystring)
@@ -62,7 +64,7 @@ class StockResouce(Resource):
             with open('ibov-MGLU3_max.json', 'w') as json_file:
                 json.dump(text_response, json_file)
 
-            uploaded = upload_to_aws('ibov-MGLU3_max.json', 'ibov-raw', 'ibov-MGLU3_max_v2.json')
+            uploaded = upload_to_aws('ibov-MGLU3_max.json', 'ibov-raw', 'ibov-MGLU3_max_v4.json')
 
         except Exception as e:
             print(e)

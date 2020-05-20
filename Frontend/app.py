@@ -6,11 +6,36 @@ import plotly.graph_objs as go
 import pandas as pd
 from Backend.services.StockServices import load_stock
 
+import dash_bootstrap_components as dbc
+
 # df = pd.read_csv('https://gist.githubusercontent.com/chriddyp/c78bf172206ce24f77d6363a2d754b59/raw/c353e8ef842413cae56ae3920b8fd78468aa4cb2/usa-agricultural-exports-2011.csv')
 
 df_stock = load_stock()
 
-print(df_stock.head())
+form = dbc.Form(
+    [
+        dbc.FormGroup(
+            [
+                dbc.Label("Stock", className="mr-2"),
+                d
+            ],
+            className="mr-3",
+        ),
+        dbc.FormGroup(
+            [
+                dbc.Label("Adquirente", className="mr-2"),
+                generate_dropdown_acquirer(df_acquirers),
+            ],
+            className="mr-3",
+        ),
+        # html.Button(id='submit-button', n_clicks=0, children='Pesquisar')
+        dbc.Button("Pesquisar", 
+                    id='submit-button', 
+                    n_clicks=0, 
+                    color="primary"),
+    ],
+    inline=True,
+)
 
 def generate_table(dataframe, max_rows=10):
     return html.Table(
@@ -24,19 +49,19 @@ def generate_table(dataframe, max_rows=10):
     )
 
 def generate_graph(df_stock):
-    traces = [go.Scatter(x=df_stock['date'], y=df_stock['close'], name="Close", 
-                            line_color='deepskyblue'), 
+    traces = [go.Scatter(x=df_stock['date'], y=df_stock['close'], name="Close",
+                            line_color='deepskyblue'),
                 go.Scatter(x=df_stock['date'], y=df_stock['open'], name="Open",
                             line_color='dimgray')
     ]
 
     return dcc.Graph(
-        id='timeline-sotk', 
+        id='timeline-sotk',
         figure={
-            'data': traces, 
-            'layout': go.Layout(title="Serie MGLU", 
-                                xaxis_rangeslider_visible=True, 
-                                width=1200, 
+            'data': traces,
+            'layout': go.Layout(title="Serie MGLU",
+                                xaxis_rangeslider_visible=True,
+                                width=1200,
                                 height=900)
         }
     )
@@ -48,10 +73,10 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(children=[
     html.H1(children='Finance App'),
     html.Div(children='''Ações recomendadas para mentes milhonarias.'''),
-    html.Br(), 
+    html.Br(),
     dcc.Input(id='my-id', value='initial value', type='text'),
     html.Div(id='my-div'),
-    generate_graph(df_stock), 
+    generate_graph(df_stock),
     html.H4(children='Histórico da ação'),
     generate_table(df_stock)
 ])

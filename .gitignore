@@ -7,3 +7,5 @@ ibov-MGLU3_max.json
 config.py
 __pycache__
 .ipynb_checkpoints
+
+datasets

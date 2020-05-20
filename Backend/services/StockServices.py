@@ -7,26 +7,27 @@ from Backend import config
 
 headers = {
     'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com",
-    'x-rapidapi-key': config.RAPIDAPI_KEY # "8143eb5be3msha39ece65bb5d21ap1af72fjsn9d1f7333f8cd"
+    'x-rapidapi-key': config.RAPIDAPI_KEY
     }
 
 def parseTimestamp(inputdata):
     timestamplist = []
     timestamplist.extend(inputdata)
     calendertime = []
-    
+
     for ts in timestamplist:
         dt = datetime.fromtimestamp(ts)
         # print(dt.date())
         calendertime.append(dt.strftime("%m/%d/%Y"))
-        
+
         #dt.datetime.strptime(date, '"%Y-%m-%d"').date()
 
     return calendertime
 
 def load_stock(symbol='MGLU3.SA'):
     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-charts"
-    querystring = {"region":"Brasil","lang":"en","symbol":symbol,"interval":"1d","range":"5y"}
+    querystring = {"region":"Brasil","lang":"en",
+                    "symbol":symbol,"interval":"1d","range":"5y"}
 
     response = requests.request("GET", url, headers=headers, params=querystring)
     ibov = json.loads(response.text)
@@ -45,9 +46,8 @@ def convert_stock_to_dataframe(json_):
     cot_high = indicators['quote'][0]['high']
 
 
-    return pd.DataFrame({'date': date, 
-                                'open': cot_open, 
-                                'close': cot_close, 
-                                'low': cot_low, 
+    return pd.DataFrame({'date': date,
+                                'open': cot_open,
+                                'close': cot_close,
+                                'low': cot_low,
                                 'high': cot_high})
-

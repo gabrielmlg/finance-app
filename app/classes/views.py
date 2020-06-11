@@ -103,11 +103,11 @@ class Posicao:
                                 'Unnamed: 45', 'Unnamed: 55', 
                                 'Unnamed: 74']].values)
 
-        df_result = pd.DataFrame(columns=['Papel', 'Qtd Disponivel', 
+        df_aportesresult = pd.DataFrame(columns=['Papel', 'Qtd Disponivel', 
                                         'Qtd Projetada', 'Qtd Dia', 'Qtde Total', 
                                         'Ult Cotacao', 'Financeiro'], data=fii)
     
-        return df_result
+        return df_aportesresult
 
 
     def get_fii_proventos(self, df):
@@ -127,11 +127,11 @@ class Posicao:
                                 'Unnamed: 22', 'Unnamed: 60', 
                                 'Unnamed: 77']].values)
 
-        df_result = pd.DataFrame(columns=['Papel', 'Tipo', 
+        df_aportesresult = pd.DataFrame(columns=['Papel', 'Tipo', 
                                         'Qtd Provisionada', 'Dt Pagamento', 
                                         'Valor Provisionado'], data=p_fii)
     
-        return df_result
+        return df_aportesresult
 
 
 class Extrato:
@@ -162,7 +162,7 @@ class Extrato:
         return group
 
 
-    def get_extrato(self):
+    def load_csv_extrato(self):
         df = pd.read_csv('./datasets/extrato/Extrato2.csv', sep=';', encoding='iso-8859-1', decimal=',')
         df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
         df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
@@ -171,39 +171,67 @@ class Extrato:
         return df
 
 
-    def get_fi_extract(self, df):
-        df_  = df[df['Descricao'].str.contains('TED APLICA')]
-        df_['Nome'] = df_['Descricao'].apply(self.map_fi)
+    def transform_extrato_fi(self, df):
+        df_aportes  = df[df['Descricao'].str.contains('TED APLICA')]
+        df_aportes['Nome'] = df_aportes['Descricao'].apply(self.map_fi)
 
-        df_draw = df[df['Descricao'].str.contains('RESGATE')]
-        df_draw['Nome'] = df_draw['Descricao'].apply(self.map_fi)
-        #df_['Nome'] = df_['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
-        return df_, df_draw
+        df_resgates = df[df['Descricao'].str.contains('RESGATE')].drop(df[df['Descricao'].str.contains('IRRF S/RESGATE FUNDOS')].index)
+        df_resgates_ir = df[df['Descricao'].str.contains('IRRF S/RESGATE FUNDOS')]
+        df_resgates['Nome'] = df_resgates['Descricao'].apply(self.map_fi)
+        df_resgates_ir['Nome'] = df_resgates_ir['Descricao'].apply(self.map_fi)
+        #df_aportes['Nome'] = df_aportes['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
+        return df_aportes, df_resgates, df_resgates_ir
 
 
-    def extrato_fis(self, df):
-        df_fi_aportes, df_fi_resgates = self.get_fi_extract(df)
-        df_fi_aportes = df_fi_aportes.groupby('Nome')\
+    def get_extrato_fis(self, df):
+        df_aportesfi_aportes, df_aportesfi_resgates, df_aportesfi_ir = self.transform_extrato_fi(df)
+        df_aportesfi_aportes = df_aportesfi_aportes.groupby('Nome')\
                                         .agg({'Valor': 'sum'})\
                                         .reset_index()\
                                         .rename(columns={'Valor': 'Vlr Aporte'})
 
-        df_fi_resgates = df_fi_resgates.groupby('Nome')\
+        df_aportesfi_resgates = df_aportesfi_resgates.groupby('Nome')\
                                         .agg({'Valor': 'sum'})\
                                         .reset_index()\
                                         .rename(columns={'Valor': 'Vlr Resgate'})
 
-        df_group = df_fi_aportes.merge(
-                                    df_fi_resgates, 
+        df_aportesfi_ir = df_aportesfi_ir.groupby('Nome')\
+                                        .agg({'Valor': 'sum'})\
+                                        .reset_index()\
+                                        .rename(columns={'Valor': 'Vlr IR'})
+
+        df_aportesgroup = df_aportesfi_aportes.merge(
+                                    df_aportesfi_resgates, 
                                     how='outer', 
                                     left_on='Nome', 
-                                    right_on='Nome')
+                                    right_on='Nome')\
+                                .merge(df_aportesfi_ir, 
+                                        how='left', 
+                                        left_on='Nome', 
+                                        right_on='Nome'
+                                )
 
-        #display(df_fi_aportes)
-        #display(df_fi_resgates)
+        #display(df_aportesfi_aportes)
+        #display(df_aportesfi_resgates)
 
-        df_group['Vlr Aporte'] = df_group['Vlr Aporte'].abs()
-        df_group['Rendimento'] = df_group['Vlr Resgate'] - df_group['Vlr Aporte']
-        df_group['Rendimento'] = df_group['Rendimento'].fillna(0)
-        
-        return df_group
+        df_aportesgroup['Vlr Aporte'] = df_aportesgroup['Vlr Aporte'].abs()
+        df_aportesgroup['Rendimento Resgatado'] = df_aportesgroup['Vlr Resgate'] - df_aportesgroup['Vlr Aporte'] - df_aportesgroup['Vlr IR'].abs()
+        df_aportesgroup['Rendimento Resgatado'] = df_aportesgroup['Rendimento Resgatado'].fillna(0)
+        # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
+
+        return df_aportesgroup.fillna(0)
+
+    
+    def total_aportes(self, df_extrato_fis):
+        return df_extrato_fis['Vlr Aporte'].sum() - df_extrato_fis['Vlr Resgate'].sum()
+
+
+    def total_resgatado(self, df_extrato_fis):
+        return df_extrato_fis['Vlr Resgate'].sum()
+
+
+    def total_ir(self, df_extrato_fis):
+        return df_extrato_fis['Vlr IR'].sum()
+
+    def lucro_resgatado(self, df_extrato_fis):
+        return df_extrato_fis['Rendimento Resgatado'].sum()

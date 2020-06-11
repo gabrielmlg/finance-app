@@ -17,9 +17,12 @@ fis_graph_ = fis_graph(df_fis)
 
 # EXTRATO
 extrato = Extrato()
-df_extrato = extrato.get_extrato()
-extrato_fi = extrato.extrato_fis(df_extrato)
-total_aporte = extrato_fi['Vlr Aporte'].sum() # ToDo: Colocar o aporte de acoes e fii
+df_extrato = extrato.load_csv_extrato()
+extrato_fi = extrato.get_extrato_fis(df_extrato)
+total_aporte = extrato.total_aportes(extrato_fi) # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
+total_resgatado = extrato.total_resgatado(extrato_fi)
+total_lucro = extrato.lucro_resgatado(extrato_fi)
+
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.FLATLY]
@@ -81,7 +84,18 @@ app.layout = html.Div([
                             outline=True
                         ), lg=3, width={'offset': 1}
         ),
-        dbc.Col(dbc.Card(card_content, color="warning", outline=True), lg=3),
+        dbc.Col(dbc.Card([
+            dbc.CardHeader("Resgates"),
+            dbc.CardBody(
+                [
+                    html.H5("Total: {:,.2f}".format(total_resgatado), className="card-title"),
+                    html.P(
+                        "Lucro resgatado: R$ {:,.2f}".format(total_lucro),
+                        className="card-text",
+                    ),
+                ]
+            ),
+        ], color="warning", outline=True), lg=3),
         dbc.Col(dbc.Card(card_content, color="danger", outline=True), lg=3, width={'offset': -1}),
     ], className='mb-4', align="center"), 
     # dbc.Alert("Em construção, aguarde ...", className="m-5"), 

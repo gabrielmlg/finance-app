@@ -16,3 +16,11 @@ total_lucro = extrato.lucro_resgatado(extrato_fi)
 
 fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato_fi)
 rendimento_fi = fundo_investimento.rendimento()
+periodos = fundo_investimento.periodos()
+
+print(periodos.min())
+
+print((periodos.min().strftime('%Y/%m/%d')))
+
+print(df_fis.head())
+print(extrato_fi.head())

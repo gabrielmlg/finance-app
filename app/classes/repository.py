@@ -3,7 +3,8 @@ import os
 import xlrd
 import numpy as np
 
-from classes.views import Posicao, Extrato
+#from classes.views import Posicao, Extrato
+from views import Posicao, Extrato
 
 
 class PosicaoRepository:
@@ -33,29 +34,44 @@ class PosicaoRepository:
             # position date
             date_position = pd.to_datetime(date_position.str.replace('Data de referência: ', ''), format='%d/%m/%Y')
             
-            #month = int(date_position.dt.month.values)
-            #year = int(date_position.dt.year.values)
-            #period = str(year) + '/' + str(month)
-            period = date_position.values[0]
+            month = int(date_position.dt.month.values)
+            year = int(date_position.dt.year.values)
+            period = str(year) + '/' + str(month)
+            dt_posicao = date_position.values[0]
 
             df_stocks = self.posicao.get_acoes(df)
             df_stocks['period'] = period
+            df_stocks['mes'] = month
+            df_stocks['ano'] = year
+            df_stocks['data_posicao'] = dt_posicao
             self.stocks = self.stocks.append(df_stocks, ignore_index=True)
 
             df_pickings = self.posicao.get_acoes_provento(df)
             df_pickings['period'] = period
+            df_pickings['mes'] = month
+            df_pickings['ano'] = year
+            df_pickings['data_posicao'] = dt_posicao
             self.pickings = self.pickings.append(df_pickings, ignore_index=True)
 
             df_fi = self.posicao.get_fi(df)
             df_fi['period'] = period
+            df_fi['mes'] = month
+            df_fi['ano'] = year
+            df_fi['data_posicao'] = dt_posicao
             self.fis = self.fis.append(df_fi, ignore_index=True)
 
             df_fii = self.posicao.get_fii(df)
             df_fii['period'] = period
+            df_fii['mes'] = month
+            df_fii['ano'] = year
+            df_fii['data_posicao'] = dt_posicao
             self.fiis = self.fiis.append(df_fii, ignore_index=True)
 
             df_picking_fii = self.posicao.get_fii_proventos(df)
             df_picking_fii['period'] = period
+            df_picking_fii['mes'] = month
+            df_picking_fii['ano'] = year
+            df_picking_fii['data_posicao'] = dt_posicao
             self.picking_fii = self.picking_fii.append(df_picking_fii, ignore_index=True)
 
 

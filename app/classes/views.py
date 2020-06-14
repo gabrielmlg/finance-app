@@ -266,5 +266,9 @@ class FundoInvestimento:
                                                     + df_rendimento['Vlr Resgate'], 
                                                df_rendimento['Rendimento Resgatado'])
 
-        print(df_rendimento)
+        #print(df_rendimento)
         return df_rendimento['rendimento'].sum()
+    
+
+    def periodos(self):
+        return pd.to_datetime(self.posicao_hist.sort_values('Data')['Data'].unique())

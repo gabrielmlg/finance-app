@@ -260,10 +260,10 @@ class FundoInvestimento:
                                                                         left_on='Nome',
                                                                         right_on='Nome').reset_index()
 
-        df_rendimento['rendimento'] = np.where(df_rendimento['Dt ultima posicao'] == '2020-04-30',
+        df_rendimento['rendimento'] = np.where(df_rendimento['Dt ultima posicao'] == '2020-05-29',
                                                df_rendimento['Valor Bruto']\
                                                     - df_rendimento['Vlr Aporte']\
-                                                    - df_rendimento['Rendimento Resgatado'], 
+                                                    + df_rendimento['Vlr Resgate'], 
                                                df_rendimento['Rendimento Resgatado'])
 
         print(df_rendimento)

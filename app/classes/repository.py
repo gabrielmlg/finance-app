@@ -57,3 +57,13 @@ class PosicaoRepository:
             df_picking_fii = self.posicao.get_fii_proventos(df)
             df_picking_fii['period'] = period
             self.picking_fii = self.picking_fii.append(df_picking_fii, ignore_index=True)
+
+
+class ExtratoRepository:
+    def load_csv_extrato(self):
+        df = pd.read_csv('./datasets/extrato/Extrato 200091 JAN 2010 a JUN 2020.csv', sep=';', encoding='iso-8859-1', decimal=',')
+        df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
+        df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
+        df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
+
+        return df

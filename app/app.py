@@ -5,8 +5,8 @@ import dash_html_components as html
 #from backend.classes.repository import PosicaoRepository
 
 # import backend.classes.repository
-from classes.repository import PosicaoRepository
-from classes.views import Extrato
+from classes.repository import PosicaoRepository, ExtratoRepository
+from classes.views import Extrato, FundoInvestimento
 from classes.graphics import fis_graph
 
 # POSICAO
@@ -15,13 +15,17 @@ posicao_repository.load_data()
 df_fis = posicao_repository.fis
 fis_graph_ = fis_graph(df_fis)
 
-# EXTRATO
+# 
+extrato_db = ExtratoRepository()
 extrato = Extrato()
-df_extrato = extrato.load_csv_extrato()
+df_extrato = extrato_db.load_csv_extrato()
 extrato_fi = extrato.get_extrato_fis(df_extrato)
 total_aporte = extrato.total_aportes(extrato_fi) # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
 total_resgatado = extrato.total_resgatado(extrato_fi)
 total_lucro = extrato.lucro_resgatado(extrato_fi)
+
+fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato_fi)
+rendimento_fi = fundo_investimento.rendimento()
 
 
 app = dash.Dash(
@@ -85,6 +89,15 @@ app.layout = html.Div([
                         ), lg=3, width={'offset': 1}
         ),
         dbc.Col(dbc.Card([
+            dbc.CardHeader("Rendimento"),
+            dbc.CardBody(
+                [
+                    html.H5("Total: {:,.2f}".format(rendimento_fi), className="card-title"),
+                    
+                ]
+            ),
+        ], color="warning", outline=True), lg=3),
+        dbc.Col(dbc.Card([
             dbc.CardHeader("Resgates"),
             dbc.CardBody(
                 [
@@ -95,8 +108,7 @@ app.layout = html.Div([
                     ),
                 ]
             ),
-        ], color="warning", outline=True), lg=3),
-        dbc.Col(dbc.Card(card_content, color="danger", outline=True), lg=3, width={'offset': -1}),
+        ], color="danger", outline=True), lg=3, width={'offset': -1}),
     ], className='mb-4', align="center"), 
     # dbc.Alert("Em construção, aguarde ...", className="m-5"), 
     fis_graph_[0]

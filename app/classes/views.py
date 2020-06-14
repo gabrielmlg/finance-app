@@ -7,6 +7,7 @@ class Posicao:
     def __init__(self):
         pass
 
+
     def get_acoes(self, df):
         acoes = []
 
@@ -29,6 +30,7 @@ class Posicao:
 
         return pd_stock
 
+
     def get_acoes_provento(self, df):
         proventos = []
         start = False
@@ -50,6 +52,7 @@ class Posicao:
                                              'Tipo', 'Data Pagamento', 'Valor'], data=proventos)
 
         return pd_proventos
+
 
     def get_fi(self, df):
         x = []
@@ -83,6 +86,7 @@ class Posicao:
                                       'Aplicacao Pendente', 'Total Bruto'], data=x)
         return pd_fi
 
+
     def get_fii(self, df):
         fii = []
         start = False
@@ -106,6 +110,7 @@ class Posicao:
                                                  'Ult Cotacao', 'Financeiro'], data=fii)
 
         return df_aportesresult
+
 
     def get_fii_proventos(self, df):
         p_fii = []
@@ -131,6 +136,7 @@ class Posicao:
         return df_aportesresult
 
 
+
 class Extrato:
     fi_map = {
         'Equitas': 'Equitas Selection FIC FIA',
@@ -154,6 +160,11 @@ class Extrato:
         'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
     }
 
+    aportes_fi_hist = pd.DataFrame()
+    resgates_fi_hist = pd.DataFrame()
+    ir_fi_hist = pd.DataFrame()
+    
+
     def map_fi(self, x):
         group = "unknown"
         for key in self.fi_map:
@@ -162,23 +173,24 @@ class Extrato:
                 break
         return group
 
-    def transform_extrato_fi(self, df):
-        df_aportes = df[df['Descricao'].str.contains('TED APLICA')]
-        df_aportes['Nome'] = df_aportes['Descricao'].apply(self.map_fi)
+    def get_aportes_resgates(self, df):
+        self.aportes_fi_hist = df[df['Descricao'].str.contains('TED APLICA')]
+        self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.map_fi)
 
-        df_resgates = df[df['Descricao'].str.contains('RESGATE')]\
+        self.resgates_fi_hist = df[df['Descricao'].str.contains('RESGATE')]\
             .drop(df[df['Descricao']
                      .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
 
-        df_resgates_ir = df[df['Descricao'].str.contains(
+        self.ir_fi_hist = df[df['Descricao'].str.contains(
             'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
-        df_resgates['Nome'] = df_resgates['Descricao'].apply(self.map_fi)
-        df_resgates_ir['Nome'] = df_resgates_ir['Descricao'].apply(self.map_fi)
+        self.resgates_fi_hist['Nome'] = self.resgates_fi_hist['Descricao'].apply(self.map_fi)
+        self.ir_fi_hist['Nome'] = self.ir_fi_hist['Descricao'].apply(self.map_fi)
         #df_aportes['Nome'] = df_aportes['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
-        return df_aportes, df_resgates, df_resgates_ir
+        return self.aportes_fi_hist, self.resgates_fi_hist, self.ir_fi_hist
 
     def get_extrato_fis(self, df):
-        df_fi_aportes, df_fi_resgates, df_fi_ir = self.transform_extrato_fi(df)
+        df_fi_aportes, df_fi_resgates, df_fi_ir = self.get_aportes_resgates(df)
+    
         df_fi_aportes = df_fi_aportes.groupby('Nome')\
             .agg({'Valor': 'sum'})\
             .reset_index()\
@@ -269,6 +281,20 @@ class FundoInvestimento:
         #print(df_rendimento)
         return df_rendimento['rendimento'].sum()
     
+    # POSSIVEIS METODOS PARA ABSTRAIR
 
     def periodos(self):
         return pd.to_datetime(self.posicao_hist.sort_values('Data')['Data'].unique())
+
+    
+    def total_aportes(self):
+        return self.extrato_hist['Vlr Aporte'].sum() - self.extrato_hist['Vlr Resgate'].sum()
+
+    def total_resgatado(self, df_extrato_fis):
+        return df_extrato_fis['Vlr Resgate'].sum()
+
+    def total_ir(self, df_extrato_fis):
+        return df_extrato_fis['Vlr IR'].sum()
+
+    def lucro_resgatado(self, df_extrato_fis):
+        return df_extrato_fis['Rendimento Resgatado'].sum()

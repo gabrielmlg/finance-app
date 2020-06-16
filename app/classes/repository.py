@@ -3,21 +3,20 @@ import os
 import xlrd
 import numpy as np
 
-#from classes.views import Posicao, Extrato
-from views import Posicao, Extrato
+from classes.views import Posicao, Extrato
+#from views import Posicao, Extrato
 
 
 class PosicaoRepository:
 
     files = os.listdir('./datasets/posicao/')
     posicao = Posicao()
-    extrato = Extrato()
 
-    stocks = pd.DataFrame()
-    pickings = pd.DataFrame()
+    acoes = pd.DataFrame()
+    dividendo_acoes = pd.DataFrame()
     fis = pd.DataFrame()
     fiis = pd.DataFrame()
-    picking_fii = pd.DataFrame()
+    dividendo_fiis = pd.DataFrame()
 
     def load_data(self):
         
@@ -44,14 +43,14 @@ class PosicaoRepository:
             df_stocks['mes'] = month
             df_stocks['ano'] = year
             df_stocks['data_posicao'] = dt_posicao
-            self.stocks = self.stocks.append(df_stocks, ignore_index=True)
+            self.acoes = self.acoes.append(df_stocks, ignore_index=True)
 
             df_pickings = self.posicao.get_acoes_provento(df)
             df_pickings['period'] = period
             df_pickings['mes'] = month
             df_pickings['ano'] = year
             df_pickings['data_posicao'] = dt_posicao
-            self.pickings = self.pickings.append(df_pickings, ignore_index=True)
+            self.dividendo_acoes = self.dividendo_acoes.append(df_pickings, ignore_index=True)
 
             df_fi = self.posicao.get_fi(df)
             df_fi['period'] = period
@@ -72,7 +71,7 @@ class PosicaoRepository:
             df_picking_fii['mes'] = month
             df_picking_fii['ano'] = year
             df_picking_fii['data_posicao'] = dt_posicao
-            self.picking_fii = self.picking_fii.append(df_picking_fii, ignore_index=True)
+            self.dividendo_fiis = self.dividendo_fiis.append(df_picking_fii, ignore_index=True)
 
 
 class ExtratoRepository:

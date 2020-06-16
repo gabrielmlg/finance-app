@@ -160,10 +160,21 @@ class Extrato:
         'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
     }
 
+    df = pd.DataFrame()
+    df_extrato_fis = pd.DataFrame()
+
+    aportes_xp = pd.DataFrame()
+    retiradas_xp = pd.DataFrame()
     aportes_fi_hist = pd.DataFrame()
     resgates_fi_hist = pd.DataFrame()
     ir_fi_hist = pd.DataFrame()
     
+
+    def __init__(self, df):
+        self.df = df
+        self.set_aportes_resgates()
+        self.set_extrato_fis()
+
 
     def map_fi(self, x):
         group = "unknown"
@@ -173,40 +184,42 @@ class Extrato:
                 break
         return group
 
-    def get_aportes_resgates(self, df):
-        self.aportes_fi_hist = df[df['Descricao'].str.contains('TED APLICA')]
+
+    def set_aportes_resgates(self):
+
+        self.aportes_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
+        self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
+        self.aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
         self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.map_fi)
 
-        self.resgates_fi_hist = df[df['Descricao'].str.contains('RESGATE')]\
-            .drop(df[df['Descricao']
+        self.resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
+            .drop(self.df[self.df['Descricao']
                      .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
 
-        self.ir_fi_hist = df[df['Descricao'].str.contains(
+        self.ir_fi_hist = self.df[self.df['Descricao'].str.contains(
             'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
         self.resgates_fi_hist['Nome'] = self.resgates_fi_hist['Descricao'].apply(self.map_fi)
         self.ir_fi_hist['Nome'] = self.ir_fi_hist['Descricao'].apply(self.map_fi)
         #df_aportes['Nome'] = df_aportes['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
-        return self.aportes_fi_hist, self.resgates_fi_hist, self.ir_fi_hist
 
-    def get_extrato_fis(self, df):
-        df_fi_aportes, df_fi_resgates, df_fi_ir = self.get_aportes_resgates(df)
-    
-        df_fi_aportes = df_fi_aportes.groupby('Nome')\
+
+    def set_extrato_fis(self):
+        df_aportes_fi = self.aportes_fi_hist.groupby('Nome')\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Aporte'})
 
-        df_fi_resgates = df_fi_resgates.groupby('Nome')\
+        df_fi_resgates = self.resgates_fi_hist.groupby('Nome')\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Resgate'})
 
-        df_fi_ir = df_fi_ir.groupby('Nome')\
+        df_fi_ir = self.ir_fi_hist.groupby('Nome')\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr IR'})
 
-        df_aportesgroup = df_fi_aportes.merge(
+        df_aportesgroup = df_aportes_fi.merge(
             df_fi_resgates,
             how='outer',
             left_on='Nome',
@@ -227,19 +240,27 @@ class Extrato:
                                                            0)
         # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
 
-        return df_aportesgroup.fillna(0)
+        self.df_extrato_fis = df_aportesgroup.fillna(0)
 
-    def total_aportes(self, df_extrato_fis):
-        return df_extrato_fis['Vlr Aporte'].sum() - df_extrato_fis['Vlr Resgate'].sum()
 
-    def total_resgatado(self, df_extrato_fis):
-        return df_extrato_fis['Vlr Resgate'].sum()
+    def total_investido(self):
+        return self.aportes_xp['Valor'].sum() - self.retiradas_xp['Valor'].abs().sum()
 
-    def total_ir(self, df_extrato_fis):
-        return df_extrato_fis['Vlr IR'].sum()
 
-    def lucro_resgatado(self, df_extrato_fis):
-        return df_extrato_fis['Rendimento Resgatado'].sum()
+    def total_aportes(self):
+        return self.df_extrato_fis['Vlr Aporte'].sum() - self.df_extrato_fis['Vlr Resgate'].sum()
+
+
+    def total_resgatado(self):
+        return self.df_extrato_fis['Vlr Resgate'].sum()
+
+
+    def total_ir(self):
+        return self.df_extrato_fis['Vlr IR'].sum()
+
+
+    def lucro_resgatado(self):
+        return self.df_extrato_fis['Rendimento Resgatado'].sum()
 
 
 class FundoInvestimento:
@@ -284,7 +305,7 @@ class FundoInvestimento:
     # POSSIVEIS METODOS PARA ABSTRAIR
 
     def periodos(self):
-        return pd.to_datetime(self.posicao_hist.sort_values('Data')['Data'].unique())
+        return self.posicao_hist.sort_values('Data')['Data'].dt.year.unique()
 
     
     def total_aportes(self):

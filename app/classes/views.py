@@ -263,6 +263,11 @@ class Extrato:
         return self.df_extrato_fis['Rendimento Resgatado'].sum()
 
 
+    def periodos(self):
+        return self.df.sort_values('Mov')['Mov'].dt.year.unique()
+
+
+
 class FundoInvestimento:
 
     posicao_hist = pd.DataFrame()

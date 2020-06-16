@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.dependencies import Input, Output
 
 #from backend.classes.repository import PosicaoRepository
 
@@ -27,6 +28,7 @@ total_investido = extrato.total_investido()
 total_aporte_fi = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
 total_resgatado = extrato.total_resgatado()
 total_lucro = extrato.lucro_resgatado()
+periodos = extrato.periodos()
 
 fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df_extrato_fis)
 rendimento_fi = fundo_investimento.rendimento()
@@ -90,7 +92,7 @@ app.layout = html.Div([
                     id="period-range-slider",  
                     min=2010, #periodos.min(), 
                     max=2020, #periodos.max(), 
-                    value=[2016, 2020],
+                    value=[2010, 2020],
                     marks={
                             2010: '2010', 
                             2011: '2011', 
@@ -111,7 +113,7 @@ app.layout = html.Div([
                     # className='slider'
                 ),
             ),
-            md=4     
+            md=6     
         ), 
     ], 
     align="right", 
@@ -119,7 +121,9 @@ app.layout = html.Div([
     html.Br(), 
 
     # Valor selecionado no range slider
-    dbc.Row(html.Div(id='output-container-range-slider')), 
+    dbc.Row(
+        dbc.Col(html.Div(id='output-container-range-slider'))
+    ), 
 
     # Cards de aporte, receita e patrimonio
     dbc.Row([
@@ -127,9 +131,9 @@ app.layout = html.Div([
                             dbc.CardHeader("APORTES"),    
                             dbc.CardBody(
                                 [
-                                    html.H4("Total: R$ {:,.2f}".format(total_investido)),
+                                    html.H4(id='total_investido_text'),
                                     html.Br(),
-                                    html.H6("FIs: R$ {:,.2f}".format(total_aporte_fi)),
+                                    html.H6(id='total_aporte_fi_text'),
                                     html.H6("FIIs: R$ {:,.2f}".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
                                     html.H6("Ações: R$ {:,.2f}".format(50000)),
                                 ]
@@ -145,9 +149,9 @@ app.layout = html.Div([
                             dbc.CardHeader("RENDIMENTOS"),   
                             dbc.CardBody(
                                 [
-                                    html.H5("Total: R$ {:,.2f}".format(rendimento_fi)),
+                                    html.H5(id='total_rendimento_text'),
                                     html.Br(),
-                                    html.H6("FIs: R$ {:,.2f}".format(rendimento_fi)),
+                                    html.H6(id='total_rendimento_fi_text'),
                                     html.H6("FIIs: R$ {:,.2f}".format(10000)),
                                     html.H6("Ações: R$ {:,.2f}".format(50000)),
                                 ]
@@ -162,9 +166,9 @@ app.layout = html.Div([
             dbc.CardHeader("PATRIMONIO"),
             dbc.CardBody(
                 [
-                    html.H5("Total: R$ {:,.2f}".format(rendimento_fi)),
+                    html.H5(id='total_patrimonio_text'),
                     html.Br(),
-                    html.H6("FIs: R$ {:,.2f}".format(rendimento_fi)),
+                    html.H6(id='total_patrimonio_fi_text'),
                     html.H6("FIIs: R$ {:,.2f}".format(10000)),
                     html.H6("Ações: R$ {:,.2f}".format(50000)),
                 ]
@@ -179,10 +183,35 @@ app.layout = html.Div([
 
 
 @app.callback(
-    dash.dependencies.Output('output-container-range-slider', 'children'),
-    [dash.dependencies.Input('period-range-slider', 'value')])
-def update_output(value):
-    return (value)
+    [Output('total_investido_text', 'children'), 
+    Output('total_aporte_fi_text', 'children'), 
+    Output('total_rendimento_text', 'children'),
+    Output('total_rendimento_fi_text', 'children'), 
+    Output('total_patrimonio_text', 'children'), 
+    Output('total_patrimonio_fi_text', 'children')],
+    [Input('period-range-slider', 'value')])
+def filter_period(periodo):
+    extrato = Extrato(df_extrato[(df_extrato['Mov'].dt.year >= periodo[0]) 
+                                    & (df_extrato['Mov'].dt.year <= periodo[1])])
+
+    total_investido = extrato.total_investido()
+    total_aporte_fi = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
+    total_resgatado = extrato.total_resgatado()
+    total_lucro = extrato.lucro_resgatado()
+    periodos = extrato.periodos()
+
+    fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df_extrato_fis)
+    rendimento_fi = fundo_investimento.rendimento()
+    periodos = fundo_investimento.periodos()
+
+    return (
+        "Total: R$ {:,.2f}".format(total_investido), 
+        "FIs: R$ {:,.2f}".format(total_aporte_fi),
+        "Total: R$ {:,.2f}".format(rendimento_fi),
+        "FIs: R$ {:,.2f}".format(rendimento_fi),  
+        "Total: R$ {:,.2f}".format(total_investido + rendimento_fi),
+        "FIs: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi)
+    )
     
 if __name__ == "__main__":
     app.run_server(debug=True)

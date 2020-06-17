@@ -139,11 +139,12 @@ app.layout = html.Div([
                                 ]
                             ),
                         ], 
-                        className="mb-3", 
+                        className="ml-3", 
                         color="light"
                     ), 
                     lg=3, 
-                    width={'offset': 1}
+                    #className='ml-3', 
+                    #width={'offset': 1}
         ),
         dbc.Col(dbc.Card([
                             dbc.CardHeader("RENDIMENTOS"),   

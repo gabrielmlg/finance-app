@@ -369,7 +369,7 @@ class FundoInvestimento:
 
         #print(self.posicao_hist['Nome'].unique())
         #print('--------------------------------------------')
-        print(fis_ultima_posicao)
+        #print(fis_ultima_posicao)
         """ print(fis_ultima_posicao)
         print('=======================================================')
         print('=======================================================')
@@ -391,7 +391,7 @@ class FundoInvestimento:
                                                     + df_rendimento['Vlr Resgate'], 
                                                df_rendimento['Rendimento Resgatado'])
 
-        print(df_rendimento)
+        #print(df_rendimento)
         return df_rendimento['rendimento'].sum()
     
     # POSSIVEIS METODOS PARA ABSTRAIR

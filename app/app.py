@@ -197,7 +197,7 @@ def filter_period(periodo):
     periodos = extrato.periodos()
 
     fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df_extrato_fis)
-    rendimento_fi = fundo_investimento.rendimento()
+    rendimento_fi = fundo_investimento.rendimento(periodo[0], periodo[1])
     periodos = fundo_investimento.periodos()
 
     return (

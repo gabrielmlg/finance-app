@@ -4,25 +4,21 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 
-#from backend.classes.repository import PosicaoRepository
+#from backend.classes.model import Posicaomodel
 
-# import backend.classes.repository
-from classes.repository import PosicaoRepository, ExtratoRepository
-from classes.views import Extrato, FundoInvestimento
+# import backend.classes.model
+from classes.model import Posicao, Extrato, FundoInvestimento
 from classes.graphics import fis_graph
 
 
 # POSICAO
-posicao_repository = PosicaoRepository()
-posicao_repository.load_data()
-df_fis = posicao_repository.fis
+posicao_model = Posicao()
+posicao_model.load_data()
+df_fis = posicao_model.fis
 fis_graph_ = fis_graph(df_fis)
 
 # Extrato
-extrato_db = ExtratoRepository()
-df_extrato = extrato_db.load_csv_extrato()
-
-extrato = Extrato(df_extrato)
+extrato = Extrato(2010,2020)
 
 total_investido = extrato.total_investido()
 total_aporte_fi = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
@@ -31,7 +27,7 @@ total_lucro = extrato.lucro_resgatado()
 periodos = extrato.periodos()
 
 fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df_extrato_fis)
-rendimento_fi = fundo_investimento.rendimento()
+rendimento_fi = fundo_investimento.rendimento(2010, 2020)
 periodos = fundo_investimento.periodos()
 
 print(periodos.min())
@@ -192,9 +188,8 @@ app.layout = html.Div([
     Output('total_patrimonio_fi_text', 'children')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
-    extrato = Extrato(df_extrato[(df_extrato['Mov'].dt.year >= periodo[0]) 
-                                    & (df_extrato['Mov'].dt.year <= periodo[1])])
-
+    extrato = Extrato(periodo[0], periodo[1])
+    
     total_investido = extrato.total_investido()
     total_aporte_fi = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
     total_resgatado = extrato.total_resgatado()

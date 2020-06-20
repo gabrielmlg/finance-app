@@ -1,15 +1,14 @@
-from views import Posicao, Extrato, FundoInvestimento
-from repository import PosicaoRepository, ExtratoRepository
+from model import Posicao, Extrato, FundoInvestimento
 import numpy as np
 
-posicao_repository = PosicaoRepository()
-posicao_repository.load_data()
-df_fis = posicao_repository.fis
+posicao_model = Posicao()
+posicao_model.load_data()
+df_fis = posicao_model.fis
 
-extrato_db = ExtratoRepository()
-df_extrato = extrato_db.load_csv_extrato()
-extrato = Extrato(df_extrato[(df_extrato['Mov'].dt.year >= 2010) 
-                                & (df_extrato['Mov'].dt.year <= 2020)])
+extrato = Extrato(2010, 2020)
+#df_extrato = extrato_db.load_csv_extrato()
+#extrato = Extrato(df_extrato[(df_extrato['Mov'].dt.year >= 2010) 
+#                                & (df_extrato['Mov'].dt.year <= 2020)])
 
 #print(df_extrato[(df_extrato['Mov'].dt.year >= 2020) & (df_extrato['Mov'].dt.year <= 2020)])
 

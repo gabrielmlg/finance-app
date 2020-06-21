@@ -241,7 +241,7 @@ class Extrato:
         self.df = self.load_csv_extrato()
         self.filter_extrato(dt_inicio, dt_fim)
         self.set_aportes_resgates()
-        self.set_extrato_fis()
+        #self.set_extrato_fis()
 
 
     def filter_extrato(self, dt_inicio, dt_fim):
@@ -253,6 +253,8 @@ class Extrato:
         df = pd.read_csv('./datasets/extrato/Extrato 200091 JAN 2010 a JUN 2020.csv', sep=';', encoding='iso-8859-1', decimal=',')
         df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
         df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
+        df['Ano'] = df['Mov'].dt.year
+        df['Mes'] = df['Mov'].dt.month
         df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
 
         return df
@@ -268,48 +270,109 @@ class Extrato:
 
 
     def set_aportes_resgates(self):
-
         self.aportes_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
         self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
-        self.aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
+
+
+    def total_investido(self):
+        return self.aportes_xp['Valor'].sum() - self.retiradas_xp['Valor'].abs().sum()
+
+
+    def periodos(self):
+        return self.df.sort_values('Mov')['Mov'].dt.year.unique()
+
+
+
+class FundoInvestimento:
+
+    def __init__(self, posicao, extrato):
+        self.fi_map = {
+            'Equitas': 'Equitas Selection FIC FIA',
+            'Polo Norte': 'Polo Norte I FIC FIM',
+            'XP Macro': 'XP Macro FIM',
+            'Bahia AM Mara': 'Bahia AM Maraú FIC de FIM',
+            'QuestMult': 'AZ Quest Multi FIC FIM',
+            'Mau Macro FIC FIM': 'Mauá Macro FIC FIM',
+            'MiraeMacroStrategy': 'Mirae Asset Multimercado ',
+            'XP LONG SHORT': 'XP Long Short FIC FIM',
+            'XP GlobCredit': 'XP GlobCredit FICFIM',  # Falta posicao deste periodo
+            'Vot.FicFi CambialD': 'FICFIVot. CambDola',  # idem
+            'FICFIVot. CambDola': 'FICFIVot. CambDola',
+            'Vot.FicFi CambialDol': 'FICFIVot. CambDola',
+            'Inflacao Firf': 'BNP Inflacao Firf',  # idem
+            'Azul QuantitativoFIM': 'Azul Quantitativo',
+            'QuantitativoFI': 'Azul Quantitativo',
+            'ABSOLUTO CONSUMO': 'ABSOLUTO CONSUMO',
+            'Hedge Fic Fim': 'Hedge Fic Fim',
+            'Legan Low Vol FIM': 'Legan Low Vol FIM',
+            'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
+        }
+        self.posicao_hist = posicao
+        self.extrato_hist = extrato
+
+        self.aportes_fi_hist = pd.DataFrame()
+        self.resgates_fi_hist = pd.DataFrame()
+        self.ir_fi_hist = pd.DataFrame()
+        self.set_aportes_resgates()
+        self.extrato = self.set_extrato_fis()
+
+
+    def map_fi(self, x):
+        group = "unknown"
+        for key in self.fi_map:
+            if key in x:
+                group = self.fi_map[key]
+                break
+        return group
+
+
+    def set_aportes_resgates(self):
+
+        self.aportes_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains('TED APLICA')]
         self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.map_fi)
 
-        self.resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
-            .drop(self.df[self.df['Descricao']
+        self.resgates_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains('RESGATE')]\
+            .drop(self.extrato_hist[self.extrato_hist['Descricao']
                      .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
-
-        self.ir_fi_hist = self.df[self.df['Descricao'].str.contains(
-            'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
         self.resgates_fi_hist['Nome'] = self.resgates_fi_hist['Descricao'].apply(self.map_fi)
+
+        self.ir_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains(
+            'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
         self.ir_fi_hist['Nome'] = self.ir_fi_hist['Descricao'].apply(self.map_fi)
+
         #df_aportes['Nome'] = df_aportes['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
 
 
     def set_extrato_fis(self):
-        df_aportes_fi = self.aportes_fi_hist.groupby('Nome')\
+        #print(self.aportes_fi_hist.head(10))
+        df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Aporte'})
 
-        df_fi_resgates = self.resgates_fi_hist.groupby('Nome')\
+        df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
+
+        df_fi_resgates = self.resgates_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Resgate'})
 
-        df_fi_ir = self.ir_fi_hist.groupby('Nome')\
+        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr IR'})
 
+        df_fi_ir['Vlr IR'] = df_fi_ir['Vlr IR'].abs()
+
         df_aportesgroup = df_aportes_fi.merge(
             df_fi_resgates,
             how='outer',
-            left_on='Nome',
-            right_on='Nome')\
+            left_on=['Nome', 'Ano', 'Mes'],
+            right_on=['Nome', 'Ano', 'Mes'])\
             .merge(df_fi_ir,
-                   how='left',
-                   left_on='Nome',
-                   right_on='Nome'
+                   how='outer',
+                   left_on=['Nome', 'Ano', 'Mes'],
+                   right_on=['Nome', 'Ano', 'Mes']
                    ).fillna(0)
 
         # display(df_fi_aportes)
@@ -322,77 +385,31 @@ class Extrato:
                                                            0)
         # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
 
-        self.df_extrato_fis = df_aportesgroup.fillna(0)
+        return df_aportesgroup.fillna(0)
 
 
-    def total_investido(self):
-        return self.aportes_xp['Valor'].sum() - self.retiradas_xp['Valor'].abs().sum()
+    def resumo(self, dt_inicio, dt_fim):
+        month = self.posicao_hist[(self.posicao_hist['ano'] == dt_fim)]['mes'].max()
+
+        pos = self.posicao_hist[
+            (self.posicao_hist['ano'] == dt_fim)
+            & (self.posicao_hist['mes'] == month)]
+
+        ext = self.extrato[self.extrato['Ano'] <= dt_fim]\
+                            .groupby(['Nome']).agg({'Vlr Aporte': 'sum', 
+                                                    'Vlr Resgate': 'sum', 
+                                                    'Vlr IR': 'sum'}).reset_index()
+
+        result = pos[['Nome', 'Valor Bruto']].merge(ext, 
+                                            how='outer', 
+                                            left_on='Nome', 
+                                            right_on='Nome').fillna(0)
 
 
-    def total_aportes(self):
-        return self.df_extrato_fis['Vlr Aporte'].sum() - self.df_extrato_fis['Vlr Resgate'].sum()
+        result['rendimento'] = result['Valor Bruto'] + result['Vlr Resgate'] - result['Vlr Aporte']
+        print(result)
+        return result
 
-
-    def total_resgatado(self):
-        return self.df_extrato_fis['Vlr Resgate'].sum()
-
-
-    def total_ir(self):
-        return self.df_extrato_fis['Vlr IR'].sum()
-
-
-    def lucro_resgatado(self):
-        return self.df_extrato_fis['Rendimento Resgatado'].sum()
-
-
-    def periodos(self):
-        return self.df.sort_values('Mov')['Mov'].dt.year.unique()
-
-
-
-class FundoInvestimento:
-
-    posicao_hist = pd.DataFrame()
-    extrato_hist = pd.DataFrame()
-
-    def __init__(self, posicao, extrato):
-        self.posicao_hist = posicao
-        self.extrato_hist = extrato
-
-    def rendimento(self, dt_inicio, dt_fim):
-        fis_ultima_posicao = self.posicao_hist.groupby(['Nome']).agg({'Data': 'max'}).reset_index()\
-            .merge(self.posicao_hist,
-                   how='inner',
-                   left_on=['Nome', 'Data'],
-                   right_on=['Nome', 'Data']).reset_index()\
-            .rename(columns={'Data': 'Dt ultima posicao'})
-
-        #print(self.posicao_hist['Nome'].unique())
-        #print('--------------------------------------------')
-        #print(fis_ultima_posicao)
-        """ print(fis_ultima_posicao)
-        print('=======================================================')
-        print('=======================================================')
-        print(self.extrato_hist)
-        print('=======================================================')
-        print('=======================================================') """
-        df_rendimento = fis_ultima_posicao[['Nome',
-                                            'Valor Bruto',
-                                            'Dt ultima posicao']].merge(self.extrato_hist,
-                                                                        how='outer',
-                                                                        left_on='Nome',
-                                                                        right_on='Nome').reset_index()
-
-        #df_rendimento[(df_rendimento[''])]
-
-        df_rendimento['rendimento'] = np.where(df_rendimento['Dt ultima posicao'] == '2020-05-29',
-                                               df_rendimento['Valor Bruto']\
-                                                    - df_rendimento['Vlr Aporte']\
-                                                    + df_rendimento['Vlr Resgate'], 
-                                               df_rendimento['Rendimento Resgatado'])
-
-        #print(df_rendimento)
-        return df_rendimento['rendimento'].sum()
     
     # POSSIVEIS METODOS PARA ABSTRAIR
 
@@ -401,13 +418,16 @@ class FundoInvestimento:
 
     
     def total_aportes(self):
-        return self.extrato_hist['Vlr Aporte'].sum() - self.extrato_hist['Vlr Resgate'].sum()
+        return self.extrato['Vlr Aporte'].sum() - self.extrato['Vlr Resgate'].sum()
 
-    def total_resgatado(self, df_extrato_fis):
-        return df_extrato_fis['Vlr Resgate'].sum()
 
-    def total_ir(self, df_extrato_fis):
-        return df_extrato_fis['Vlr IR'].sum()
+    def total_resgatado(self):
+        return self.extrato['Vlr Resgate'].sum()
 
-    def lucro_resgatado(self, df_extrato_fis):
-        return df_extrato_fis['Rendimento Resgatado'].sum()
+
+    def total_ir(self):
+        return self.extrato['Vlr IR'].sum()
+
+
+    def lucro_resgatado(self):
+        return self.extrato_hist['Rendimento Resgatado'].sum()

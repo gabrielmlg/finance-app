@@ -19,16 +19,13 @@ fis_graph_ = fis_graph(df_fis)
 
 # Extrato
 extrato = Extrato(2010,2020)
+fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
 
 total_investido = extrato.total_investido()
-total_aporte_fi = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
-total_resgatado = extrato.total_resgatado()
-total_lucro = extrato.lucro_resgatado()
+total_aporte_fi = fundo_investimento.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
 periodos = extrato.periodos()
 
-fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df_extrato_fis)
-rendimento_fi = fundo_investimento.rendimento(2010, 2020)
-periodos = fundo_investimento.periodos()
+rendimento_fi = fundo_investimento.resumo(2010, 2020)['rendimento'].sum()
 
 print(periodos.min())
 print(periodos.max())
@@ -189,16 +186,11 @@ app.layout = html.Div([
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
     extrato = Extrato(periodo[0], periodo[1])
-    
     total_investido = extrato.total_investido()
-    total_aporte_fi = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
-    total_resgatado = extrato.total_resgatado()
-    total_lucro = extrato.lucro_resgatado()
-    periodos = extrato.periodos()
-
-    fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df_extrato_fis)
-    rendimento_fi = fundo_investimento.rendimento(periodo[0], periodo[1])
-    periodos = fundo_investimento.periodos()
+    
+    fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
+    total_aporte_fi = fundo_investimento.total_aportes() 
+    rendimento_fi = fundo_investimento.resumo(periodo[0], periodo[1])['rendimento'].sum()
 
     return (
         "Total: R$ {:,.2f}".format(total_investido), 

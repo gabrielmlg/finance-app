@@ -53,6 +53,6 @@ fi = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
 print('------------------- EXTRATO ----------------------')
 #print(fi.extrato)
 print('------------------- RENDIMENTO ----------------------')
-print(fi.rendimento(dt_inicio, dt_fim))
+print(fi.resumo(dt_inicio, dt_fim))
 
 periodos = fi.periodos()

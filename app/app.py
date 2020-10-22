@@ -12,7 +12,7 @@ from classes.graphics import fis_graph
 
 
 # POSICAO
-posicao_model = Posicao()
+posicao_model = Posicao() 
 posicao_model.load_data()
 df_fis = posicao_model.fis
 fis_graph_ = fis_graph(df_fis)

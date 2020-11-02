@@ -5,6 +5,10 @@ posicao_model = Posicao()
 posicao_model.load_data()
 df_fis = posicao_model.fis
 
+print('POSICAO ACOES \n')
+print('PERIODOS: ')
+#print(posicao_model.acoes['data_posicao'].unique())
+
 dt_inicio = 2010
 dt_fim = 2020
 
@@ -19,8 +23,8 @@ extrato = Extrato(dt_inicio, dt_fim)
 #print(extrato_fi)
 print('#################################')
 
-total_aporte_xp = extrato.aportes_xp['Valor'].sum()
-total_retirada_xp = extrato.retiradas_xp['Valor'].abs().sum()
+#total_aporte_xp = extrato.aportes_xp['Valor'].sum()
+#total_retirada_xp = extrato.retiradas_xp['Valor'].abs().sum()
 #total_aporte = extrato.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
 #total_resgatado = extrato.total_resgatado()
 #total_lucro = extrato.lucro_resgatado()
@@ -53,6 +57,6 @@ fi = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
 print('------------------- EXTRATO ----------------------')
 #print(fi.extrato)
 print('------------------- RENDIMENTO ----------------------')
-print(fi.resumo(dt_inicio, dt_fim))
+#print(fi.resumo(dt_inicio, dt_fim))
 
-periodos = fi.periodos()
+#periodos = fi.periodos()

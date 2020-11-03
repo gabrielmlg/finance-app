@@ -27,9 +27,6 @@ periodos = extrato.periodos()
 
 rendimento_fi = fundo_investimento.resumo(2010, 2020)['rendimento'].sum()
 
-print(periodos.min())
-print(periodos.max())
-
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.FLATLY]
@@ -190,7 +187,13 @@ def filter_period(periodo):
     
     fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
     total_aporte_fi = fundo_investimento.total_aportes() 
-    rendimento_fi = fundo_investimento.resumo(periodo[0], periodo[1])['rendimento'].sum()
+    # Modo Antigo
+    #rendimento_fi = fundo_investimento.resumo(periodo[0], periodo[1])['rendimento'].sum()
+    
+    try: 
+        rendimento_fi = fundo_investimento.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
+    except: 
+        rendimento_fi = 0 
 
     return (
         "Total: R$ {:,.2f}".format(total_investido), 
@@ -198,7 +201,7 @@ def filter_period(periodo):
         "Total: R$ {:,.2f}".format(rendimento_fi),
         "FIs: R$ {:,.2f}".format(rendimento_fi),  
         "Total: R$ {:,.2f}".format(total_investido + rendimento_fi),
-        "FIs: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi)
+        "FIs: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
     )
     
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ class Posicao:
     def __init__(self):
         
         os.chdir(os.path.join(os.getcwd(), '/Users/gabriel/Documents/dev/finance-app'))
-        print(os.getcwd())
+        #print(os.getcwd())
         self.files = os.listdir('datasets/posicao/')
         self.acoes = pd.DataFrame()
         self.dividendo_acoes = pd.DataFrame()
@@ -38,35 +38,35 @@ class Posicao:
             period = str(year) + '/' + str(month)
             dt_posicao = date_position.values[0]
 
-            df_stocks = self.get_acoes(df)
+            df_stocks = self.__get_acoes(df)
             df_stocks['period'] = period
             df_stocks['mes'] = month
             df_stocks['ano'] = year
             df_stocks['data_posicao'] = dt_posicao
             self.acoes = self.acoes.append(df_stocks, ignore_index=True)
 
-            df_pickings = self.get_acoes_provento(df)
+            df_pickings = self.__get_acoes_provento(df)
             df_pickings['period'] = period
             df_pickings['mes'] = month
             df_pickings['ano'] = year
             df_pickings['data_posicao'] = dt_posicao
             self.dividendo_acoes = self.dividendo_acoes.append(df_pickings, ignore_index=True)
 
-            df_fi = self.get_fi(df)
+            df_fi = self.__get_fi(df)
             df_fi['period'] = period
             df_fi['mes'] = month
             df_fi['ano'] = year
             df_fi['data_posicao'] = dt_posicao
             self.fis = self.fis.append(df_fi, ignore_index=True)
 
-            df_fii = self.get_fii(df)
+            df_fii = self.__get_fii(df)
             df_fii['period'] = period
             df_fii['mes'] = month
             df_fii['ano'] = year
             df_fii['data_posicao'] = dt_posicao
             self.fiis = self.fiis.append(df_fii, ignore_index=True)
 
-            df_picking_fii = self.get_fii_proventos(df)
+            df_picking_fii = self.__get_fii_proventos(df)
             df_picking_fii['period'] = period
             df_picking_fii['mes'] = month
             df_picking_fii['ano'] = year
@@ -74,7 +74,7 @@ class Posicao:
             self.dividendo_fiis = self.dividendo_fiis.append(df_picking_fii, ignore_index=True)
 
 
-    def get_acoes(self, df):
+    def __get_acoes(self, df):
         acoes = []
 
         for index, row in df[~df['Unnamed: 2'].isnull()].iterrows():
@@ -97,7 +97,7 @@ class Posicao:
         return pd_stock
 
 
-    def get_acoes_provento(self, df):
+    def __get_acoes_provento(self, df):
         proventos = []
         start = False
 
@@ -120,7 +120,7 @@ class Posicao:
         return pd_proventos
 
 
-    def get_fi(self, df):
+    def __get_fi(self, df):
         x = []
         start = False
 
@@ -157,7 +157,7 @@ class Posicao:
         return pd_fi
 
 
-    def get_fii(self, df):
+    def __get_fii(self, df):
         fii = []
         start = False
 
@@ -182,7 +182,7 @@ class Posicao:
         return df_aportesresult
 
 
-    def get_fii_proventos(self, df):
+    def __get_fii_proventos(self, df):
         p_fii = []
         start = False
 
@@ -410,8 +410,34 @@ class FundoInvestimento:
 
 
         result['rendimento'] = result['Valor Bruto'] + result['Vlr Resgate'] - result['Vlr Aporte']
-        print(result)
+        # print(result)
         return result
+
+
+    # Calcula o rendimendo de ativo FI para cada periodo. 
+    # Retorna o dataset com o campo rendimento e rendimento acumulado. 
+    def calcula_rentabilidade(self, do_ano, ate_ano):
+        df = self.posicao_hist[(self.posicao_hist['ano'] >= do_ano) &  
+                                (self.posicao_hist['ano'] <= ate_ano)]
+
+        df_return = pd.DataFrame([], columns=df.columns)
+
+        for ativo in df['Nome'].unique():
+            df_ = df[df['Nome'] == ativo].sort_values(by=['data_posicao']).reset_index()
+            rendimento = []
+
+            for row in df_.index:
+                if row == 0:
+                    rendimento.append(0)
+                else:
+                    valor = df_[df_.index == row]['Valor Bruto'].sum() - df_[df_.index == row -1]['Valor Bruto'].sum()
+                    rendimento.append(valor)
+
+            df_['rendimento'] = rendimento
+            df_['rendimento_acum'] = df_['rendimento'].cumsum()
+            df_return = df_return.append(df_)
+
+        return df_return
 
     
     # POSSIVEIS METODOS PARA ABSTRAIR

@@ -7,7 +7,8 @@ from dash.dependencies import Input, Output
 #from backend.classes.model import Posicaomodel
 
 # import backend.classes.model
-from classes.model import Posicao, Extrato, FundoInvestimento
+from classes.model import Posicao, Extrato
+from classes.views import FundoInvestimento
 from classes.graphics import fis_graph
 
 

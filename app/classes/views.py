@@ -30,6 +30,7 @@ class Investimento():
 
         return df_return
 
+
 class Acao(Investimento):
     def __init__(self, posicao, extrato):
         self.posicao = posicao
@@ -38,6 +39,17 @@ class Acao(Investimento):
 
     def calcula_rentabilidade(self, do_ano, ate_ano):
         return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
+
+
+class FundoImobiliario(Investimento):
+    def __init__(self, posicao, extrato):
+        self.posicao = posicao
+        self.extrato = extrato
+        super().__init__('Papel', 'Financeiro')
+
+    def calcula_rentabilidade(self, do_ano, ate_ano):
+        return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
+
 
 class FundoInvestimento(Investimento):
 

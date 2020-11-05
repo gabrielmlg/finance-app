@@ -8,7 +8,7 @@ from dash.dependencies import Input, Output
 
 # import backend.classes.model
 from classes.model import Posicao, Extrato
-from classes.views import FundoInvestimento, Acao
+from classes.views import FundoInvestimento, Acao, FundoImobiliario
 from classes.graphics import fis_graph
 
 
@@ -22,6 +22,7 @@ fis_graph_ = fis_graph(df_fis)
 # Extrato
 extrato = Extrato(2010,2020)
 fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
+fiis = FundoImobiliario(posicao=posicao_model.fiis, extrato=extrato.df)
 
 total_investido = extrato.total_investido()
 total_aporte_fi = fundo_investimento.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
@@ -31,7 +32,7 @@ rendimento_fi = fundo_investimento.resumo(2010, 2020)['rendimento'].sum()
 
 
 app = dash.Dash(
-    external_stylesheets=[dbc.themes.FLATLY]
+    external_stylesheets=[dbc.themes.MATERIA]
 )
 
 navbar = dbc.NavbarSimple(
@@ -126,7 +127,7 @@ app.layout = html.Div([
                                     html.H4(id='total_investido_text'),
                                     html.Br(),
                                     html.H6(id='total_aporte_fi_text'),
-                                    html.H6("FIIs: R$ {:,.2f}".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
+                                    html.H6("Fundos Imobiliários: R$ {:,.2f}".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
                                     html.H6("Ações: R$ {:,.2f}".format(50000)),
                                 ]
                             ),
@@ -136,7 +137,7 @@ app.layout = html.Div([
                     ), 
                     lg=3, 
                     #className='ml-3', 
-                    #width={'offset': 1}
+                    width={'offset': 1}
         ),
         dbc.Col(dbc.Card([
                             dbc.CardHeader("RENDIMENTOS"),   
@@ -145,7 +146,7 @@ app.layout = html.Div([
                                     html.H5(id='total_rendimento_text'),
                                     html.Br(),
                                     html.H6(id='total_rendimento_fi_text'),
-                                    html.H6("FIIs: R$ {:,.2f}".format(10000)),
+                                    html.H6(id='total_rendimento_fiis_text'),
                                     html.H6(id='total_rendimento_acoes_text'),
                                 ]
                             ),
@@ -182,7 +183,8 @@ app.layout = html.Div([
     Output('total_rendimento_fi_text', 'children'), 
     Output('total_patrimonio_text', 'children'), 
     Output('total_patrimonio_fi_text', 'children'), 
-    Output('total_rendimento_acoes_text', 'children')],
+    Output('total_rendimento_acoes_text', 'children'), 
+    Output('total_rendimento_fiis_text', 'children')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
     extrato = Extrato(periodo[0], periodo[1])
@@ -202,16 +204,22 @@ def filter_period(periodo):
     try: 
         rendimento_acoes = acoes.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
     except: 
-        rendimento_acoes = 0 
+        rendimento_acoes = 0
+
+    try: 
+        rendimento_fiis = fiis.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
+    except: 
+        rendimento_fiis = 0 
 
     return (
         "Total: R$ {:,.2f}".format(total_investido), 
-        "FIs: R$ {:,.2f}".format(total_aporte_fi),
-        "Total: R$ {:,.2f}".format(rendimento_fi + rendimento_acoes),
-        "FIs: R$ {:,.2f}".format(rendimento_fi),  
+        "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi),
+        "Total: R$ {:,.2f}".format(rendimento_fi + rendimento_acoes + rendimento_fiis),
+        "Fundos de Investimento: R$ {:,.2f}".format(rendimento_fi),  
         "Total: R$ {:,.2f}".format(total_investido + rendimento_fi),
-        "FIs: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
-        "Ações: R$ {:,.2f}".format(rendimento_acoes),  
+        "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
+        "Ações: R$ {:,.2f}".format(rendimento_acoes), 
+        "Fundos Imobiliários: R$ {:,.2f}".format(rendimento_fiis),  
     )
     
 if __name__ == "__main__":

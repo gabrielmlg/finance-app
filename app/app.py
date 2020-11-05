@@ -8,7 +8,7 @@ from dash.dependencies import Input, Output
 
 # import backend.classes.model
 from classes.model import Posicao, Extrato
-from classes.views import FundoInvestimento
+from classes.views import FundoInvestimento, Acao
 from classes.graphics import fis_graph
 
 
@@ -16,6 +16,7 @@ from classes.graphics import fis_graph
 posicao_model = Posicao() 
 posicao_model.load_data()
 df_fis = posicao_model.fis
+df_acoes = posicao_model.acoes
 fis_graph_ = fis_graph(df_fis)
 
 # Extrato
@@ -145,7 +146,7 @@ app.layout = html.Div([
                                     html.Br(),
                                     html.H6(id='total_rendimento_fi_text'),
                                     html.H6("FIIs: R$ {:,.2f}".format(10000)),
-                                    html.H6("Ações: R$ {:,.2f}".format(50000)),
+                                    html.H6(id='total_rendimento_acoes_text'),
                                 ]
                             ),
                         ], 
@@ -180,29 +181,37 @@ app.layout = html.Div([
     Output('total_rendimento_text', 'children'),
     Output('total_rendimento_fi_text', 'children'), 
     Output('total_patrimonio_text', 'children'), 
-    Output('total_patrimonio_fi_text', 'children')],
+    Output('total_patrimonio_fi_text', 'children'), 
+    Output('total_rendimento_acoes_text', 'children')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
     extrato = Extrato(periodo[0], periodo[1])
     total_investido = extrato.total_investido()
     
     fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
+    acoes = Acao(posicao=df_acoes, extrato=extrato.df)
     total_aporte_fi = fundo_investimento.total_aportes() 
     # Modo Antigo
     #rendimento_fi = fundo_investimento.resumo(periodo[0], periodo[1])['rendimento'].sum()
-    
+
     try: 
         rendimento_fi = fundo_investimento.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
     except: 
         rendimento_fi = 0 
 
+    try: 
+        rendimento_acoes = acoes.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
+    except: 
+        rendimento_acoes = 0 
+
     return (
         "Total: R$ {:,.2f}".format(total_investido), 
         "FIs: R$ {:,.2f}".format(total_aporte_fi),
-        "Total: R$ {:,.2f}".format(rendimento_fi),
+        "Total: R$ {:,.2f}".format(rendimento_fi + rendimento_acoes),
         "FIs: R$ {:,.2f}".format(rendimento_fi),  
         "Total: R$ {:,.2f}".format(total_investido + rendimento_fi),
         "FIs: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
+        "Ações: R$ {:,.2f}".format(rendimento_acoes),  
     )
     
 if __name__ == "__main__":

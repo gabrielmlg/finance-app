@@ -1,8 +1,45 @@
 import pandas as pd
 import numpy as np
 
+class Investimento():
+    def __init__(self, nome_col_tipo, nome_col_valor):
+        self.nome_col_tipo = nome_col_tipo
+        self.nome_col_valor = nome_col_valor
 
-class FundoInvestimento:
+    # Calcula a rentabilidade da posicao de açoes
+    def calcula_rentabilidade(self, posicao, do_ano, ate_ano):
+        df = posicao[(posicao['ano'] >= do_ano) &  
+                                (posicao['ano'] <= ate_ano)]
+
+        df_return = pd.DataFrame([], columns=df.columns)
+
+        for ativo in df[self.nome_col_tipo].unique():
+            df_ = df[df[self.nome_col_tipo] == ativo].sort_values(by=['data_posicao']).reset_index()
+            rendimento = []
+
+            for row in df_.index:
+                if row == 0:
+                    rendimento.append(0)
+                else:
+                    valor = df_[df_.index == row][self.nome_col_valor].sum() - df_[df_.index == row -1][self.nome_col_valor].sum()
+                    rendimento.append(valor)
+
+            df_['rendimento'] = rendimento
+            df_['rendimento_acum'] = df_['rendimento'].cumsum()
+            df_return = df_return.append(df_)
+
+        return df_return
+
+class Acao(Investimento):
+    def __init__(self, posicao, extrato):
+        self.posicao = posicao
+        self.extrato = extrato
+        super().__init__('Papel', 'Financeiro')
+
+    def calcula_rentabilidade(self, do_ano, ate_ano):
+        return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
+
+class FundoInvestimento(Investimento):
 
     def __init__(self, posicao, extrato):
         self.fi_map = {

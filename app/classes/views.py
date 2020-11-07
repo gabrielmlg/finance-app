@@ -81,8 +81,8 @@ class FundoInvestimento(Investimento):
         self.aportes_fi_hist = pd.DataFrame()
         self.resgates_fi_hist = pd.DataFrame()
         self.ir_fi_hist = pd.DataFrame()
-        self.set_aportes_resgates()
-        self.extrato = self.set_extrato_fis()
+        self.__set_aportes_resgates()
+        self.extrato = self.__set_extrato_fis()
 
 
     def __map_fi(self, x):
@@ -94,7 +94,7 @@ class FundoInvestimento(Investimento):
         return group
 
 
-    def set_aportes_resgates(self):
+    def __set_aportes_resgates(self):
 
         self.aportes_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains('TED APLICA')]
         self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.__map_fi)
@@ -111,7 +111,7 @@ class FundoInvestimento(Investimento):
         #df_aportes['Nome'] = df_aportes['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
 
 
-    def set_extrato_fis(self):
+    def __set_extrato_fis(self):
         #print(self.aportes_fi_hist.head(10))
         df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
             .agg({'Valor': 'sum'})\

@@ -254,12 +254,16 @@ class Extrato:
 
     def load_csv_extrato(self):
         df = pd.read_csv('./datasets/extrato/Extrato 200091 JAN 2010 a JUN 2020.csv', sep=';', encoding='iso-8859-1', decimal=',')
+        df2 = pd.read_excel('./datasets/extrato/Extrato 200091 JUN 2020 a NOV 2020.xls')
+
         df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
         df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
+        
+        df = df.append(df2)
         df['Ano'] = df['Mov'].dt.year
         df['Mes'] = df['Mov'].dt.month
-        df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
-
+        #df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
+        
         return df
 
 

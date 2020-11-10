@@ -208,13 +208,6 @@ class Posicao:
 
 
 class Extrato:
-    df_extrato_fis = pd.DataFrame()
-
-    aportes_xp = pd.DataFrame()
-    retiradas_xp = pd.DataFrame()
-    aportes_fi_hist = pd.DataFrame()
-    resgates_fi_hist = pd.DataFrame()
-    ir_fi_hist = pd.DataFrame()
     
 
     def __init__(self, dt_inicio, dt_fim):
@@ -241,10 +234,17 @@ class Extrato:
             'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
         }
 
+        self.extrato_fis = pd.DataFrame()
+        self.aportes_xp = pd.DataFrame()
+        self.retiradas_xp = pd.DataFrame()
+        self.aportes_fi_hist = pd.DataFrame()
+        self.resgates_fi_hist = pd.DataFrame()
+        self.ir_fi_hist = pd.DataFrame()
+
         self.df = self.load_csv_extrato()
         self.filter_extrato(dt_inicio, dt_fim)
-        self.set_aportes_resgates()
-        #self.set_extrato_fis()
+        self.__transform_data()
+        self.__set_extrato_fis()
 
 
     def filter_extrato(self, dt_inicio, dt_fim):
@@ -267,7 +267,7 @@ class Extrato:
         return df
 
 
-    def map_fi(self, x):
+    def __map_fi(self, x):
         group = "unknown"
         for key in self.fi_map:
             if key in x:
@@ -276,9 +276,66 @@ class Extrato:
         return group
 
 
-    def set_aportes_resgates(self):
+    def __transform_data(self):
         self.aportes_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
         self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
+
+        self.aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
+        self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.__map_fi)
+
+        self.resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
+            .drop(self.df[self.df['Descricao']
+                     .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
+        self.resgates_fi_hist['Nome'] = self.resgates_fi_hist['Descricao'].apply(self.__map_fi)
+
+        self.ir_fi_hist = self.df[self.df['Descricao'].str.contains(
+            'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
+        self.ir_fi_hist['Nome'] = self.ir_fi_hist['Descricao'].apply(self.__map_fi)
+
+
+    def __set_extrato_fis(self):
+        #print(self.extrato_hist)
+        df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
+            .agg({'Valor': 'sum'})\
+            .reset_index()\
+            .rename(columns={'Valor': 'Vlr Aporte'})
+
+        df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
+
+        df_fi_resgates = self.resgates_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
+            .agg({'Valor': 'sum'})\
+            .reset_index()\
+            .rename(columns={'Valor': 'Vlr Resgate'})
+
+        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
+            .agg({'Valor': 'sum'})\
+            .reset_index()\
+            .rename(columns={'Valor': 'Vlr IR'})
+
+        df_fi_ir['Vlr IR'] = df_fi_ir['Vlr IR'].abs()
+
+        df_aportesgroup = df_aportes_fi.merge(
+            df_fi_resgates,
+            how='outer',
+            left_on=['Nome', 'Ano', 'Mes'],
+            right_on=['Nome', 'Ano', 'Mes'])\
+            .merge(df_fi_ir,
+                   how='outer',
+                   left_on=['Nome', 'Ano', 'Mes'],
+                   right_on=['Nome', 'Ano', 'Mes']
+                   ).fillna(0)
+
+        # display(df_fi_aportes)
+        # display(df_fi_resgates)
+
+        df_aportesgroup['Vlr Aporte'] = df_aportesgroup['Vlr Aporte'].abs()
+        df_aportesgroup['Rendimento Resgatado'] = np.where(df_aportesgroup['Vlr Resgate'] > 0,
+                                                           df_aportesgroup['Vlr Resgate'] -
+                                                           df_aportesgroup['Vlr Aporte'],
+                                                           0)
+        # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
+
+        self.extrato_fis = df_aportesgroup.fillna(0)
 
 
     def total_investido(self):

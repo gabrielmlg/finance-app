@@ -21,7 +21,7 @@ fis_graph_ = fis_graph(df_fis)
 
 # Extrato
 extrato = Extrato(2010,2020)
-fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
+fundo_investimento = FundoInvestimento(posicao=df_fis, extrato_hist=extrato.df, extrato=extrato.extrato_fis)
 fiis = FundoImobiliario(posicao=posicao_model.fiis, extrato=extrato.df)
 
 total_investido = extrato.total_investido()
@@ -143,7 +143,7 @@ app.layout = html.Div([
                             dbc.CardHeader("RENDIMENTOS"),   
                             dbc.CardBody(
                                 [
-                                    html.H5(id='total_rendimento_text'),
+                                    html.H4(id='total_rendimento_text'),
                                     html.Br(),
                                     html.H6(id='total_rendimento_fi_text'),
                                     html.H6(id='total_rendimento_fiis_text'),
@@ -160,7 +160,7 @@ app.layout = html.Div([
             dbc.CardHeader("PATRIMONIO"),
             dbc.CardBody(
                 [
-                    html.H5(id='total_patrimonio_text'),
+                    html.H4(id='total_patrimonio_text'),
                     html.Br(),
                     html.H6(id='total_patrimonio_fi_text'),
                     html.H6("FIIs: R$ {:,.2f}".format(10000)),
@@ -190,7 +190,8 @@ def filter_period(periodo):
     extrato = Extrato(periodo[0], periodo[1])
     total_investido = extrato.total_investido()
     
-    fundo_investimento = FundoInvestimento(posicao=df_fis, extrato=extrato.df)
+    fundo_investimento = FundoInvestimento(posicao=df_fis, extrato_hist=extrato.df, 
+                                            extrato=extrato.extrato_fis)
     acoes = Acao(posicao=df_acoes, extrato=extrato.df)
     total_aporte_fi = fundo_investimento.total_aportes() 
     # Modo Antigo

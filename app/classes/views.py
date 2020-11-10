@@ -53,7 +53,7 @@ class FundoImobiliario(Investimento):
 
 class FundoInvestimento(Investimento):
 
-    def __init__(self, posicao, extrato):
+    def __init__(self, posicao, extrato_hist, extrato):
         self.fi_map = {
             'Equitas': 'Equitas Selection FIC FIA',
             'Polo Norte': 'Polo Norte I FIC FIM',
@@ -76,13 +76,10 @@ class FundoInvestimento(Investimento):
             'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
         }
         self.posicao_hist = posicao
-        self.extrato_hist = extrato
+        self.extrato_hist = extrato_hist
 
-        self.aportes_fi_hist = pd.DataFrame()
-        self.resgates_fi_hist = pd.DataFrame()
-        self.ir_fi_hist = pd.DataFrame()
-        self.__set_aportes_resgates()
-        self.extrato = self.__set_extrato_fis()
+        
+        self.extrato = extrato
 
 
     def __map_fi(self, x):
@@ -94,68 +91,7 @@ class FundoInvestimento(Investimento):
         return group
 
 
-    def __set_aportes_resgates(self):
-
-        self.aportes_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains('TED APLICA')]
-        self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.__map_fi)
-
-        self.resgates_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains('RESGATE')]\
-            .drop(self.extrato_hist[self.extrato_hist['Descricao']
-                     .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
-        self.resgates_fi_hist['Nome'] = self.resgates_fi_hist['Descricao'].apply(self.__map_fi)
-
-        self.ir_fi_hist = self.extrato_hist[self.extrato_hist['Descricao'].str.contains(
-            'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
-        self.ir_fi_hist['Nome'] = self.ir_fi_hist['Descricao'].apply(self.__map_fi)
-
-        #df_aportes['Nome'] = df_aportes['Descricao'].map(lambda x: x.str.contains(fi_dict[0]))
-
-
-    def __set_extrato_fis(self):
-        #print(self.aportes_fi_hist.head(10))
-        df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
-            .agg({'Valor': 'sum'})\
-            .reset_index()\
-            .rename(columns={'Valor': 'Vlr Aporte'})
-
-        df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
-
-        df_fi_resgates = self.resgates_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
-            .agg({'Valor': 'sum'})\
-            .reset_index()\
-            .rename(columns={'Valor': 'Vlr Resgate'})
-
-        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
-            .agg({'Valor': 'sum'})\
-            .reset_index()\
-            .rename(columns={'Valor': 'Vlr IR'})
-
-        df_fi_ir['Vlr IR'] = df_fi_ir['Vlr IR'].abs()
-
-        df_aportesgroup = df_aportes_fi.merge(
-            df_fi_resgates,
-            how='outer',
-            left_on=['Nome', 'Ano', 'Mes'],
-            right_on=['Nome', 'Ano', 'Mes'])\
-            .merge(df_fi_ir,
-                   how='outer',
-                   left_on=['Nome', 'Ano', 'Mes'],
-                   right_on=['Nome', 'Ano', 'Mes']
-                   ).fillna(0)
-
-        # display(df_fi_aportes)
-        # display(df_fi_resgates)
-
-        df_aportesgroup['Vlr Aporte'] = df_aportesgroup['Vlr Aporte'].abs()
-        df_aportesgroup['Rendimento Resgatado'] = np.where(df_aportesgroup['Vlr Resgate'] > 0,
-                                                           df_aportesgroup['Vlr Resgate'] -
-                                                           df_aportesgroup['Vlr Aporte'],
-                                                           0)
-        # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
-
-        return df_aportesgroup.fillna(0)
-
-
+    # Rever necessidade 
     def resumo(self, dt_inicio, dt_fim):
         month = self.posicao_hist[(self.posicao_hist['ano'] == dt_fim)]['mes'].max()
 
@@ -225,21 +161,6 @@ class FundoInvestimento(Investimento):
 
     def lucro_resgatado(self):
         return self.extrato_hist['Rendimento Resgatado'].sum()
-
-
-class Posicao:
-
-    def __init__(self):
-        pass
-
-
-
-class Extrato:
-
-    def __init__(self):
-        pass
-    
-
 
 
 

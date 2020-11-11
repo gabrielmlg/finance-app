@@ -254,14 +254,14 @@ class Extrato:
 
     def load_csv_extrato(self):
         df = pd.read_csv('./datasets/extrato/Extrato 200091 JAN 2010 a JUN 2020.csv', sep=';', encoding='iso-8859-1', decimal=',')
-        df2 = pd.read_excel('./datasets/extrato/Extrato 200091 JUN 2020 a NOV 2020.xls')
+        df2 = pd.read_csv('./datasets/extrato/Extrato 200091 JUN 2020 a NOV 2020.csv')
 
         df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
         df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
         
         df = df.append(df2)
-        df['Ano'] = df['Mov'].dt.year
-        df['Mes'] = df['Mov'].dt.month
+        df['ano'] = df['Mov'].dt.year
+        df['mes'] = df['Mov'].dt.month
         #df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
         
         return df
@@ -295,19 +295,19 @@ class Extrato:
 
     def __set_extrato_fis(self):
         #print(self.extrato_hist)
-        df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
+        df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Aporte'})
 
         df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
 
-        df_fi_resgates = self.resgates_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
+        df_fi_resgates = self.resgates_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Resgate'})
 
-        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'Ano', 'Mes'])\
+        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr IR'})
@@ -317,12 +317,12 @@ class Extrato:
         df_aportesgroup = df_aportes_fi.merge(
             df_fi_resgates,
             how='outer',
-            left_on=['Nome', 'Ano', 'Mes'],
-            right_on=['Nome', 'Ano', 'Mes'])\
+            left_on=['Nome', 'ano', 'mes'],
+            right_on=['Nome', 'ano', 'mes'])\
             .merge(df_fi_ir,
                    how='outer',
-                   left_on=['Nome', 'Ano', 'Mes'],
-                   right_on=['Nome', 'Ano', 'Mes']
+                   left_on=['Nome', 'ano', 'mes'],
+                   right_on=['Nome', 'ano', 'mes']
                    ).fillna(0)
 
         # display(df_fi_aportes)

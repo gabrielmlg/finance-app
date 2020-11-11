@@ -99,7 +99,7 @@ class FundoInvestimento(Investimento):
             (self.posicao_hist['ano'] == dt_fim)
             & (self.posicao_hist['mes'] == month)]
 
-        ext = self.extrato[self.extrato['Ano'] <= dt_fim]\
+        ext = self.extrato[self.extrato['ano'] <= dt_fim]\
                             .groupby(['Nome']).agg({'Vlr Aporte': 'sum', 
                                                     'Vlr Resgate': 'sum', 
                                                     'Vlr IR': 'sum'}).reset_index()
@@ -139,6 +139,23 @@ class FundoInvestimento(Investimento):
             df_return = df_return.append(df_)
 
         return df_return
+
+
+    def resumo_novo(self, do_ano, ate_ano):
+        df_pos = self.calcula_rentabilidade(do_ano, ate_ano)
+
+        resumo = self.extrato.merge(df_pos, 
+                             how='outer', 
+                             left_on=['ano', 'mes', 'Nome'], 
+                             right_on=['ano', 'mes', 'Nome'])
+
+        return resumo.groupby(['Nome', 'ano', 'mes'])\
+                        .agg(aporte=('Vlr Aporte', 'sum'), 
+                            retirada=('Vlr Resgate', 'sum'), 
+                            rendimento_resgatado=('Rendimento Resgatado', 'sum'), 
+                            rendimento_posicao=('rendimento', 'sum')).reset_index()
+
+
 
     
     # POSSIVEIS METODOS PARA ABSTRAIR

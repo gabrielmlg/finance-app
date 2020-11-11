@@ -194,6 +194,10 @@ def filter_period(periodo):
                                             extrato=extrato.extrato_fis)
     acoes = Acao(posicao=df_acoes, extrato=extrato.df)
     total_aporte_fi = fundo_investimento.total_aportes() 
+
+    # Estou aqui!!!
+    resumo = fundo_investimento.resumo_novo(periodo[0], periodo[1])
+
     # Modo Antigo
     #rendimento_fi = fundo_investimento.resumo(periodo[0], periodo[1])['rendimento'].sum()
 

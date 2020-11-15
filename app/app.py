@@ -13,23 +13,12 @@ from classes.graphics import fis_graph
 
 
 # POSICAO
+# ToDo: Refatorar jogando para dentro da Controller. 
 posicao_model = Posicao() 
 posicao_model.load_data()
 df_fis = posicao_model.fis
 df_acoes = posicao_model.acoes
 fis_graph_ = fis_graph(df_fis)
-
-# Extrato
-extrato = Extrato(2010,2020)
-fundo_investimento = FundoInvestimento(posicao=df_fis, extrato_hist=extrato.df, extrato=extrato.extrato_fis)
-fiis = FundoImobiliario(posicao=posicao_model.fiis, extrato=extrato.df)
-
-total_investido = extrato.total_investido()
-total_aporte_fi = fundo_investimento.total_aportes() # extrato_fi['Vlr Aporte'].sum() -   # ToDo: Colocar o aporte de acoes e fii
-periodos = extrato.periodos()
-
-rendimento_fi = fundo_investimento.resumo(2010, 2020)['rendimento'].sum()
-
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.MATERIA]
@@ -83,14 +72,14 @@ app.layout = html.Div([
                 html.Div(
                     dcc.RangeSlider(
                     id="period-range-slider",  
-                    min=2010, #periodos.min(), 
+                    min=2014, #2010  #periodos.min(), 
                     max=2020, #periodos.max(), 
                     value=[2010, 2020],
                     marks={
-                            2010: '2010', 
-                            2011: '2011', 
-                            2012: '2012', 
-                            2013: '2013', 
+                            #2010: '2010', 
+                            #2011: '2011', 
+                            #2012: '2012', 
+                            #2013: '2013', 
                             2014: '2014', 
                             2015: '2015', 
                             2016: '2016', 
@@ -124,7 +113,7 @@ app.layout = html.Div([
                             dbc.CardHeader("APORTES"),    
                             dbc.CardBody(
                                 [
-                                    html.H4(id='total_investido_text'),
+                                    html.H4(id='total_aportes_text'),
                                     html.Br(),
                                     html.H6(id='total_aporte_fi_text'),
                                     html.H6("Fundos Imobiliários: R$ {:,.2f}".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
@@ -177,7 +166,7 @@ app.layout = html.Div([
 
 
 @app.callback(
-    [Output('total_investido_text', 'children'), 
+    [Output('total_aportes_text', 'children'), 
     Output('total_aporte_fi_text', 'children'), 
     Output('total_rendimento_text', 'children'),
     Output('total_rendimento_fi_text', 'children'), 
@@ -188,22 +177,20 @@ app.layout = html.Div([
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
     extrato = Extrato(periodo[0], periodo[1])
-    total_investido = extrato.total_investido()
-    
-    fundo_investimento = FundoInvestimento(posicao=df_fis, extrato_hist=extrato.df, 
+    fundo_investimento = FundoInvestimento(posicao=df_fis, 
                                             extrato=extrato.extrato_fis)
     acoes = Acao(posicao=df_acoes, extrato=extrato.df)
-    total_aporte_fi = fundo_investimento.total_aportes() 
+    fiis = FundoImobiliario(posicao=posicao_model.fiis, extrato=extrato.df)
 
-    # Estou aqui!!!
+    total_aportes = extrato.total_investido()
+
     resumo = fundo_investimento.resumo_novo(periodo[0], periodo[1])
 
-    # Modo Antigo
-    #rendimento_fi = fundo_investimento.resumo(periodo[0], periodo[1])['rendimento'].sum()
-
     try: 
-        rendimento_fi = fundo_investimento.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
+        total_aporte_fi = fundo_investimento.total_aportes() 
+        rendimento_fi = resumo['rendimento_posicao'].sum()
     except: 
+        total_aporte_fi = 0
         rendimento_fi = 0 
 
     try: 
@@ -217,11 +204,11 @@ def filter_period(periodo):
         rendimento_fiis = 0 
 
     return (
-        "Total: R$ {:,.2f}".format(total_investido), 
+        "Total: R$ {:,.2f}".format(total_aportes), 
         "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi),
         "Total: R$ {:,.2f}".format(rendimento_fi + rendimento_acoes + rendimento_fiis),
         "Fundos de Investimento: R$ {:,.2f}".format(rendimento_fi),  
-        "Total: R$ {:,.2f}".format(total_investido + rendimento_fi),
+        "Total: R$ {:,.2f}".format(total_aportes + rendimento_fi),
         "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
         "Ações: R$ {:,.2f}".format(rendimento_acoes), 
         "Fundos Imobiliários: R$ {:,.2f}".format(rendimento_fiis),  

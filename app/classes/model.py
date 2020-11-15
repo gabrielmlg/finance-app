@@ -209,9 +209,7 @@ class Posicao:
 
 class Extrato:
     
-
     def __init__(self, dt_inicio, dt_fim):
-
         self.fi_map = {
             'Equitas': 'Equitas Selection FIC FIA',
             'Polo Norte': 'Polo Norte I FIC FIM',

@@ -53,7 +53,7 @@ class FundoImobiliario(Investimento):
 
 class FundoInvestimento(Investimento):
 
-    def __init__(self, posicao, extrato_hist, extrato):
+    def __init__(self, posicao, extrato):
         self.fi_map = {
             'Equitas': 'Equitas Selection FIC FIA',
             'Polo Norte': 'Polo Norte I FIC FIM',
@@ -76,9 +76,6 @@ class FundoInvestimento(Investimento):
             'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
         }
         self.posicao_hist = posicao
-        self.extrato_hist = extrato_hist
-
-        
         self.extrato = extrato
 
 
@@ -142,19 +139,23 @@ class FundoInvestimento(Investimento):
 
 
     def resumo_novo(self, do_ano, ate_ano):
-        df_pos = self.calcula_rentabilidade(do_ano, ate_ano)
 
-        resumo = self.extrato.merge(df_pos, 
+        try: 
+            df_pos = self.calcula_rentabilidade(do_ano, ate_ano)
+            resumo = self.extrato.merge(df_pos, 
                              how='outer', 
                              left_on=['ano', 'mes', 'Nome'], 
                              right_on=['ano', 'mes', 'Nome'])
 
-        return resumo.groupby(['Nome', 'ano', 'mes'])\
-                        .agg(aporte=('Vlr Aporte', 'sum'), 
-                            retirada=('Vlr Resgate', 'sum'), 
-                            rendimento_resgatado=('Rendimento Resgatado', 'sum'), 
-                            rendimento_posicao=('rendimento', 'sum')).reset_index()
+            resumo = resumo.groupby(['Nome', 'ano', 'mes'])\
+                            .agg(aporte=('Vlr Aporte', 'sum'), 
+                                retirada=('Vlr Resgate', 'sum'), 
+                                rendimento_resgatado=('Rendimento Resgatado', 'sum'), 
+                                rendimento_posicao=('rendimento', 'sum')).reset_index()
+        except:
+            resumo = self.extrato.loc[:, self.extrato.columns.union(df_pos.columns)] #self.extrato.reindex_axis(self.extrato.columns.union(df_pos.columns), axis=1)
 
+        return resumo
 
 
     
@@ -177,7 +178,7 @@ class FundoInvestimento(Investimento):
 
 
     def lucro_resgatado(self):
-        return self.extrato_hist['Rendimento Resgatado'].sum()
+        return self.extrato['Rendimento Resgatado'].sum()
 
 
 

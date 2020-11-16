@@ -139,9 +139,9 @@ class FundoInvestimento(Investimento):
 
 
     def resumo_novo(self, do_ano, ate_ano):
+        df_pos = self.calcula_rentabilidade(do_ano, ate_ano)
 
         try: 
-            df_pos = self.calcula_rentabilidade(do_ano, ate_ano)
             resumo = self.extrato.merge(df_pos, 
                              how='outer', 
                              left_on=['ano', 'mes', 'Nome'], 
@@ -152,6 +152,9 @@ class FundoInvestimento(Investimento):
                                 retirada=('Vlr Resgate', 'sum'), 
                                 rendimento_resgatado=('Rendimento Resgatado', 'sum'), 
                                 rendimento_posicao=('rendimento', 'sum')).reset_index()
+
+            #resumo['rend_perc'] = resumo['rendimento_posicao'] / resumo['Valor Bruto']
+
         except:
             resumo = self.extrato.loc[:, self.extrato.columns.union(df_pos.columns)] #self.extrato.reindex_axis(self.extrato.columns.union(df_pos.columns), axis=1)
 

@@ -11,14 +11,20 @@ from classes.model import Posicao, Extrato
 from classes.views import FundoInvestimento, Acao, FundoImobiliario
 from classes.graphics import fis_graph
 
+from classes.controllers import MainController
+
 
 # POSICAO
 # ToDo: Refatorar jogando para dentro da Controller. 
+
+main_controller = MainController()
+main_controller.load_new_filter(2010, 2020)
+
 posicao_model = Posicao() 
 posicao_model.load_data()
 df_fis = posicao_model.fis
 df_acoes = posicao_model.acoes
-fis_graph_ = fis_graph(df_fis)
+fis_graph_ = main_controller.graph_fis()
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.MATERIA]
@@ -176,43 +182,7 @@ app.layout = html.Div([
     Output('total_rendimento_fiis_text', 'children')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
-    extrato = Extrato(periodo[0], periodo[1])
-    fundo_investimento = FundoInvestimento(posicao=df_fis, 
-                                            extrato=extrato.extrato_fis)
-    acoes = Acao(posicao=df_acoes, extrato=extrato.df)
-    fiis = FundoImobiliario(posicao=posicao_model.fiis, extrato=extrato.df)
-
-    total_aportes = extrato.total_investido()
-
-    resumo = fundo_investimento.resumo_novo(periodo[0], periodo[1])
-
-    try: 
-        total_aporte_fi = fundo_investimento.total_aportes() 
-        rendimento_fi = resumo['rendimento_posicao'].sum()
-    except: 
-        total_aporte_fi = 0
-        rendimento_fi = 0 
-
-    try: 
-        rendimento_acoes = acoes.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
-    except: 
-        rendimento_acoes = 0
-
-    try: 
-        rendimento_fiis = fiis.calcula_rentabilidade(periodo[0], periodo[1])['rendimento'].sum() 
-    except: 
-        rendimento_fiis = 0 
-
-    return (
-        "Total: R$ {:,.2f}".format(total_aportes), 
-        "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi),
-        "Total: R$ {:,.2f}".format(rendimento_fi + rendimento_acoes + rendimento_fiis),
-        "Fundos de Investimento: R$ {:,.2f}".format(rendimento_fi),  
-        "Total: R$ {:,.2f}".format(total_aportes + rendimento_fi),
-        "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
-        "Ações: R$ {:,.2f}".format(rendimento_acoes), 
-        "Fundos Imobiliários: R$ {:,.2f}".format(rendimento_fiis),  
-    )
+    return main_controller.load_new_filter(periodo[0], periodo[1])
     
 if __name__ == "__main__":
     app.run_server(debug=True)

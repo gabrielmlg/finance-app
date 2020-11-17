@@ -20,12 +20,6 @@ from classes.controllers import MainController
 main_controller = MainController()
 main_controller.load_new_filter(2010, 2020)
 
-posicao_model = Posicao() 
-posicao_model.load_data()
-df_fis = posicao_model.fis
-df_acoes = posicao_model.acoes
-fis_graph_ = main_controller.graph_fis()
-
 app = dash.Dash(
     external_stylesheets=[dbc.themes.MATERIA]
 )
@@ -46,7 +40,7 @@ navbar = dbc.NavbarSimple(
     ],
     brand="MEUS INVESTIMENTOS",
     brand_href="#",
-    color="primary",
+    color="dark",
     dark=True,
 )
 
@@ -122,13 +116,13 @@ app.layout = html.Div([
                                     html.H4(id='total_aportes_text'),
                                     html.Br(),
                                     html.H6(id='total_aporte_fi_text'),
-                                    html.H6("Fundos Imobiliários: R$ {:,.2f}".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
-                                    html.H6("Ações: R$ {:,.2f}".format(50000)),
+                                    html.H6("Fundos Imobiliários: R$ {:,.2f} (*)".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
+                                    html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
                                 ]
                             ),
                         ], 
-                        className="ml-3", 
-                        color="light"
+                        className="mb-3", 
+                        #color="light"
                     ), 
                     lg=3, 
                     #className='ml-3', 
@@ -158,15 +152,15 @@ app.layout = html.Div([
                     html.H4(id='total_patrimonio_text'),
                     html.Br(),
                     html.H6(id='total_patrimonio_fi_text'),
-                    html.H6("FIIs: R$ {:,.2f}".format(10000)),
-                    html.H6("Ações: R$ {:,.2f}".format(50000)),
+                    html.H6("FIIs: R$ {:,.2f} (*)".format(10000)),
+                    html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
                 ]
             ),
         ], color="light"), lg=3, width={'offset': -1}),
     ]), 
     
-    # dbc.Alert("Em construção, aguarde ...", className="m-5"), 
-    fis_graph_[0]
+    #dbc.Alert("Em construção, aguarde ...", className="m-3"), 
+    #main_controller.graph_fis()[0]
 
 ])
 

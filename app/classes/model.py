@@ -8,7 +8,7 @@ class Posicao:
 
     def __init__(self):
         
-        os.chdir(os.path.join(os.getcwd(), '/Users/gabriel/Documents/dev/finance-app'))
+        os.chdir(os.path.join(os.getcwd(), '/Users/gabriellopes/Documents/finance-app'))
         #print(os.getcwd())
         self.files = os.listdir('datasets/posicao/')
         self.acoes = pd.DataFrame()

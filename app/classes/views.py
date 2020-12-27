@@ -1,5 +1,8 @@
+from numpy.lib.function_base import extract
 import pandas as pd
 import numpy as np
+from datetime import datetime
+
 
 class Investimento():
     def __init__(self, nome_col_tipo, nome_col_valor):
@@ -31,6 +34,7 @@ class Investimento():
         return df_return
 
 
+
 class Acao(Investimento):
     def __init__(self, posicao, extrato):
         self.posicao = posicao
@@ -39,6 +43,7 @@ class Acao(Investimento):
 
     def calcula_rentabilidade(self, do_ano, ate_ano):
         return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
+
 
 
 class FundoImobiliario(Investimento):
@@ -51,8 +56,9 @@ class FundoImobiliario(Investimento):
         return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
 
 
-class FundoInvestimento(Investimento):
 
+class FundoInvestimento(Investimento):
+    
     def __init__(self, posicao, extrato):
         self.fi_map = {
             'Equitas': 'Equitas Selection FIC FIA',
@@ -88,30 +94,6 @@ class FundoInvestimento(Investimento):
         return group
 
 
-    # Rever necessidade 
-    def resumo(self, dt_inicio, dt_fim):
-        month = self.posicao_hist[(self.posicao_hist['ano'] == dt_fim)]['mes'].max()
-
-        pos = self.posicao_hist[
-            (self.posicao_hist['ano'] == dt_fim)
-            & (self.posicao_hist['mes'] == month)]
-
-        ext = self.extrato[self.extrato['ano'] <= dt_fim]\
-                            .groupby(['Nome']).agg({'Vlr Aporte': 'sum', 
-                                                    'Vlr Resgate': 'sum', 
-                                                    'Vlr IR': 'sum'}).reset_index()
-
-        result = pos[['Nome', 'Valor Bruto']].merge(ext, 
-                                            how='outer', 
-                                            left_on='Nome', 
-                                            right_on='Nome').fillna(0)
-
-
-        result['rendimento'] = result['Valor Bruto'] + result['Vlr Resgate'] - result['Vlr Aporte']
-        # print(result)
-        return result
-
-
     # Calcula o rendimendo de ativo FI para cada periodo. 
     # Retorna o dataset com o campo rendimento e rendimento acumulado. 
     def calcula_rentabilidade(self, do_ano, ate_ano):
@@ -123,15 +105,22 @@ class FundoInvestimento(Investimento):
         for ativo in df['Nome'].unique():
             df_ = df[df['Nome'] == ativo].sort_values(by=['data_posicao']).reset_index()
             rendimento = []
+            periodo_cont = []
+            count = 1
 
             for row in df_.index:
                 if row == 0:
                     rendimento.append(0)
+                    periodo_cont.append(1)
+                    count += 1
                 else:
                     valor = df_[df_.index == row]['Valor Bruto'].sum() - df_[df_.index == row -1]['Valor Bruto'].sum()
                     rendimento.append(valor)
+                    periodo_cont.append(count)
+                    count += 1
 
             df_['rendimento'] = rendimento
+            df_['periodo_cont'] = periodo_cont
             df_['rendimento_acum'] = df_['rendimento'].cumsum()
             df_return = df_return.append(df_)
 
@@ -140,23 +129,57 @@ class FundoInvestimento(Investimento):
 
     def resumo_novo(self, do_ano, ate_ano):
         df_pos = self.calcula_rentabilidade(do_ano, ate_ano)
+        df_pos['Data'] = df_pos['Data'].astype(np.datetime64)
+
+        start = datetime(2010, 1, 1)
+        end = datetime(int(datetime.now().year), 12, 31)
+        ix_date = pd.bdate_range(start, end, freq='M')
+        df_ixDate = pd.DataFrame(ix_date, columns=['Data'])
+        df_ixDate['ano'] = df_ixDate['Data'].dt.year
+        df_ixDate['mes'] = df_ixDate['Data'].dt.month
+
+        df_tmp = pd.DataFrame([], columns=df_pos.columns)
+
+        for fi in df_pos['Nome'].unique():
+            df_pos_ = df_ixDate.merge(df_pos[df_pos['Nome'] ==  fi], 
+                                    how='left', 
+                                    left_on=['ano', 'mes'], 
+                                    right_on=['ano', 'mes']).reset_index().fillna(0)
+            df_pos_['Nome'] = fi
+            df_pos_['mes'] = df_pos_['Data_x'].dt.month
+            df_pos_['ano'] = df_pos_['Data_x'].dt.year
+            df_pos_['data_posicao'] = df_pos_['Data_x']
+            df_tmp = df_tmp.append(df_pos_)
+
+        #print(df_date.head())
+
+
+        #print(df_tmp[df_tmp['Nome'] == 'AZ Quest Multi FIC FIM'])
+        #print(self.extrato.head())
 
         try: 
-            resumo = self.extrato.merge(df_pos, 
+            resumo = self.extrato.merge(df_tmp, 
                              how='outer', 
                              left_on=['ano', 'mes', 'Nome'], 
                              right_on=['ano', 'mes', 'Nome'])
 
-            resumo = resumo.groupby(['Nome', 'ano', 'mes'])\
+            #print(resumo[resumo['Nome'] == 'AZ Quest Multi FIC FIM'])
+
+            resumo = resumo.groupby(['Nome', 'ano', 'mes', 'periodo_cont', 'data_posicao', 'Total Bruto'])\
                             .agg(aporte=('Vlr Aporte', 'sum'), 
                                 retirada=('Vlr Resgate', 'sum'), 
                                 rendimento_resgatado=('Rendimento Resgatado', 'sum'), 
                                 rendimento_posicao=('rendimento', 'sum')).reset_index()
 
+            resumo['ano'] = pd.to_numeric(resumo['ano'], downcast='signed')
+            resumo['mes'] = pd.to_numeric(resumo['mes'], downcast='signed')
+            resumo['periodo_cont'] = pd.to_numeric(resumo['periodo_cont'], downcast='signed')
+
             #resumo['rend_perc'] = resumo['rendimento_posicao'] / resumo['Valor Bruto']
 
         except:
-            resumo = self.extrato.loc[:, self.extrato.columns.union(df_pos.columns)] #self.extrato.reindex_axis(self.extrato.columns.union(df_pos.columns), axis=1)
+            print('deu ruim')
+            resumo = self.extrato.loc[:, self.extrato.columns.union(df_tmp.columns)] #self.extrato.reindex_axis(self.extrato.columns.union(df_pos.columns), axis=1)
 
         return resumo
 

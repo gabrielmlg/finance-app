@@ -18,7 +18,7 @@ class MainController():
         self.extrato = Extrato(2010, ate_ano)
         
         total_aportes = self.extrato.total_investido()
-        resumo = self.fundo_investimento.resumo_novo(de_ano, ate_ano)
+        resumo = self.fundo_investimento.resumo(de_ano, ate_ano)
 
         try: 
             total_aporte_fi = self.fundo_investimento.total_aportes() 

@@ -62,6 +62,7 @@ class FundoInvestimento(Investimento):
     def __init__(self, posicao, extrato):
         self.posicao_hist = posicao
         self.extrato = extrato
+        self.calcula_resumo(2010, 2020)
 
 
     # Calcula o rendimendo de ativo FI para cada periodo. 
@@ -97,7 +98,7 @@ class FundoInvestimento(Investimento):
         return df_return
 
 
-    def resumo(self, do_ano, ate_ano):
+    def calcula_resumo(self, do_ano, ate_ano):
         
         df = self.posicao_hist[(self.posicao_hist['ano'] >= do_ano) &  
                                 (self.posicao_hist['ano'] <= ate_ano)]
@@ -169,8 +170,8 @@ class FundoInvestimento(Investimento):
             df_return = df_return.append(df_)
             
         df_return.drop(columns=['Data', 'Qtd Cotas', 'Valor Cota', 'Valor Bruto', 'IR', 'IOF', 'Valor Liquido', 'period', 'Aplicacao Pendente'], inplace=True)
-
-        return df_return
+        self.resumo = df_return
+        # return df_return
 
 
     def resumo_(self, do_ano, ate_ano):
@@ -229,7 +230,6 @@ class FundoInvestimento(Investimento):
 
         return resumo
 
-
     
     # POSSIVEIS METODOS PARA ABSTRAIR
 
@@ -238,11 +238,11 @@ class FundoInvestimento(Investimento):
 
     
     def total_aportes(self):
-        return self.extrato['Vlr Aporte'].sum() - self.extrato['Vlr Resgate'].sum()
+        return self.resumo['aporte'].sum() - self.resumo['retirada'].sum()
 
 
     def total_resgatado(self):
-        return self.extrato['Vlr Resgate'].sum()
+        return self.resumo['rendimento_resgatado'].sum()
 
 
     def total_ir(self):

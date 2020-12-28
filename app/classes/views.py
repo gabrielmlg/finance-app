@@ -58,40 +58,10 @@ class FundoImobiliario(Investimento):
 
 
 class FundoInvestimento(Investimento):
-    
+
     def __init__(self, posicao, extrato):
-        self.fi_map = {
-            'Equitas': 'Equitas Selection FIC FIA',
-            'Polo Norte': 'Polo Norte I FIC FIM',
-            'XP Macro': 'XP Macro FIM',
-            'Bahia AM Mara': 'Bahia AM Maraú FIC de FIM',
-            'QuestMult': 'AZ Quest Multi FIC FIM',
-            'Mau Macro FIC FIM': 'Mauá Macro FIC FIM',
-            'MiraeMacroStrategy': 'Mirae Asset Multimercado ',
-            'XP LONG SHORT': 'XP Long Short FIC FIM',
-            'XP GlobCredit': 'XP GlobCredit FICFIM',  # Falta posicao deste periodo
-            'Vot.FicFi CambialD': 'FICFIVot. CambDola',  # idem
-            'FICFIVot. CambDola': 'FICFIVot. CambDola',
-            'Vot.FicFi CambialDol': 'FICFIVot. CambDola',
-            'Inflacao Firf': 'BNP Inflacao Firf',  # idem
-            'Azul QuantitativoFIM': 'Azul Quantitativo',
-            'QuantitativoFI': 'Azul Quantitativo',
-            'ABSOLUTO CONSUMO': 'ABSOLUTO CONSUMO',
-            'Hedge Fic Fim': 'Hedge Fic Fim',
-            'Legan Low Vol FIM': 'Legan Low Vol FIM',
-            'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
-        }
         self.posicao_hist = posicao
         self.extrato = extrato
-
-
-    def __map_fi(self, x):
-        group = "unknown"
-        for key in self.fi_map:
-            if key in x:
-                group = self.fi_map[key]
-                break
-        return group
 
 
     # Calcula o rendimendo de ativo FI para cada periodo. 

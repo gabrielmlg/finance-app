@@ -223,13 +223,15 @@ class Extrato:
             'Vot.FicFi CambialD': 'FICFIVot. CambDola',  # idem
             'FICFIVot. CambDola': 'FICFIVot. CambDola',
             'Vot.FicFi CambialDol': 'FICFIVot. CambDola',
-            'Inflacao Firf': 'BNP Inflacao Firf',  # idem
-            'Azul QuantitativoFIM': 'Azul Quantitativo',
-            'QuantitativoFI': 'Azul Quantitativo',
+            'Inflacao Firf': 'BNP Paribas Inflação FI RF',  # idem
+            'Azul QuantitativoFIM': 'Azul Quantitativo FIM',
+            'QuantitativoFI': 'Azul Quantitativo FIM',
             'ABSOLUTO CONSUMO': 'ABSOLUTO CONSUMO',
             'Hedge Fic Fim': 'Hedge Fic Fim',
             'Legan Low Vol FIM': 'Legan Low Vol FIM',
-            'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA'
+            'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA', 
+            'Icatu Vanguarda Pré-F': 'Icatu Vanguarda Pré-Fixado FIRF ', 
+            'Macro FIC FIM': 'Mauá Macro FIC FIM'
         }
 
         self.extrato_fis = pd.DataFrame()

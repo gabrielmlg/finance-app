@@ -49,7 +49,7 @@ class MainController():
             "Fundos de Investimento: R$ {:,.2f} ({:,.2f}%)".format(rendimento_fi, rendimento_perc_fi),  
             "Total: R$ {:,.2f}".format(total_aportes + rendimento_fi),
             "Fundos de Investimento: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
-            "Ações: R$ {:,.2f}".format(rendimento_acoes), 
+            "Ações: R$ {:,.2f}".format(rendimento_acoes),  
             "Fundos Imobiliários: R$ {:,.2f}".format(rendimento_fiis),  
         )
 

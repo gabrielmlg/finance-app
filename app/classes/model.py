@@ -237,14 +237,18 @@ class Extrato:
         self.extrato_fis = pd.DataFrame()
         self.aportes_xp = pd.DataFrame()
         self.retiradas_xp = pd.DataFrame()
-        self.aportes_fi_hist = pd.DataFrame()
-        self.resgates_fi_hist = pd.DataFrame()
+        self.__aportes_fi_hist = pd.DataFrame()
+        self.__resgates_fi_hist = pd.DataFrame()
         self.ir_fi_hist = pd.DataFrame()
 
         self.df = self.load_csv_extrato()
         self.filter_extrato(dt_inicio, dt_fim)
         self.__transform_data()
         self.__set_extrato_fis()
+
+        self.extrato_acoes = pd.DataFrame()
+        self.extrato_fiis = pd.DataFrame()
+        self.load_extrato_acoes()
 
 
     def filter_extrato(self, dt_inicio, dt_fim):
@@ -269,6 +273,12 @@ class Extrato:
         return df
 
 
+    def load_extrato_acoes(self):
+        df = pd.read_excel('./datasets/acoes/extrato_acoes.xlsx', sheet_name='Planilha2')
+        self.extrato_acoes = df[df['Categoria'] == 'ACAO']
+        self.extrato_fiis = df[df['Categoria'] == 'FII']
+
+
     def __map_fi(self, x):
         group = "unknown"
         for key in self.fi_map:
@@ -282,13 +292,13 @@ class Extrato:
         self.aportes_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
         self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
 
-        self.aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
-        self.aportes_fi_hist['Nome'] = self.aportes_fi_hist['Descricao'].apply(self.__map_fi)
+        self.__aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
+        self.__aportes_fi_hist['Nome'] = self.__aportes_fi_hist['Descricao'].apply(self.__map_fi)
 
-        self.resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
+        self.__resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
             .drop(self.df[self.df['Descricao']
                      .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
-        self.resgates_fi_hist['Nome'] = self.resgates_fi_hist['Descricao'].apply(self.__map_fi)
+        self.__resgates_fi_hist['Nome'] = self.__resgates_fi_hist['Descricao'].apply(self.__map_fi)
 
         self.ir_fi_hist = self.df[self.df['Descricao'].str.contains(
             'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
@@ -297,14 +307,14 @@ class Extrato:
 
     def __set_extrato_fis(self):
         #print(self.extrato_hist)
-        df_aportes_fi = self.aportes_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_aportes_fi = self.__aportes_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Aporte'})
 
         df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
 
-        df_fi_resgates = self.resgates_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_fi_resgates = self.__resgates_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Resgate'})

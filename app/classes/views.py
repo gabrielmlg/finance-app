@@ -41,8 +41,132 @@ class Acao(Investimento):
         self.extrato = extrato
         super().__init__('Papel', 'Financeiro')
 
+    
     def calcula_rentabilidade(self, do_ano, ate_ano):
         return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
+
+    
+    def calcula_resumo(self, data_ini, data_fim):
+
+        df_pos = self.posicao[self.posicao['ano'] <= data_fim]
+        df_pos['data_posicao'] = df_pos['data_posicao'].astype(np.datetime64)
+
+        start = datetime(2010, 1, 1)
+        end = datetime(data_fim, 12, 31)
+        ix_date = pd.bdate_range(start, end, freq='M')
+        df_ixDate = pd.DataFrame(ix_date, columns=['Data'])
+        df_ixDate['ano'] = df_ixDate['Data'].dt.year
+        df_ixDate['mes'] = df_ixDate['Data'].dt.month
+
+        df_tmp = pd.DataFrame([], columns=df_pos.columns)
+
+        for papel in df_pos['Papel'].unique():
+            df_pos_ = df_ixDate.merge(df_pos[df_pos['Papel'] ==  papel], 
+                                    how='left', 
+                                    left_on=['ano', 'mes'], 
+                                    right_on=['ano', 'mes']).reset_index().fillna(0)
+            df_pos_['Papel'] = papel
+            df_tmp = df_tmp.append(df_pos_)
+
+        df_ext = self.__reshape_extrato()
+
+        resumo = df_ext.merge(df_tmp, 
+                            how='outer', 
+                            left_on=['ano', 'mes', 'Papel'], 
+                            right_on=['ano', 'mes', 'Papel']) # ToDo: Estou Aqui!!! Terminar o resumo de acoes. Calcular o rendimento. 
+
+        return resumo
+
+
+    def __reshape_extrato(self):
+        tmp = self.extrato.pivot_table(index=['Papel', 'ano', 'mes', 'Data'], columns=['Tipo'], aggfunc=np.sum, fill_value=0).reset_index()
+        tmp['total_compra'] = tmp.Preco.COMPRA * tmp.Qtde.COMPRA
+        tmp['total_venda'] = tmp.Preco.VENDA * tmp.Qtde.VENDA
+
+        return pd.DataFrame({
+            'Papel': tmp['Papel'], 
+            'Data': tmp['Data'], 
+            'ano': tmp['ano'], 
+            'mes': tmp['mes'], 
+            'aporte': tmp['total_compra'], 
+            'retirada': tmp['total_venda']
+        })
+
+
+    def calcula_resumo_(self, do_ano, ate_ano):
+        
+        df = self.posicao_hist[(self.posicao_hist['ano'] >= do_ano) &  
+                                (self.posicao_hist['ano'] <= ate_ano)]
+        df['Data'] = df['Data'].astype(np.datetime64)
+
+        start = datetime(2010, 1, 1)
+        end = datetime(ate_ano, 12, 31)
+        ix_date = pd.bdate_range(start, end, freq='M')
+        df_ixDate = pd.DataFrame(ix_date, columns=['Data'])
+        df_ixDate['ano'] = df_ixDate['Data'].dt.year
+        df_ixDate['mes'] = df_ixDate['Data'].dt.month
+
+        df_tmp = pd.DataFrame([], columns=df.columns)
+
+        for fi in df['Nome'].unique():
+            df_pos_ = df_ixDate.merge(df[df['Nome'] ==  fi], 
+                                    how='left', 
+                                    left_on=['ano', 'mes'], 
+                                    right_on=['ano', 'mes']).reset_index().fillna(0)
+            df_pos_['Nome'] = fi
+            df_pos_['mes'] = df_pos_['Data_x'].dt.month
+            df_pos_['ano'] = df_pos_['Data_x'].dt.year
+            df_pos_['data_posicao'] = df_pos_['Data_x']
+            df_tmp = df_tmp.append(df_pos_)
+
+        resumo = self.extrato.merge(df_tmp, 
+                            how='outer', 
+                            left_on=['ano', 'mes', 'Nome'], 
+                            right_on=['ano', 'mes', 'Nome'])
+
+        #print(resumo[resumo['Nome'] == 'AZ Quest Multi FIC FIM'])
+
+        resumo = resumo.groupby(['Nome', 'ano', 'mes', 'data_posicao', 'Total Bruto'])\
+                        .agg(aporte=('Vlr Aporte', 'sum'), 
+                            retirada=('Vlr Resgate', 'sum'), 
+                            rendimento_resgatado=('Rendimento Resgatado', 'sum')).reset_index()
+
+        resumo['ano'] = pd.to_numeric(resumo['ano'], downcast='signed')
+        resumo['mes'] = pd.to_numeric(resumo['mes'], downcast='signed')
+
+        df_return = pd.DataFrame([], columns=df.columns)
+
+        for ativo in resumo['Nome'].unique():
+            df_ = resumo[resumo['Nome'] == ativo].sort_values(by=['data_posicao']).reset_index()
+            rendimento = []
+            periodo_cont = []
+            count = 0
+
+            for row in df_.index:
+                if (df_[df_.index == row]['Total Bruto'].sum() > 1) | (df_[df_.index == row]['retirada'].sum() > 1):
+                    if count == 0: # primeiro rendimento
+                        count += 1
+                        rendimento.append(df_[df_.index == row]['Total Bruto'].sum() - df_[df_.index <= row]['aporte'].sum())
+                        periodo_cont.append(1)
+                    else:
+                        count += 1
+                        valor = df_[df_.index == row]['Total Bruto'].sum() + df_[df_.index == row]['rendimento_resgatado'].sum() - df_[df_.index == row -1]['Total Bruto'].sum() - df_[df_.index == row]['aporte'].sum()
+                        rendimento.append(valor)
+                        periodo_cont.append(count)
+                        
+                else:
+                    rendimento.append(0)
+                    periodo_cont.append(0)
+                    count = 0
+
+            df_['rendimento'] = rendimento
+            df_['periodo_cont'] = periodo_cont
+            #df_['rendimento_acum'] = df_['rendimento'].cumsum()
+            df_return = df_return.append(df_)
+            
+        df_return.drop(columns=['Data', 'Qtd Cotas', 'Valor Cota', 'Valor Bruto', 'IR', 'IOF', 'Valor Liquido', 'period', 'Aplicacao Pendente'], inplace=True)
+
+        self.resumo = df_return
 
 
 

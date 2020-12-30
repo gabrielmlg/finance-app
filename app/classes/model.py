@@ -8,7 +8,7 @@ class Posicao:
 
     def __init__(self):
         
-        os.chdir(os.path.join(os.getcwd(), '/Users/gabriellopes/Documents/finance-app'))
+        os.chdir(os.path.join(os.getcwd(), '/Users/gabriellopes/Documents/Pessoal/dev/finance-app'))
         #print(os.getcwd())
         self.files = os.listdir('datasets/posicao/')
         self.acoes = pd.DataFrame()
@@ -226,8 +226,8 @@ class Extrato:
             'Inflacao Firf': 'BNP Paribas Inflação FI RF',  # idem
             'Azul QuantitativoFIM': 'Azul Quantitativo FIM',
             'QuantitativoFI': 'Azul Quantitativo FIM',
-            'ABSOLUTO CONSUMO': 'ABSOLUTO CONSUMO',
-            'Hedge Fic Fim': 'Hedge Fic Fim',
+            'ABSOLUTO CONSUMO': 'XP Absoluto Consumo FIA',
+            'Hedge Fic Fim': 'NP Hedge FIC FIM',
             'Legan Low Vol FIM': 'Legan Low Vol FIM',
             'XP MULT-INV FIC FIA': 'XP MULT-INV FIC FIA', 
             'Icatu Vanguarda Pré-F': 'Icatu Vanguarda Pré-Fixado FIRF ', 

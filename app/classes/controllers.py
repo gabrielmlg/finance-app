@@ -18,17 +18,17 @@ class MainController():
         self.extrato = Extrato(2010, ate_ano)
         self.fundo_investimento.calcula_resumo(2010, ate_ano)       
         resumo = self.fundo_investimento.resumo
-        print(resumo[resumo['periodo_cont'] >= 1]['data_posicao'].max())
         total_aportes = self.extrato.total_investido()
 
         try: 
             total_aporte_fi = self.fundo_investimento.total_aportes() 
-            print('Total: {} - {}'.format(total_aporte_fi, resumo['aporte'].sum() - resumo['retirada'].sum()))
+            print('Total 2: {} - {}'.format(total_aporte_fi, resumo['aporte'].sum() - resumo['retirada'].sum()))
+            #print(resumo)
             rendimento_fi = resumo['rendimento'].sum()
             rendimento_perc_fi = (rendimento_fi / total_aporte_fi) * 100
         except: 
             print('ERRO')
-            total_aporte_fi = 0
+            total_aporte_fi = 0 
             rendimento_fi = 0 
             rendimento_perc_fi = 0
 

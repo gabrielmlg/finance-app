@@ -17,9 +17,6 @@ from classes.controllers import MainController
 # POSICAO
 # ToDo: Refatorar jogando para dentro da Controller. 
 
-main_controller = MainController()
-main_controller.load_new_filter(2010, 2020)
-
 app = dash.Dash(
     external_stylesheets=[dbc.themes.MATERIA]
 )
@@ -74,7 +71,7 @@ app.layout = html.Div([
                     id="period-range-slider",  
                     min=2014, #2010  #periodos.min(), 
                     max=2020, #periodos.max(), 
-                    value=[2010, 2020],
+                    value=[2014, 2020],
                     marks={
                             #2010: '2010', 
                             #2011: '2011', 
@@ -176,7 +173,9 @@ app.layout = html.Div([
     Output('total_rendimento_fiis_text', 'children')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
-    return main_controller.load_new_filter(periodo[0], periodo[1])
+    print('app: {}'.format(periodo[1]))
+    main_controller = MainController()
+    return main_controller.load_new_filter(2010, periodo[1])
     
 if __name__ == "__main__":
     app.run_server(debug=True)

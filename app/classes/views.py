@@ -70,12 +70,51 @@ class Acao(Investimento):
 
         df_ext = self.__reshape_extrato()
 
-        resumo = df_ext.merge(df_tmp, 
-                            how='outer', 
-                            left_on=['ano', 'mes', 'Papel'], 
-                            right_on=['ano', 'mes', 'Papel']) # ToDo: Estou Aqui!!! Terminar o resumo de acoes. Calcular o rendimento. 
+        resumo = df_tmp.merge(df_ext, 
+                    how='left', 
+                    left_on=['ano', 'mes', 'Papel'], 
+                    right_on=['ano', 'mes', 'Papel']
+                    ).fillna(0).rename(columns={'Data_x': 'Data'})
 
-        return resumo
+        resumo = resumo.groupby(['Papel', 'ano', 'mes', 'Data', 'Financeiro'])\
+                        .agg(aporte=('aporte', 'sum'), 
+                            retirada=('retirada', 'sum')).reset_index()
+
+        # ESTOU AQUI!!!
+        resumo['ano'] = pd.to_numeric(resumo['ano'], downcast='signed')
+        resumo['mes'] = pd.to_numeric(resumo['mes'], downcast='signed')
+
+        df_return = pd.DataFrame([])
+
+        for ativo in resumo['Papel'].unique():
+            df_ = resumo[resumo['Papel'] == ativo].sort_values(by=['Data']).reset_index()
+            rendimento = []
+            periodo_cont = []
+            count = 0
+
+            for row in df_.index:
+                if (df_[df_.index == row]['Financeiro'].sum() > 1) | (df_[df_.index == row]['retirada'].sum() > 1):
+                    if count == 0: # primeiro rendimento
+                        count += 1
+                        rendimento.append(df_[df_.index == row]['Financeiro'].sum() - df_[df_.index <= row]['aporte'].sum())
+                        periodo_cont.append(1)
+                    else:
+                        count += 1
+                        valor = df_[df_.index == row]['Financeiro'].sum() + df_[df_.index == row]['retirada'].sum() - df_[df_.index == row -1]['Financeiro'].sum() - df_[df_.index == row]['aporte'].sum()
+                        rendimento.append(valor)
+                        periodo_cont.append(count)
+                        
+                else:
+                    rendimento.append(0)
+                    periodo_cont.append(0)
+                    count = 0
+
+            df_['rendimento'] = rendimento
+            df_['periodo_cont'] = periodo_cont
+            #df_['rendimento_acum'] = df_['rendimento'].cumsum()
+            df_return = df_return.append(df_)
+
+        return df_return
 
 
     def __reshape_extrato(self):

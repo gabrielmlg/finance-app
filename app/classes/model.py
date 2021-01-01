@@ -93,6 +93,8 @@ class Posicao:
                                          'Qtd Garantia BOV', 'Qtd Garantia BMF',
                                          'Qtd Estruturados', 'Liq Termo',
                                          'Qtd Total', 'Cotacao', 'Financeiro'], data=acoes)
+        
+        # ToDo: Alterar BPAC6 para BPAC11 e a outra. 
 
         return pd_stock
 

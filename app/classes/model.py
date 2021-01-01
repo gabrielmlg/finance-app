@@ -95,8 +95,11 @@ class Posicao:
                                          'Qtd Total', 'Cotacao', 'Financeiro'], data=acoes)
         
         # ToDo: Alterar BPAC6 para BPAC11 e a outra. 
+        pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC9', 'BPAC11', pd_stock['Papel'])
+        pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC12', 'BPAC11', pd_stock['Papel'])
 
-        return pd_stock
+        return pd_stock.groupby(['Papel']).sum().reset_index()
+        #return pd_stock
 
 
     def __get_acoes_provento(self, df):
@@ -181,7 +184,16 @@ class Posicao:
                                                  'Qtd Projetada', 'Qtd Dia', 'Qtde Total',
                                                  'Ult Cotacao', 'Financeiro'], data=fii)
 
-        return df_aportesresult
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'HGLG14', 'HGLG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES11B', 'CNES11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES12B', 'CNES11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF11B', 'BCFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12', 'BCFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12B', 'BCFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'OULG11B', 'OULG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
+
+        return df_aportesresult.groupby(['Papel']).sum().reset_index()
 
 
     def __get_fii_proventos(self, df):
@@ -205,7 +217,15 @@ class Posicao:
                                                  'Qtd Provisionada', 'Dt Pagamento',
                                                  'Valor Provisionado'], data=p_fii)
 
-        return df_aportesresult
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'HGLG14', 'HGLG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES11B', 'CNES11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES12B', 'CNES11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF11B', 'BCFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12', 'BCFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12B', 'BCFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'OULG11B', 'OULG11', df_aportesresult['Papel'])
+
+        return df_aportesresult.groupby(['Papel']).sum().reset_index()
 
 
 
@@ -266,8 +286,6 @@ class Extrato:
 
         df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
         df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
-        
-        
         df['ano'] = df['Mov'].dt.year
         df['mes'] = df['Mov'].dt.month
         #df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
@@ -277,6 +295,11 @@ class Extrato:
 
     def load_extrato_acoes(self):
         df = pd.read_excel('./datasets/acoes/extrato_acoes.xlsx', sheet_name='Planilha2')
+        
+        df['Data'] = pd.to_datetime(df['Data'], format='%d/%m/%Y')
+        df['ano'] = df['Data'].dt.year
+        df['mes'] = df['Data'].dt.month
+
         self.extrato_acoes = df[df['Categoria'] == 'ACAO']
         self.extrato_fiis = df[df['Categoria'] == 'FII']
 
@@ -295,16 +318,16 @@ class Extrato:
         self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
 
         self.__aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
-        self.__aportes_fi_hist['Nome'] = self.__aportes_fi_hist['Descricao'].apply(self.__map_fi)
+        self.__aportes_fi_hist.loc[:, 'Nome'] = self.__aportes_fi_hist['Descricao'].apply(self.__map_fi)
 
         self.__resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
             .drop(self.df[self.df['Descricao']
                      .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
-        self.__resgates_fi_hist['Nome'] = self.__resgates_fi_hist['Descricao'].apply(self.__map_fi)
+        self.__resgates_fi_hist.loc[:, 'Nome'] = self.__resgates_fi_hist['Descricao'].apply(self.__map_fi)
 
         self.ir_fi_hist = self.df[self.df['Descricao'].str.contains(
             'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
-        self.ir_fi_hist['Nome'] = self.ir_fi_hist['Descricao'].apply(self.__map_fi)
+        self.ir_fi_hist.loc[:, 'Nome'] = self.ir_fi_hist['Descricao'].apply(self.__map_fi)
 
 
     def __set_extrato_fis(self):

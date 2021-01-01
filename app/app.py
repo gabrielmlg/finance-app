@@ -16,6 +16,7 @@ from classes.controllers import MainController
 
 # POSICAO
 # ToDo: Refatorar jogando para dentro da Controller. 
+main_controller = MainController()
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.MATERIA]
@@ -112,9 +113,10 @@ app.layout = html.Div([
                                 [
                                     html.H4(id='total_aportes_text'),
                                     html.Br(),
+                                    html.H6(id='total_aporte_acoes_text'),
                                     html.H6(id='total_aporte_fi_text'),
-                                    html.H6("Fundos Imobiliários: R$ {:,.2f} (*)".format((49*100) + (54*90) + (11*100) + (50*100) + (50*100))),
-                                    html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
+                                    html.H6(id='total_aporte_fiis_text'),
+                                    #html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
                                 ]
                             ),
                         ], 
@@ -131,9 +133,9 @@ app.layout = html.Div([
                                 [
                                     html.H4(id='total_rendimento_text'),
                                     html.Br(),
+                                    html.H6(id='total_rendimento_acoes_text'),
                                     html.H6(id='total_rendimento_fi_text'),
                                     html.H6(id='total_rendimento_fiis_text'),
-                                    html.H6(id='total_rendimento_acoes_text'),
                                 ]
                             ),
                         ], 
@@ -148,9 +150,9 @@ app.layout = html.Div([
                 [
                     html.H4(id='total_patrimonio_text'),
                     html.Br(),
+                    html.H6(id='total_patrimonio_acoes_text'),
                     html.H6(id='total_patrimonio_fi_text'),
-                    html.H6("FIIs: R$ {:,.2f} (*)".format(10000)),
-                    html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
+                    html.H6(id='total_patrimonio_fiis_text'),
                 ]
             ),
         ], color="light"), lg=3, width={'offset': -1}),
@@ -164,17 +166,19 @@ app.layout = html.Div([
 
 @app.callback(
     [Output('total_aportes_text', 'children'), 
+    Output('total_aporte_acoes_text', 'children'), 
     Output('total_aporte_fi_text', 'children'), 
+    Output('total_aporte_fiis_text', 'children'), 
     Output('total_rendimento_text', 'children'),
-    Output('total_rendimento_fi_text', 'children'), 
-    Output('total_patrimonio_text', 'children'), 
-    Output('total_patrimonio_fi_text', 'children'), 
     Output('total_rendimento_acoes_text', 'children'), 
-    Output('total_rendimento_fiis_text', 'children')],
+    Output('total_rendimento_fi_text', 'children'), 
+    Output('total_rendimento_fiis_text', 'children'), 
+    Output('total_patrimonio_text', 'children'), 
+    Output('total_patrimonio_acoes_text', 'children'),
+    Output('total_patrimonio_fi_text', 'children'), 
+    Output('total_patrimonio_fiis_text', 'children')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
-    print('app: {}'.format(periodo[1]))
-    main_controller = MainController()
     return main_controller.load_new_filter(2010, periodo[1])
     
 if __name__ == "__main__":

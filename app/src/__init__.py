@@ -1,2 +1,2 @@
 #from classes.views import Posicao, Extrato
-from classes.model import Posicao, Extrato
+#from model import Posicao, Extrato

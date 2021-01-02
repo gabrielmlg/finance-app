@@ -1,7 +1,7 @@
 # Overview
 ---
 
-App para ajudar em operações na bolsa, avaliando a ação através de análise técnica. 
+My finance by a data analytics. 
 
 # Getting Started
 ---

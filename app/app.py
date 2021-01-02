@@ -7,11 +7,10 @@ from dash.dependencies import Input, Output
 #from backend.classes.model import Posicaomodel
 
 # import backend.classes.model
-from classes.model import Posicao, Extrato
-from classes.views import FundoInvestimento, Acao, FundoImobiliario
-from classes.graphics import fis_graph
-
-from classes.controllers import MainController
+from model import Posicao, Extrato
+from views import FundoInvestimento, Acao, FundoImobiliario
+from graphics import fis_graph
+from controllers import MainController
 
 
 # POSICAO

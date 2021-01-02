@@ -3,23 +3,110 @@ import os
 import xlrd
 import numpy as np
 
+import boto3
+import io
+from config import config
+
+ACCESS_KEY=config.AWS_ACCESS_KEY_ID_GABRIEL
+SECRET_KEY=config.AWS_SECRET_KEY_ID_GABRIEL
+bucket= 'balbi-finance-app'
+
+
+class AwsModel:
+    def __init__(self):
+        self.extrato = pd.DataFrame()
+        self.extrato_bolsa = pd.DataFrame()
+        self.df_list_pos = []
+
+    def load_data_s3(self):
+        s3 = boto3.client(
+            's3', 
+            region_name='us-east-1', 
+            aws_access_key_id=ACCESS_KEY,
+            aws_secret_access_key=SECRET_KEY
+        )
+
+        response = s3.list_objects(Bucket=bucket)
+        request_files = response["Contents"]
+        for file in request_files:
+            obj = s3.get_object(Bucket=bucket, Key=file["Key"])
+            if file["Key"].find('datasets/posicao/') >= 0:
+                #print('Posicao: {}'.format(file["Key"]))
+                df_pos_ = pd.read_excel(obj['Body'].read())
+                self.df_list_pos.append(df_pos_)
+            elif file["Key"].find('datasets/extrato/Extrato.csv') >= 0:
+                #print('Extrato: {}'.format(file["Key"]))
+                self.extrato = pd.read_csv(obj["Body"], sep=';', decimal=',')
+            elif file["Key"].find('datasets/acoes/extrato_acoes.xlsx') >= 0:
+                #print('Extrato ações: {}'.format(file["Key"]))
+                #df_extacoes = pd.read_excel(obj["Body"], sheet_name='Planilha2')
+                self.extrato_bolsa = pd.read_excel(io.BytesIO(obj['Body'].read()), sheet_name='Planilha2')
+
 
 class Posicao:
 
-    def __init__(self):
-        
-        os.chdir(os.path.join(os.getcwd(), '/Users/gabriellopes/Documents/Pessoal/dev/finance-app'))
-        #print(os.getcwd())
-        self.files = os.listdir('datasets/posicao/')
+    def __init__(self, df_list_pos):
+        self.df_list_pos = df_list_pos
         self.acoes = pd.DataFrame()
         self.dividendo_acoes = pd.DataFrame()
         self.fis = pd.DataFrame()
         self.fiis = pd.DataFrame()
         self.dividendo_fiis = pd.DataFrame()
-    
+        self.load()
+
+
+    def load(self):
+        for df in self.df_list_pos:
+            date_position = df[df['Unnamed: 56'].str.contains('Data de referência', na=False)]['Unnamed: 56']
+            
+            # position date
+            date_position = pd.to_datetime(date_position.str.replace('Data de referência: ', ''), format='%d/%m/%Y')
+            month = int(date_position.dt.month.values)
+            year = int(date_position.dt.year.values)
+            period = str(year) + '/' + str(month)
+            dt_posicao = date_position.values[0]
+
+            df_stocks = self.__get_acoes(df)
+            df_stocks['period'] = period
+            df_stocks['mes'] = month
+            df_stocks['ano'] = year
+            df_stocks['data_posicao'] = dt_posicao
+            self.acoes = self.acoes.append(df_stocks, ignore_index=True)
+
+            df_pickings = self.__get_acoes_provento(df)
+            df_pickings['period'] = period
+            df_pickings['mes'] = month
+            df_pickings['ano'] = year
+            df_pickings['data_posicao'] = dt_posicao
+            self.dividendo_acoes = self.dividendo_acoes.append(df_pickings, ignore_index=True)
+
+            df_fi = self.__get_fi(df)
+            df_fi['period'] = period
+            df_fi['mes'] = month
+            df_fi['ano'] = year
+            df_fi['data_posicao'] = dt_posicao
+            self.fis = self.fis.append(df_fi, ignore_index=True)
+
+            df_fii = self.__get_fii(df)
+            df_fii['period'] = period
+            df_fii['mes'] = month
+            df_fii['ano'] = year
+            df_fii['data_posicao'] = dt_posicao
+            self.fiis = self.fiis.append(df_fii, ignore_index=True)
+
+            df_picking_fii = self.__get_fii_proventos(df)
+            df_picking_fii['period'] = period
+            df_picking_fii['mes'] = month
+            df_picking_fii['ano'] = year
+            df_picking_fii['data_posicao'] = dt_posicao
+            self.dividendo_fiis = self.dividendo_fiis.append(df_picking_fii, ignore_index=True)
+
+
 
     def load_data(self):
-        
+        '''
+        Carrega os arquivos extraido da XP localmente. 
+        '''
         for file_name in self.files:
             if file_name == '.DS_Store':
                 continue
@@ -231,7 +318,7 @@ class Posicao:
 
 class Extrato:
     
-    def __init__(self, dt_inicio, dt_fim):
+    def __init__(self, dt_inicio, dt_fim, df_extrato, df_extrato_acoes):
         self.fi_map = {
             'Equitas': 'Equitas Selection FIC FIA',
             'Polo Norte': 'Polo Norte I FIC FIM',
@@ -263,38 +350,17 @@ class Extrato:
         self.__resgates_fi_hist = pd.DataFrame()
         self.ir_fi_hist = pd.DataFrame()
 
-        self.df = self.load_csv_extrato()
-        self.filter_extrato(dt_inicio, dt_fim)
-        self.__transform_data()
+        self.df = df_extrato
+        self.__transform_data(dt_inicio, dt_fim)
         self.__set_extrato_fis()
 
         self.extrato_acoes = pd.DataFrame()
         self.extrato_fiis = pd.DataFrame()
-        self.load_extrato_acoes()
+        self.load_extrato_acoes(df_extrato_acoes)
 
 
-    def filter_extrato(self, dt_inicio, dt_fim):
-        self.df = self.df[(self.df['Mov'].dt.year >= dt_inicio) 
-                                & (self.df['Mov'].dt.year <= dt_fim)]
-
-
-    def load_csv_extrato(self):
-        #df = pd.read_csv('./datasets/extrato/Extrato 200091 JAN 2010 a JUN 2020.csv', sep=';', encoding='iso-8859-1', decimal=',')
-        #df2 = pd.read_csv('./datasets/extrato/Extrato 200091 JUN 2020 a NOV 2020.csv', sep=';', encoding='iso-8859-1', decimal=',')
-        df = pd.read_csv('./datasets/extrato/Extrato.csv', sep=';', decimal=',')
-        #df = df.append(df2)
-
-        df['Mov'] = pd.to_datetime(df['Mov'], format='%d/%m/%Y')
-        df['Liq'] = pd.to_datetime(df['Liq'], format='%d/%m/%Y')
-        df['ano'] = df['Mov'].dt.year
-        df['mes'] = df['Mov'].dt.month
-        #df.rename(columns={'Hist__o': 'Descricao'}, inplace=True)
-        
-        return df
-
-
-    def load_extrato_acoes(self):
-        df = pd.read_excel('./datasets/acoes/extrato_acoes.xlsx', sheet_name='Planilha2')
+    def load_extrato_acoes(self, df_extrato_acoes):
+        df = df_extrato_acoes
         
         df['Data'] = pd.to_datetime(df['Data'], format='%d/%m/%Y')
         df['ano'] = df['Data'].dt.year
@@ -312,8 +378,15 @@ class Extrato:
                 break
         return group
 
+    def __transform_data(self, dt_inicio, dt_fim):
+        self.df['Mov'] = pd.to_datetime(self.df['Mov'], format='%d/%m/%Y')
+        self.df['Liq'] = pd.to_datetime(self.df['Liq'], format='%d/%m/%Y')
+        self.df['ano'] = self.df['Mov'].dt.year
+        self.df['mes'] = self.df['Mov'].dt.month
 
-    def __transform_data(self):
+        self.df = self.df[(self.df['Mov'].dt.year >= dt_inicio) 
+                                & (self.df['Mov'].dt.year <= dt_fim)]
+
         self.aportes_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
         self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
 

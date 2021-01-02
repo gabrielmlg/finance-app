@@ -1,12 +1,15 @@
-from classes.model import Posicao, Extrato
-from classes.views import FundoInvestimento, Acao, FundoImobiliario
-from classes.graphics import fis_graph
+from model import Posicao, Extrato, AwsModel
+from views import FundoInvestimento, Acao, FundoImobiliario
+from graphics import fis_graph
+
 
 class MainController():
     def __init__(self):
-        self.posicao_model = Posicao() 
-        self.posicao_model.load_data()
-        self.extrato = Extrato(2010, 2020)
+        self.aws_model = AwsModel()
+        self.aws_model.load_data_s3()
+
+        self.posicao_model = Posicao(self.aws_model.df_list_pos) 
+        self.extrato = Extrato(2010, 2020, self.aws_model.extrato, self.aws_model.extrato_bolsa)
         
         self.fundo_investimento = FundoInvestimento(
             posicao=self.posicao_model.fis, 

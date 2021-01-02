@@ -1,9 +1,9 @@
-# finance-app
+# Overview
+---
+
 App para ajudar em operações na bolsa, avaliando a ação através de análise técnica. 
 
-## Overview
-
-## Getting Started
+# Getting Started
 ---
 
 This is an example of how to list things you need to use the software and hot to install them.

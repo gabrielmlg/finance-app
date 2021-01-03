@@ -1,8 +1,10 @@
 import dash
 import dash_bootstrap_components as dbc
+from dash_bootstrap_components._components.Row import Row
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
+from dash_html_components.Br import Br
 
 #from backend.classes.model import Posicaomodel
 
@@ -156,9 +158,48 @@ app.layout = html.Div([
             ),
         ], color="light"), lg=3, width={'offset': -1}),
     ]), 
+
+    dbc.Row([
+        dbc.Col(dbc.Card([  
+                    dbc.CardHeader("RENDIMENTO POR MÊS (%)"),    
+                    dbc.CardBody(
+                        [
+                            dcc.Graph(id="revenue_chart", figure={}, config={'displayModeBar': False}),
+                        ]
+                    ),
+                ], 
+                className="mb-9", 
+                #color="light"
+            ), 
+            lg=9, 
+            #className='ml-3', 
+            width={'offset': 1}
+        )
+    ]),
+
+    html.Br(),
+
+    dbc.Row([
+        dbc.Col(dbc.Card([  
+                    dbc.CardHeader("RENDIMENTO ACUMULADO"),    
+                    dbc.CardBody(
+                        [
+                            dcc.Graph(id="revenue_cumsum_chart", figure={}, config={'displayModeBar': False}),
+                        ]
+                    ),
+                ], 
+                className="mb-9", 
+                #color="light"
+            ), 
+            lg=9, 
+            #className='ml-3', 
+            width={'offset': 1}
+        )
+    ]),
     
     #dbc.Alert("Em construção, aguarde ...", className="m-3"), 
     #main_controller.graph_fis()[0]
+    
 
 ])
 
@@ -175,7 +216,9 @@ app.layout = html.Div([
     Output('total_patrimonio_text', 'children'), 
     Output('total_patrimonio_acoes_text', 'children'),
     Output('total_patrimonio_fi_text', 'children'), 
-    Output('total_patrimonio_fiis_text', 'children')],
+    Output('total_patrimonio_fiis_text', 'children'), 
+    Output('revenue_chart', 'figure'), 
+    Output('revenue_cumsum_chart', 'figure')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
     return main_controller.load_new_filter(2010, periodo[1])

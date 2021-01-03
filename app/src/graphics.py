@@ -38,3 +38,132 @@ def fis_graph(df):
         )
     
     return fis_graph
+
+def graph_revenue(df):
+    data = [
+        go.Scatter(x=df['Data'],
+                y=df['%'],
+                mode='lines',
+                name='% Rendimento',
+                textposition='top center',
+                text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                marker=dict(size=7),
+                line=dict(color='rgb(115,115,115)', width=1.8),
+                opacity=.8)
+    ]
+
+    layout = [
+        go.Layout(
+            template='plotly_white', 
+            legend_orientation='h', 
+            #height=600, 
+            #width=1000, 
+            title={
+                'y':0.9,
+                'xanchor': 'left',
+                'yanchor': 'top'}, 
+            xaxes={
+                'rangeslider_visible': True,
+                'rangeselector': dict(
+                        buttons=list([
+                            dict(count=1, label="1m", step="month", stepmode="backward"),
+                            dict(count=6, label="6m", step="month", stepmode="backward"),
+                            dict(count=1, label="YTD", step="year", stepmode="todate"),
+                            dict(count=1, label="1y", step="year", stepmode="backward"),
+                            dict(step="all")
+                        ])
+                )
+            }
+        )
+    ]
+
+    return dcc.Graph(
+        id='graph_revenue',
+        figure={
+            'data': data,
+            'layout': layout
+        }
+    )
+
+def revenue_chart(df):
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Scatter(x=df['Data'],
+                y=df['%'],
+                mode='lines',
+                name='% Rendimento',
+                textposition='top center',
+                text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                marker=dict(size=7),
+                line=dict(color='#6A12E8', width=1.8),
+                opacity=.8))  
+
+    fig.update_xaxes(
+        rangeslider_visible=True,
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    fig.update_layout(
+        template='plotly_white', 
+        legend_orientation='h', 
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig
+
+def revenue_cumsum_chart(df):
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Scatter(x=df['Data'],
+            y=df['renda_acum'],
+            mode='lines',
+            name = 'Rendimento Acumulado',
+            text=df['renda_acum'].apply(lambda x: f'{x/1000:,.0f}K'),
+            #textposition='outside',
+            line=dict(color='#8B09FF'), 
+            line_shape='linear'
+            ))            
+    
+    fig.update_xaxes(
+        rangeslider_visible=True,
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    fig.update_layout(
+        template='plotly_white', 
+        legend_orientation='h', 
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig

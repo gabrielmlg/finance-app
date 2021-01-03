@@ -52,10 +52,10 @@ class Posicao:
         self.fis = pd.DataFrame()
         self.fiis = pd.DataFrame()
         self.dividendo_fiis = pd.DataFrame()
-        self.load()
+        self.__load()
 
 
-    def load(self):
+    def __load(self):
         for df in self.df_list_pos:
             date_position = df[df['Unnamed: 56'].str.contains('Data de referência', na=False)]['Unnamed: 56']
             

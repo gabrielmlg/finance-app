@@ -138,7 +138,7 @@ class Acao(Investimento):
         self.posicao = posicao
         self.extrato = extrato
         super().__init__('Papel', 'Financeiro')
-        #self.resumo = self.calcula_resumo(2010, 2020)
+        self.resumo = self.calcula_resumo(2010, 2020)
 
 
     
@@ -150,6 +150,8 @@ class Acao(Investimento):
 
         df_pos = self.posicao[self.posicao['ano'] <= data_fim]
         df_pos['data_posicao'] = df_pos['data_posicao'].astype(np.datetime64)
+
+        #print(df_pos[['Papel', 'data_posicao', 'Financeiro']].sort_values(['Papel', 'data_posicao']))
 
         start = datetime(2010, 1, 1)
         end = datetime(data_fim, 12, 31)
@@ -175,6 +177,8 @@ class Acao(Investimento):
                     left_on=['ano', 'mes', 'Papel'], 
                     right_on=['ano', 'mes', 'Papel']
                     ).fillna(0).rename(columns={'Data_x': 'Data'})
+
+        #print(resumo[['Papel', 'ano', 'mes', 'Data', 'Financeiro', 'aporte', 'retirada']])
 
         resumo = resumo.groupby(['Papel', 'ano', 'mes', 'Data', 'Financeiro'])\
                         .agg(aporte=('aporte', 'sum'), 
@@ -250,6 +254,7 @@ class FundoImobiliario(Investimento):
         self.posicao = posicao
         self.extrato = extrato
         super().__init__('Papel', 'Financeiro')
+        self.resumo = self.calcula_resumo(2010, 2020)
 
     def calcula_rentabilidade(self, do_ano, ate_ano):
         return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
@@ -264,7 +269,7 @@ class FundoInvestimento(Investimento):
     def __init__(self, posicao, extrato):
         self.posicao_hist = posicao
         self.extrato = extrato
-        self.calcula_resumo(2010, 2020)
+        self.resumo = self.calcula_resumo(2010, 2020)
 
 
     # Calcula o rendimendo de ativo FI para cada periodo. 
@@ -373,7 +378,7 @@ class FundoInvestimento(Investimento):
             
         df_return.drop(columns=['Data', 'Qtd Cotas', 'Valor Cota', 'Valor Bruto', 'IR', 'IOF', 'Valor Liquido', 'period', 'Aplicacao Pendente'], inplace=True)
 
-        self.resumo = df_return
+        return df_return
         # return df_return
 
     

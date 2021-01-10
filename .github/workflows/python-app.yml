@@ -42,3 +42,6 @@ jobs:
       run: |
         export PYTHONPATH=app/src 
         pytest
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_KEY_ID: ${{ secrets.AWS_SECRET_KEY_ID }}

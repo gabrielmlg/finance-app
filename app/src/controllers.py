@@ -2,6 +2,8 @@ from model import Posicao, Extrato, AwsModel
 from views import FundoInvestimento, Acao, FundoImobiliario
 import graphics
 
+import numpy as np
+
 
 class MainController():
     def __init__(self):
@@ -21,8 +23,8 @@ class MainController():
 
     def load_new_filter(self, de_ano, ate_ano):
         fi_resumo = self.fi.resumo
-        acoes_resumo = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-11-30']
-        fiis_resumo = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-11-30']
+        acoes_resumo = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-12-31']
+        fiis_resumo = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-12-31']
 
         total_aportes = self.extrato.total_investido()
 
@@ -75,25 +77,22 @@ class MainController():
         )
 
 
-    def graph_fis(self):
-        return graphics.fis_graph(self.posicao_model.fis)
-
-    def revenue_chart(self):
-        df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-11-30'].groupby(['Data', 'ano', 'mes'])\
+    def get_revenue_dataset(self):
+        df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 
             aporte=('aporte', 'sum'), 
             retirada=('retirada', 'sum'), 
             rendimento=('rendimento', 'sum'))\
         .reset_index()
 
-        df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-11-30'].groupby(['Data', 'ano', 'mes'])\
+        df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 
             aporte=('aporte', 'sum'), 
             retirada=('retirada', 'sum'), 
             rendimento=('rendimento', 'sum'))\
         .reset_index()  
 
-        df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2020-11-30'].groupby(['data_posicao', 'ano', 'mes'])\
+        df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2020-12-31'].groupby(['data_posicao', 'ano', 'mes'])\
         .agg(financeiro=('Total Bruto', 'sum'), 
             aporte=('aporte', 'sum'), 
             retirada=('retirada', 'sum'), 
@@ -118,25 +117,92 @@ class MainController():
         df_graph1 = df_graph1.fillna(0)
         df_graph1 = df_graph1[(df_graph1['Data'] >= '2014-01-01')]
 
-        return graphics.revenue_chart(df_graph1) 
+        return df_graph1
 
 
-    def revenue_cumsum_chart(self):
-        df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-11-30'].groupby(['Data', 'ano', 'mes'])\
+    def stock_revenue_chart(self):
+        df = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
+                            .agg(financeiro=('Financeiro', 'sum'), 
+                                aporte=('aporte', 'sum'), 
+                                retirada=('retirada', 'sum'), 
+                                rendimento=('rendimento', 'sum'))\
+                            .reset_index()
+
+        df['%'] = df['rendimento'] / df['financeiro'] * 100
+        df['renda_acum'] = df['rendimento'].cumsum()
+        df['aporte_acum'] = df['aporte'].cumsum()
+        df['retirada_acum'] = df['retirada'].cumsum()
+        df['investido'] = df['aporte_acum'] - df['retirada_acum']
+        df['% renda_acum'] = df['rendimento'].cumsum() / (df['investido']) * 100  
+        df = df.fillna(0)
+        df = df[(df['Data'] >= '2014-01-01')]
+
+        return df
+    
+    
+    def graph_fis(self):
+        return graphics.fis_graph(self.posicao_model.fis)
+
+    def revenue_chart(self):
+        df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 
             aporte=('aporte', 'sum'), 
             retirada=('retirada', 'sum'), 
             rendimento=('rendimento', 'sum'))\
         .reset_index()
 
-        df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-11-30'].groupby(['Data', 'ano', 'mes'])\
+        df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 
             aporte=('aporte', 'sum'), 
             retirada=('retirada', 'sum'), 
             rendimento=('rendimento', 'sum'))\
         .reset_index()  
 
-        df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2020-11-30'].groupby(['data_posicao', 'ano', 'mes'])\
+        df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2020-12-31'].groupby(['data_posicao', 'ano', 'mes'])\
+        .agg(financeiro=('Total Bruto', 'sum'), 
+            aporte=('aporte', 'sum'), 
+            retirada=('retirada', 'sum'), 
+            rendimento=('rendimento', 'sum'))\
+        .reset_index()\
+        .rename(columns={'data_posicao': 'Data'})      
+
+        df_graph1 = df1.append(df2, ignore_index=True).append(df3, ignore_index=True)
+        df_graph1 = df_graph1.groupby(['Data', 'ano', 'mes'])\
+                .agg(financeiro=('financeiro', 'sum'), 
+                    aporte=('aporte', 'sum'), 
+                    retirada=('retirada', 'sum'), 
+                    rendimento=('rendimento', 'sum'))\
+                .reset_index().fillna(0)
+
+        df_graph1['%'] = df_graph1['rendimento'] / df_graph1['financeiro'] * 100
+        df_graph1['renda_acum'] = df_graph1['rendimento'].cumsum()
+        df_graph1['aporte_acum'] = df_graph1['aporte'].cumsum()
+        df_graph1['retirada_acum'] = df_graph1['retirada'].cumsum()
+        df_graph1['investido'] = df_graph1['aporte_acum'] - df_graph1['retirada_acum']
+        df_graph1['% renda_acum'] = df_graph1['rendimento'].cumsum() / (df_graph1['investido']) * 100  
+        df_graph1 = df_graph1.fillna(0)
+        df_graph1['color'] = np.where(df_graph1['%'] >= 0, '#2B04E8', '#F24171')
+        df_graph1 = df_graph1[(df_graph1['Data'] >= '2014-01-01')]
+
+        return graphics.revenue_chart(df_graph1) 
+
+
+    def revenue_cumsum_chart(self):
+        df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
+        .agg(financeiro=('Financeiro', 'sum'), 
+            aporte=('aporte', 'sum'), 
+            retirada=('retirada', 'sum'), 
+            rendimento=('rendimento', 'sum'))\
+        .reset_index()
+
+        df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-12-31'].groupby(['Data', 'ano', 'mes'])\
+        .agg(financeiro=('Financeiro', 'sum'), 
+            aporte=('aporte', 'sum'), 
+            retirada=('retirada', 'sum'), 
+            rendimento=('rendimento', 'sum'))\
+        .reset_index()  
+
+        df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2020-12-31'].groupby(['data_posicao', 'ano', 'mes'])\
         .agg(financeiro=('Total Bruto', 'sum'), 
             aporte=('aporte', 'sum'), 
             retirada=('retirada', 'sum'), 

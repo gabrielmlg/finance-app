@@ -89,18 +89,19 @@ def revenue_chart(df):
     fig = go.Figure()
 
     fig.add_trace(
-        go.Scatter(x=df['Data'],
+        go.Bar(x=df['Data'],
                 y=df['%'],
-                mode='lines',
+                #mode='lines',
                 name='% Rendimento',
-                textposition='top center',
-                text=df['%'].apply(lambda x: f'{x:,.2f}%'),
-                marker=dict(size=7),
-                line=dict(color='#6A12E8', width=1.8),
+                textposition='outside',
+                #text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                #marker=dict(size=7),
+                marker_color=df['color'], 
+                #line=dict(color='#6A12E8', width=1.8),
                 opacity=.8))  
 
     fig.update_xaxes(
-        rangeslider_visible=True,
+        #rangeslider_visible=True,
         rangeselector=dict(
             buttons=list([
                 dict(count=1, label="1m", step="month", stepmode="backward"),
@@ -142,7 +143,7 @@ def revenue_cumsum_chart(df):
             ))            
     
     fig.update_xaxes(
-        rangeslider_visible=True,
+        #rangeslider_visible=True,
         rangeselector=dict(
             buttons=list([
                 dict(count=1, label="1m", step="month", stepmode="backward"),

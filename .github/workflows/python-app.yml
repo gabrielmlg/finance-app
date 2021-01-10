@@ -26,6 +26,10 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         export PYTHONPATH=app/src
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_KEY_ID: ${{ secrets.AWS_SECRET_KEY_ID }}
+
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

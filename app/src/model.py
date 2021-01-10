@@ -5,10 +5,20 @@ import numpy as np
 
 import boto3
 import io
-from config import config
 
-ACCESS_KEY=config.AWS_ACCESS_KEY_ID_GABRIEL
-SECRET_KEY=config.AWS_SECRET_KEY_ID_GABRIEL
+# LOCAL
+
+#print(config.AWS_ACCESS_KEY_ID_GABRIEL)
+#os.environ['ACCESS_KEY'] = config.AWS_ACCESS_KEY_ID_GABRIEL
+#os.environ['SECRET_KEY'] = config.AWS_SECRET_KEY_ID_GABRIEL
+
+#from config import config
+ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
+SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  # config.AWS_SECRET_KEY_ID_GABRIEL
+
+ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
+SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  # config.AWS_SECRET_KEY_ID_GABRIEL
+
 bucket= 'balbi-finance-app'
 
 

@@ -1,20 +1,40 @@
 import plotly.graph_objs as go
 import dash_core_components as dcc
 
-def aporte_pie_chart(df):
+
+pie_color_map = {
+    'Ação': '#343AE9', 
+     'FI': '#5157FF', 
+     'FII': '#FECC53',            
+}
+
+
+def resume_pie_chart(df, col_value):
     df_pie = df\
             .groupby('Tipo')\
             .agg(aporte=('aporte', 'sum'), 
+                    rendimento=('rendimento', 'sum'), 
                     retirada=('retirada', 'sum'))\
             .reset_index()
 
     df_pie['investido'] = df_pie['aporte'] - df_pie['retirada']
+    df_pie['patrimonio'] = df_pie['investido'] + df_pie['rendimento']
 
     labels = df_pie['Tipo']
-    values = df_pie['investido']
+    values = df_pie[col_value]
+    colors = df_pie['Tipo'].map(pie_color_map)
 
     # Use `hole` to create a donut-like pie chart
-    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+    fig = go.Figure(
+        data=[
+            go.Pie(
+                labels=labels, 
+                values=values, 
+                marker_colors=colors,
+                hole=.5
+            )
+        ]
+    )
 
     fig.update_layout(
         height=80,

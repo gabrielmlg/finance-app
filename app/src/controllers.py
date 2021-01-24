@@ -130,7 +130,15 @@ class MainController():
 
     
     def aporte_pie_chart(self):
-        return graphics.aporte_pie_chart(self.resume())
+        return graphics.resume_pie_chart(self.resume(), 'investido')
+
+
+    def rendimento_pie_chart(self):
+        return graphics.resume_pie_chart(self.resume(), 'rendimento')
+
+
+    def patrimonio_pie_chart(self):
+        return graphics.resume_pie_chart(self.resume(), 'patrimonio')
 
 
     def get_revenue_dataset(self):

@@ -94,45 +94,61 @@ app.layout = html.Div([
     # Cards de aporte, receita e patrimonio
     dbc.Row([
         dbc.Col(dbc.Card([  
-                            dbc.CardHeader("APORTES"),    
+                    dbc.CardHeader("APORTES"),    
+                    dbc.CardBody(
+                        html.Div(
+                            dbc.Row([
+                                dbc.Col(
+                                    [
+                                        html.H4(id='total_aportes_text'),
+                                        html.Br(),
+                                        html.H6(id='total_aporte_acoes_text'),
+                                        html.H6(id='total_aporte_fi_text'),
+                                        html.H6(id='total_aporte_fiis_text'),
+                                        #html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
+                                    ]
+                                ), 
+                                dbc.Col(
+                                    dcc.Graph(id="aporte_pie_chart", 
+                                                figure={}, 
+                                                config={'displayModeBar': False}, 
+                                                style={'margin-top': '20px'}),
+                                )
+                            ])
+                            
+                        )
+                    ),
+                ], 
+                className="mb-3", 
+                #color="light"
+            ), 
+            lg=3, 
+            #className='ml-3', 
+            width={'offset': 1}
+        ),
+        dbc.Col(dbc.Card([
+                            dbc.CardHeader("RENDIMENTOS"),   
                             dbc.CardBody(
                                 html.Div(
                                     dbc.Row([
                                         dbc.Col(
                                             [
-                                                html.H4(id='total_aportes_text'),
+                                                html.H4(id='total_rendimento_text'),
                                                 html.Br(),
-                                                html.H6(id='total_aporte_acoes_text'),
-                                                html.H6(id='total_aporte_fi_text'),
-                                                html.H6(id='total_aporte_fiis_text'),
-                                                #html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
+                                                html.H6(id='total_rendimento_acoes_text'),
+                                                html.H6(id='total_rendimento_fi_text'),
+                                                html.H6(id='total_rendimento_fiis_text'),
                                             ]
                                         ), 
                                         dbc.Col(
-                                            dcc.Graph(id="aporte_pie_chart", figure={}, config={'displayModeBar': False}),
+                                            dcc.Graph(id="rendimento_pie_chart", 
+                                                        figure={}, 
+                                                        config={'displayModeBar': False}, 
+                                                        style={'margin-top': '20px'}),
                                         )
                                     ])
                                     
                                 )
-                            ),
-                        ], 
-                        className="mb-3", 
-                        #color="light"
-                    ), 
-                    lg=3, 
-                    #className='ml-3', 
-                    width={'offset': 1}
-        ),
-        dbc.Col(dbc.Card([
-                            dbc.CardHeader("RENDIMENTOS"),   
-                            dbc.CardBody(
-                                [
-                                    html.H4(id='total_rendimento_text'),
-                                    html.Br(),
-                                    html.H6(id='total_rendimento_acoes_text'),
-                                    html.H6(id='total_rendimento_fi_text'),
-                                    html.H6(id='total_rendimento_fiis_text'),
-                                ]
                             ),
                         ], 
                         className="mb-3", 
@@ -143,13 +159,26 @@ app.layout = html.Div([
         dbc.Col(dbc.Card([
             dbc.CardHeader("PATRIMONIO"),
             dbc.CardBody(
-                [
-                    html.H4(id='total_patrimonio_text'),
-                    html.Br(),
-                    html.H6(id='total_patrimonio_acoes_text'),
-                    html.H6(id='total_patrimonio_fi_text'),
-                    html.H6(id='total_patrimonio_fiis_text'),
-                ]
+                html.Div(
+                    dbc.Row([
+                        dbc.Col(
+                            [
+                                html.H4(id='total_patrimonio_text'),
+                                html.Br(),
+                                html.H6(id='total_patrimonio_acoes_text'),
+                                html.H6(id='total_patrimonio_fi_text'),
+                                html.H6(id='total_patrimonio_fiis_text'),
+                            ]
+                        ), 
+                        dbc.Col(
+                            dcc.Graph(id="patrimonio_pie_chart", 
+                                        figure={}, 
+                                        config={'displayModeBar': False}, 
+                                        style={'margin-top': '20px'}),
+                        )
+                    ])
+                    
+                )
             ),
         ], color="light"), lg=3, width={'offset': -1}),
     ]), 
@@ -220,11 +249,15 @@ def filter_period(periodo):
 
 
 @app.callback(
-    Output('aporte_pie_chart', 'figure'), 
+    [Output('aporte_pie_chart', 'figure'), 
+    Output('rendimento_pie_chart', 'figure'), 
+    Output('patrimonio_pie_chart', 'figure')], 
     Input('period-range-slider', 'value')
 )
 def aporte_pie_chart_update(periodo):
-    return main_controller.aporte_pie_chart()
+    return (main_controller.aporte_pie_chart(), 
+            main_controller.rendimento_pie_chart(), 
+            main_controller.patrimonio_pie_chart())
 
     
 if __name__ == "__main__":

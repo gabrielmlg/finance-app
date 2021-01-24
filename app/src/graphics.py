@@ -1,6 +1,31 @@
 import plotly.graph_objs as go
 import dash_core_components as dcc
 
+def aporte_pie_chart(df):
+    df_pie = df\
+            .groupby('Tipo')\
+            .agg(aporte=('aporte', 'sum'), 
+                    retirada=('retirada', 'sum'))\
+            .reset_index()
+
+    df_pie['investido'] = df_pie['aporte'] - df_pie['retirada']
+
+    labels = df_pie['Tipo']
+    values = df_pie['investido']
+
+    # Use `hole` to create a donut-like pie chart
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+
+    fig.update_layout(
+        height=80,
+        showlegend=False, 
+        margin=dict(l=2, r=2, t=2, b=2), 
+        template='plotly_white', 
+    )
+
+    return fig 
+
+
 def fis_graph(df):
     
     fis_graph = []

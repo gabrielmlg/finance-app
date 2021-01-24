@@ -43,21 +43,6 @@ navbar = dbc.NavbarSimple(
     dark=True,
 )
 
-
-card_content = [
-    dbc.CardHeader("Card header"),
-    dbc.CardBody(
-        [
-            html.H5("Card title", className="card-title"),
-            html.P(
-                "This is some card content that we'll reuse",
-                className="card-text",
-            ),
-        ]
-    ),
-]
-
-
 app.layout = html.Div([
     
     # header
@@ -111,14 +96,24 @@ app.layout = html.Div([
         dbc.Col(dbc.Card([  
                             dbc.CardHeader("APORTES"),    
                             dbc.CardBody(
-                                [
-                                    html.H4(id='total_aportes_text'),
-                                    html.Br(),
-                                    html.H6(id='total_aporte_acoes_text'),
-                                    html.H6(id='total_aporte_fi_text'),
-                                    html.H6(id='total_aporte_fiis_text'),
-                                    #html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
-                                ]
+                                html.Div(
+                                    dbc.Row([
+                                        dbc.Col(
+                                            [
+                                                html.H4(id='total_aportes_text'),
+                                                html.Br(),
+                                                html.H6(id='total_aporte_acoes_text'),
+                                                html.H6(id='total_aporte_fi_text'),
+                                                html.H6(id='total_aporte_fiis_text'),
+                                                #html.H6("Ações: R$ {:,.2f} (*)".format(50000)),
+                                            ]
+                                        ), 
+                                        dbc.Col(
+                                            dcc.Graph(id="aporte_pie_chart", figure={}, config={'displayModeBar': False}),
+                                        )
+                                    ])
+                                    
+                                )
                             ),
                         ], 
                         className="mb-3", 
@@ -222,6 +217,15 @@ app.layout = html.Div([
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
     return main_controller.load_new_filter(2010, periodo[1])
+
+
+@app.callback(
+    Output('aporte_pie_chart', 'figure'), 
+    Input('period-range-slider', 'value')
+)
+def aporte_pie_chart_update(periodo):
+    return main_controller.aporte_pie_chart()
+
     
 if __name__ == "__main__":
     app.run_server(debug=True)

@@ -14,10 +14,6 @@ import io
 ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
 SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  # config.AWS_SECRET_KEY_ID_GABRIEL
 
-print('---------------------------------------')
-print(ACCESS_KEY)
-print('---------------------------------------')
-
 bucket= 'balbi-finance-app'
 
 

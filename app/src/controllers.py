@@ -57,21 +57,21 @@ class MainController():
 
 
         return (
-            "Total: R$ {:,.2f}".format(total_aportes), 
+            "R$ {:,.2f}".format(total_aportes), 
             "Ações: R$ {:,.2f}".format(total_aporte_acoes),
             "FIs: R$ {:,.2f}".format(total_aporte_fi),
             "FIIs: R$ {:,.2f}".format(total_aporte_fiis),
             
-            "Total: R$ {:,.2f}".format(rendimento_fi + rendimento_acoes + rendimento_fiis),
-            "Ações: R$ {:,.2f} ({:,.2f}%)".format(rendimento_acoes, rend_acoes_perc),  
-            "FIs: R$ {:,.2f} ({:,.2f}%)".format(rendimento_fi, rendimento_perc_fi),  
-            "FIIs: R$ {:,.2f} ({:,.2f}%)".format(rendimento_fiis, rend_fiis_perc),  
+            "R$ {:,.2f}".format(rendimento_fi + rendimento_acoes + rendimento_fiis),
+            "R$ {:,.2f} ({:,.2f}%)".format(rendimento_acoes, rend_acoes_perc),  
+            "R$ {:,.2f} ({:,.2f}%)".format(rendimento_fi, rendimento_perc_fi),  
+            "R$ {:,.2f} ({:,.2f}%)".format(rendimento_fiis, rend_fiis_perc),  
             
             
-            "Total: R$ {:,.2f}".format(total_aportes + rendimento_acoes + rendimento_fi + rendimento_fiis),
-            "Ações: R$ {:,.2f}".format(total_aporte_acoes + rendimento_acoes), 
-            "FIs: R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
-            "FIIs: R$ {:,.2f}".format(total_aporte_fiis + rendimento_fiis),  
+            "R$ {:,.2f}".format(total_aportes + rendimento_acoes + rendimento_fi + rendimento_fiis),
+            "R$ {:,.2f}".format(total_aporte_acoes + rendimento_acoes), 
+            "R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
+            "R$ {:,.2f}".format(total_aporte_fiis + rendimento_fiis),  
             self.revenue_chart(), 
             self.revenue_cumsum_chart()
         )
@@ -86,7 +86,10 @@ class MainController():
                     rendimento=('rendimento', 'sum'))\
                 .reset_index()\
                 .rename(columns={'Papel': 'Nome'})
-        df1['Tipo'] = 'Ação'
+        df1['Tipo'] = np.where(df1['Nome'].str.contains('34'), 
+                                'BDR', 
+                                'AçÃo')
+
 
         df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-12-31']\
                 .groupby(['Papel', 'Data', 'ano', 'mes'])\

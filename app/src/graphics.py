@@ -5,7 +5,9 @@ import dash_core_components as dcc
 pie_color_map = {
     'Ação': '#343AE9', 
      'FI': '#5157FF', 
-     'FII': '#FECC53',            
+     'FII': '#01CABB', 
+     'BDR': '#F74AA8', 
+     'Ouro': '#FECC53'            
 }
 
 
@@ -31,15 +33,19 @@ def resume_pie_chart(df, col_value):
                 labels=labels, 
                 values=values, 
                 marker_colors=colors,
-                hole=.5
+                hole=.5, 
+                hoverinfo='label+value+percent',
+                textinfo='label+percent',
+                textfont=dict(size=9),
+                rotation=45
             )
         ]
     )
 
     fig.update_layout(
-        height=80,
+        height=125,
         showlegend=False, 
-        margin=dict(l=2, r=2, t=2, b=2), 
+        margin=dict(l=0, r=0, t=0, b=0), 
         template='plotly_white', 
     )
 
@@ -94,7 +100,8 @@ def graph_revenue(df):
                 text=df['%'].apply(lambda x: f'{x:,.2f}%'),
                 marker=dict(size=7),
                 line=dict(color='rgb(115,115,115)', width=1.8),
-                opacity=.8)
+                #opacity=.8
+        )
     ]
 
     layout = [
@@ -143,7 +150,9 @@ def revenue_chart(df):
                 #marker=dict(size=7),
                 marker_color=df['color'], 
                 #line=dict(color='#6A12E8', width=1.8),
-                opacity=.8))  
+                #opacity=.8
+        )
+    )  
 
     fig.update_xaxes(
         #rangeslider_visible=True,

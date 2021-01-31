@@ -38,13 +38,19 @@ class MainController():
             rendimento_perc_fi = 0
 
         try: 
-            total_aporte_acoes = self.acoes.total_aportes() 
-            rendimento_acoes = acoes_resumo['rendimento'].sum()
+            total_aporte_acoes = self.acoes.total_aportes('Ação') 
+            total_aporte_bdrs = self.acoes.total_aportes('BDR') 
+            rendimento_acoes = acoes_resumo[acoes_resumo['Tipo'] == 'Ação']['rendimento'].sum()
+            rendimento_bdrs = acoes_resumo[acoes_resumo['Tipo'] == 'BDR']['rendimento'].sum()
             rend_acoes_perc = (rendimento_acoes / total_aporte_acoes) * 100
+            rend_bdrs_perc = (rendimento_bdrs / total_aporte_bdrs) * 100
         except: 
             total_aporte_acoes = 0
+            total_aporte_bdrs = 0
             rendimento_acoes = 0
+            rendimento_bdrs = 0
             rend_acoes_perc = 0
+            rend_bdrs_perc = 0
 
         try: 
             total_aporte_fiis = fiis_resumo['aporte'].sum() - fiis_resumo['retirada'].sum()
@@ -59,17 +65,20 @@ class MainController():
         return (
             "R$ {:,.2f}".format(total_aportes), 
             "Ações: R$ {:,.2f}".format(total_aporte_acoes),
+            "BDRs: R$ {:,.2f}".format(total_aporte_bdrs),
             "FIs: R$ {:,.2f}".format(total_aporte_fi),
             "FIIs: R$ {:,.2f}".format(total_aporte_fiis),
             
             "R$ {:,.2f}".format(rendimento_fi + rendimento_acoes + rendimento_fiis),
             "R$ {:,.2f} ({:,.2f}%)".format(rendimento_acoes, rend_acoes_perc),  
+            "R$ {:,.2f} ({:,.2f}%)".format(rendimento_bdrs, rend_bdrs_perc),  
             "R$ {:,.2f} ({:,.2f}%)".format(rendimento_fi, rendimento_perc_fi),  
             "R$ {:,.2f} ({:,.2f}%)".format(rendimento_fiis, rend_fiis_perc),  
             
             
             "R$ {:,.2f}".format(total_aportes + rendimento_acoes + rendimento_fi + rendimento_fiis),
             "R$ {:,.2f}".format(total_aporte_acoes + rendimento_acoes), 
+            "R$ {:,.2f}".format(total_aporte_bdrs + rendimento_bdrs), 
             "R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
             "R$ {:,.2f}".format(total_aporte_fiis + rendimento_fiis),  
             self.revenue_chart(), 
@@ -88,7 +97,7 @@ class MainController():
                 .rename(columns={'Papel': 'Nome'})
         df1['Tipo'] = np.where(df1['Nome'].str.contains('34'), 
                                 'BDR', 
-                                'AçÃo')
+                                'Ação')
 
 
         df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2020-12-31']\

@@ -186,6 +186,9 @@ class Acao(Investimento):
 
         resumo['ano'] = pd.to_numeric(resumo['ano'], downcast='signed')
         resumo['mes'] = pd.to_numeric(resumo['mes'], downcast='signed')
+        resumo['Tipo'] = np.where(resumo['Papel'].str.contains('34'), 
+                                'BDR', 
+                                'Ação')
 
         df_return = pd.DataFrame([])
 
@@ -228,8 +231,9 @@ class Acao(Investimento):
 
         return df_return
 
-    def total_aportes(self):
-        return self.resumo['aporte'].sum() - self.resumo['retirada'].sum()
+    def total_aportes(self, tipo):
+        return self.resumo[self.resumo['Tipo'] == tipo]['aporte'].sum() \
+                - self.resumo[self.resumo['Tipo'] == tipo]['retirada'].sum()
 
 
     def __reshape_extrato(self):

@@ -23,7 +23,7 @@ def resume_pie_chart(df, col_value):
     df_pie['patrimonio'] = df_pie['investido'] + df_pie['rendimento']
 
     labels = df_pie['Tipo']
-    values = df_pie[col_value]
+    values = df_pie[col_value].astype(int)
     colors = df_pie['Tipo'].map(pie_color_map)
 
     # Use `hole` to create a donut-like pie chart
@@ -37,6 +37,7 @@ def resume_pie_chart(df, col_value):
                 hoverinfo='label+value+percent',
                 textinfo='label+percent',
                 textfont=dict(size=9),
+                scalegroup='one', 
                 rotation=45
             )
         ]
@@ -46,6 +47,8 @@ def resume_pie_chart(df, col_value):
         height=125,
         showlegend=False, 
         margin=dict(l=0, r=0, t=0, b=0), 
+        uniformtext_mode='hide', # esconde caso nao caiba na figura
+        uniformtext_minsize=7, 
         template='plotly_white', 
     )
 

@@ -7,7 +7,7 @@ import boto3
 import io
 
 # LOCAL
-#from config import config
+#from apps.src.config import config
 #ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
 #SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  # config.AWS_SECRET_KEY_ID_GABRIEL
 

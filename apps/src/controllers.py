@@ -1,6 +1,6 @@
-from model import Posicao, Extrato, AwsModel
-from views import FundoInvestimento, Acao, FundoImobiliario
-import graphics
+from apps.src.model import Posicao, Extrato, AwsModel
+from apps.src.views import FundoInvestimento, Acao, FundoImobiliario
+from apps.src import graphics
 
 import numpy as np
 

@@ -1,4 +1,4 @@
-from controllers import MainController
+from apps.src.controllers import MainController
 
 def test_main():
     main = MainController()     

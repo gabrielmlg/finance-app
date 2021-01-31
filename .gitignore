@@ -10,4 +10,4 @@ __pycache__
 
 datasets
 error
-app/src/config
+apps/src/config

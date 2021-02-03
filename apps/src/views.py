@@ -134,9 +134,10 @@ class Investimento():
 
 
 class Acao(Investimento):
-    def __init__(self, posicao, extrato):
+    def __init__(self, posicao, extrato, dividendo):
         self.posicao = posicao
         self.extrato = extrato
+        self.dividendo = dividendo
         super().__init__('Papel', 'Financeiro')
         self.resumo = self.calcula_resumo(2010, 2020)
 

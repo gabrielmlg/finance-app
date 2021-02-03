@@ -9,10 +9,10 @@ import io
 # LOCAL
 #from apps.src.config import config
 #ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
-#SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  # config.AWS_SECRET_KEY_ID_GABRIEL
+#SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
 
 ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
-SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  # config.AWS_SECRET_KEY_ID_GABRIEL
+SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
 
 bucket= 'balbi-finance-app'
 
@@ -41,7 +41,7 @@ class AwsModel:
                 self.df_list_pos.append(df_pos_)
             elif file["Key"].find('datasets/extrato/Extrato.csv') >= 0:
                 #print('Extrato: {}'.format(file["Key"]))
-                self.extrato = pd.read_csv(obj["Body"], sep=';', decimal=',')
+                self.extrato = pd.read_csv(obj["Body"], sep=';', decimal=',', encoding='utf-8')
             elif file["Key"].find('datasets/acoes/extrato_acoes.xlsx') >= 0:
                 #print('Extrato ações: {}'.format(file["Key"]))
                 #df_extacoes = pd.read_excel(obj["Body"], sheet_name='Planilha2')

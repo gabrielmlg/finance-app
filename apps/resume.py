@@ -19,8 +19,8 @@ layout = html.Div([
                     dcc.RangeSlider(
                     id="period-range-slider",  
                     min=2014, #2010  #periodos.min(), 
-                    max=2020, #periodos.max(), 
-                    value=[2014, 2020],
+                    max=2021, #periodos.max(), 
+                    value=[2014, 2021],
                     marks={
                             #2010: '2010', 
                             #2011: '2011', 
@@ -32,7 +32,8 @@ layout = html.Div([
                             2017: '2017', 
                             2018: '2018', 
                             2019: '2019', 
-                            2020: '2020'
+                            2020: '2020', 
+                            2021: '2021'
                     },
                     allowCross=False, 
                     step=1, 

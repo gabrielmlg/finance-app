@@ -11,7 +11,7 @@ class MainController():
         self.aws_model.load_data_s3()
 
         self.posicao_model = Posicao(self.aws_model.df_list_pos) 
-        self.extrato = Extrato(2010, 2020, self.aws_model.extrato, self.aws_model.extrato_bolsa)
+        self.extrato = Extrato(2010, 2021, self.aws_model.extrato, self.aws_model.extrato_bolsa)
         
         self.fi = FundoInvestimento(
             posicao=self.posicao_model.fis, 
@@ -20,6 +20,7 @@ class MainController():
         # ToDo: Terminar o envio do dataset de dividendos, verificar se estou enviando certo. 
         self.acoes = Acao(posicao=self.posicao_model.acoes, extrato=self.extrato.extrato_acoes, dividendo=self.posicao_model.dividendo_acoes)
         self.fiis = FundoImobiliario(posicao=self.posicao_model.fiis, extrato=self.extrato.extrato_fiis)
+        print(self.fiis.resumo['Data'].max())
 
 
     def load_new_filter(self, de_ano, ate_ano):

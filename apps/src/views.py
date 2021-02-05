@@ -139,7 +139,7 @@ class Acao(Investimento):
         self.extrato = extrato
         self.dividendo = dividendo
         super().__init__('Papel', 'Financeiro')
-        self.resumo = self.calcula_resumo(2010, 2020)
+        self.resumo = self.calcula_resumo(2010, 2021)
 
 
     
@@ -259,7 +259,7 @@ class FundoImobiliario(Investimento):
         self.posicao = posicao
         self.extrato = extrato
         super().__init__('Papel', 'Financeiro')
-        self.resumo = self.calcula_resumo(2010, 2020)
+        self.resumo = self.calcula_resumo(2010, 2021)
 
     def calcula_rentabilidade(self, do_ano, ate_ano):
         return super().calcula_rentabilidade(self.posicao, do_ano, ate_ano)
@@ -274,7 +274,7 @@ class FundoInvestimento(Investimento):
     def __init__(self, posicao, extrato):
         self.posicao_hist = posicao
         self.extrato = extrato
-        self.resumo = self.calcula_resumo(2010, 2020)
+        self.resumo = self.calcula_resumo(2010, 2021)
 
 
     # Calcula o rendimendo de ativo FI para cada periodo. 

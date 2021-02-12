@@ -1,3 +1,4 @@
+from apps.src.controllers import MainController
 import dash
 import dash_bootstrap_components as dbc
 
@@ -9,3 +10,5 @@ app = dash.Dash(__name__,
                             'content': 'width=device-width, initial-scale=1.0'}]
                 )
 server = app.server
+
+controller = MainController()

@@ -14,10 +14,7 @@ from app_server import app
 from app_server import server
 
 # Connect to your app pages
-from apps import resume
-
-# Controller
-main_controller = MainController()
+from apps import resume, resume_detail
 
 navbar = dbc.NavbarSimple(
     children=[
@@ -26,6 +23,7 @@ navbar = dbc.NavbarSimple(
             children=[
                 dbc.DropdownMenuItem("Mais", header=True),
                 dbc.DropdownMenuItem("Posição", href="#"),
+                dbc.DropdownMenuItem("Posição", href="/detail"),
                 dbc.DropdownMenuItem("Extrato", href="#"),
             ],
             nav=True,
@@ -52,10 +50,12 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/resumo':
-        return resume.layout
     if pathname == '/':
         return resume.layout
+    if pathname == '/resumo':
+        return resume.layout
+    if pathname == '/detail':
+        return resume_detail.layout
     else:
         return "404 Page Error! Please choose a link"
 

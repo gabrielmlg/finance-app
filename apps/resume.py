@@ -7,9 +7,8 @@ from dash.dependencies import Input, Output
 from dash_html_components.Br import Br
 
 from app_server import app
-from apps.src.controllers import MainController
+from app_server import controller
 
-main_controller = MainController()
 
 layout = html.Div([
     
@@ -191,7 +190,7 @@ layout = html.Div([
     ]),
     
     #dbc.Alert("Em construção, aguarde ...", className="m-3"), 
-    #main_controller.graph_fis()[0]
+    #controller.graph_fis()[0]
     
 
 ])
@@ -217,7 +216,7 @@ layout = html.Div([
     Output('revenue_cumsum_chart', 'figure')],
     [Input('period-range-slider', 'value')])
 def filter_period(periodo):
-    return main_controller.load_new_filter(2010, periodo[1])
+    return controller.load_new_filter(2010, periodo[1])
 
 
 @app.callback(
@@ -227,6 +226,6 @@ def filter_period(periodo):
     Input('period-range-slider', 'value')
 )
 def aporte_pie_chart_update(periodo):
-    return (main_controller.aporte_pie_chart(), 
-            main_controller.rendimento_pie_chart(), 
-            main_controller.patrimonio_pie_chart())
+    return (controller.aporte_pie_chart(), 
+            controller.rendimento_pie_chart(), 
+            controller.patrimonio_pie_chart())

@@ -12,7 +12,33 @@ from app_server import controller
 
 df = controller.resume()
 
+df2 = df.groupby(['Tipo', 'Nome'])\
+    .agg(financeiro=('financeiro', 'last'), 
+        aporte=('aporte', 'sum'), 
+        retirada=('retirada', 'sum'), 
+        rendimento=('rendimento', 'sum'))\
+        .reset_index()
+
+df2['%'] = df2['rendimento'] / df2['aporte'] * 100
+
 layout = html.Div([
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardBody(
+                    html.Div(
+
+                        dash_table.DataTable(
+                            id='table',
+                            columns=[{"name": i, "id": i} for i in df2.columns],
+                            data=df2.to_dict('records'),
+                        )
+
+                    )
+                )
+            ])
+        )
+    ]), 
     dbc.Row([
         dbc.Col(
             dbc.Card([

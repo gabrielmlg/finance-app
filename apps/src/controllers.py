@@ -138,7 +138,7 @@ class MainController():
         df_return['investido'] = df_return['aporte_acum'] - df_return['retirada_acum']
         df_return['% renda_acum'] = df_return['rendimento'].cumsum() / (df_return['investido']) * 100  
         df_return = df_return.fillna(0)
-        df_return = df_return[(df_return['Data'] >= '2014-01-01')]
+        df_return = df_return[(df_return['Data'] >= '2010-01-01')]
 
         return df_return
 

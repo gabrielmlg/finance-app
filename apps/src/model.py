@@ -248,6 +248,9 @@ class Posicao:
                                       'IR', 'IOF', 'Valor Liquido',
                                       'Aplicacao Pendente', 'Total Bruto'], data=x)
                                       
+        # Bahia AM Maraú Advisory FIC de 
+        pd_fi['Nome'] = np.where(pd_fi['Nome'] == 'Bahia AM Maraú Advisory FIC de ', 'Bahia AM Maraú FIC de FIM', pd_fi['Nome'])                                     
+                                      
         #if len(pd_fi[pd_fi['Nome'].str.contains('Azul')]) > 0:
         #print(pd_fi[['Nome', 'Data']])
 
@@ -284,6 +287,8 @@ class Posicao:
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12B', 'BCFF11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'OULG11B', 'OULG11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG13', 'XPLG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG14', 'XPLG11', df_aportesresult['Papel'])
 
         return df_aportesresult.groupby(['Papel']).sum().reset_index()
 

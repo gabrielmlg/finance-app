@@ -18,13 +18,13 @@ from apps import resume, resume_detail
 
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("Resumo", href="#")),
+        dbc.NavItem(dbc.NavLink("Resumo", href="/")),
         dbc.DropdownMenu(
             children=[
                 dbc.DropdownMenuItem("Mais", header=True),
-                dbc.DropdownMenuItem("Posição", href="#"),
-                dbc.DropdownMenuItem("Posição", href="/detail"),
-                dbc.DropdownMenuItem("Extrato", href="#"),
+                dbc.DropdownMenuItem("Detalhes", href="/detail"),
+                dbc.DropdownMenuItem("Comparativo", href="/"),
+                dbc.DropdownMenuItem("Ações", href="/"),
             ],
             nav=True,
             in_navbar=True,
@@ -32,7 +32,7 @@ navbar = dbc.NavbarSimple(
         ),
     ],
     brand="MEUS INVESTIMENTOS",
-    brand_href="#",
+    brand_href="/",
     color="dark",
     dark=True,
 )
@@ -42,9 +42,9 @@ app.layout = html.Div([
     html.Div([
         dbc.Row(dbc.Col(html.Div(navbar))), 
         html.Br(), 
-    ]),
-    html.Div(id='page-content', children=[])
-])
+    ], style={'backgroundColor': '#F2F2F2'}),
+    html.Div(id='page-content', children=[], style={'backgroundColor': '#F2F2F2'})
+], style={'backgroundColor': '#F2F2F2'})
 
 
 @app.callback(Output('page-content', 'children'),

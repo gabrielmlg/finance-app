@@ -193,7 +193,7 @@ layout = html.Div([
     #controller.graph_fis()[0]
     
 
-])
+], style={'backgroundColor': '#F2F2F2'})
 
 
 @app.callback(

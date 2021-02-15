@@ -13,11 +13,24 @@ pie_color_map = {
 
 def compare_havings(df, type):
     df_ = df[(df['periodo_cont'] > 0) & (df['Tipo'] == type)].sort_values(['Tipo', 'Nome', 'periodo_cont'])
-    fig = px.line(df_, x="periodo_cont", y="%", color='Nome')
+    #fig = px.line(df_, x="periodo_cont", y="%", color='Nome')
+
+    fig = go.Figure()
+
+    for having in df_['Nome'].unique():
+        df_tmp = df_[df_['Nome'] == having]
+
+        fig.add_trace(go.Scatter(x=df_tmp['periodo_cont'], 
+                    y=df_tmp['%'].cumsum(),
+                    line=dict(width=1.5),
+                    marker={'size': 4}, 
+                    mode='lines+markers',
+                    name=having))
 
     fig.update_layout(
         template='plotly_white', 
         legend_orientation='v', 
+        margin=dict(l=10, r=10, t=10, b=10),
         #height=600, 
         #width=1000, 
         title={

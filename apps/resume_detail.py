@@ -82,6 +82,10 @@ layout = html.Div([
                                     'textAlign': 'left'
                                 } for c in ['Tipo', 'Nome']
                             ],
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
                             style_as_list_view=True,
                         )
 
@@ -113,6 +117,10 @@ layout = html.Div([
                             fixed_rows={'headers': True},
                             #style_table={'height': 400}, 
                             style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
                         )
 
                     )
@@ -143,6 +151,10 @@ layout = html.Div([
                             fixed_rows={'headers': True},
                             #style_table={'height': 400}, 
                             style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
                         )
 
                     )
@@ -173,6 +185,10 @@ layout = html.Div([
                             fixed_rows={'headers': True},
                             #style_table={'height': 400}, 
                             style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
                         )
 
                     )
@@ -203,6 +219,10 @@ layout = html.Div([
                             fixed_rows={'headers': True},
                             #style_table={'height': 400}, 
                             style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
                         )
 
                     )
@@ -214,4 +234,4 @@ layout = html.Div([
     html.Br(),
 
     
-], style={'backgroundColor': '#F2F2F2'})
+])

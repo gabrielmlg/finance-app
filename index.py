@@ -42,9 +42,9 @@ app.layout = html.Div([
     html.Div([
         dbc.Row(dbc.Col(html.Div(navbar))), 
         html.Br(), 
-    ], style={'backgroundColor': '#F2F2F2'}),
-    html.Div(id='page-content', children=[], style={'backgroundColor': '#F2F2F2'})
-], style={'backgroundColor': '#F2F2F2'})
+    ], style={'backgroundColor': '#FAFAFA'}),
+    html.Div(id='page-content', children=[], style={'backgroundColor': '#FAFAFA'})
+], style={'backgroundColor': '#FAFAFA'})
 
 
 @app.callback(Output('page-content', 'children'),

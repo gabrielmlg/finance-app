@@ -12,6 +12,9 @@ from app_server import controller
 
 df = controller.resume()
 
+# teste
+df3 = df[df['periodo_cont'] > 0].sort_values(['Tipo', 'Nome', 'periodo_cont'])
+
 money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(2)
 
@@ -65,6 +68,7 @@ cols1 = [
 ]
 
 layout = html.Div([
+
     dbc.Row([
         dbc.Col(
             dbc.Card([
@@ -229,6 +233,40 @@ layout = html.Div([
                 )
             ]),
             lg=10, width={'offset': 1}
+        )
+    ]),
+    html.Br(),
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("DETALHE"),    
+                dbc.CardBody(
+                    html.Div(
+
+                        DataTable(
+                            id='table',
+                            columns=[{"name": i, "id": i} for i in df3.columns],
+                            data=df3.to_dict('records'),
+                            style_cell_conditional=[
+                                {
+                                    'if': {'column_id': c},
+                                    'textAlign': 'left'
+                                } for c in ['Nome']
+                            ],
+                            fixed_rows={'headers': True},
+                            #style_table={'height': 400}, 
+                            style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
+                        )
+
+                    )
+                )
+            ]),
+            #lg=10, width={'offset': 1}
         )
     ]),
     html.Br(),

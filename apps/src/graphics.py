@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 import dash_core_components as dcc
+import plotly.express as px
 
 
 pie_color_map = {
@@ -9,6 +10,24 @@ pie_color_map = {
      'BDR': '#F74AA8', 
      'Ouro': '#FECC53'            
 }
+
+def compare_havings(df, type):
+    df_ = df[(df['periodo_cont'] > 0) & (df['Tipo'] == type)].sort_values(['Tipo', 'Nome', 'periodo_cont'])
+    fig = px.line(df_, x="periodo_cont", y="%", color='Nome')
+
+    fig.update_layout(
+        template='plotly_white', 
+        legend_orientation='v', 
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig
 
 
 def resume_pie_chart(df, col_value):

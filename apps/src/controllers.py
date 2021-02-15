@@ -90,7 +90,7 @@ class MainController():
 
     def resume(self):
         df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2021-01-31']\
-                .groupby(['Papel', 'Data', 'ano', 'mes'])\
+                .groupby(['Papel', 'Data', 'ano', 'mes', 'periodo_cont'])\
                 .agg(financeiro=('Financeiro', 'sum'), 
                     aporte=('aporte', 'sum'), 
                     retirada=('retirada', 'sum'), 
@@ -103,7 +103,7 @@ class MainController():
 
 
         df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2021-01-31']\
-                .groupby(['Papel', 'Data', 'ano', 'mes'])\
+                .groupby(['Papel', 'Data', 'ano', 'mes', 'periodo_cont'])\
                 .agg(financeiro=('Financeiro', 'sum'), 
                     aporte=('aporte', 'sum'), 
                     retirada=('retirada', 'sum'), 
@@ -113,7 +113,7 @@ class MainController():
         df2['Tipo'] = 'FII'
 
         df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2021-01-31']\
-                .groupby(['Nome', 'data_posicao', 'ano', 'mes'])\
+                .groupby(['Nome', 'data_posicao', 'ano', 'mes', 'periodo_cont'])\
                 .agg(financeiro=('Total Bruto', 'sum'), 
                     aporte=('aporte', 'sum'), 
                     retirada=('retirada', 'sum'), 
@@ -124,14 +124,14 @@ class MainController():
 
         df_return = df1.append(df2, ignore_index=True).append(df3, ignore_index=True)
 
-        df_return = df_return.groupby(['Tipo', 'Nome', 'Data', 'ano', 'mes'])\
+        df_return = df_return.groupby(['Tipo', 'Nome', 'Data', 'ano', 'mes', 'periodo_cont'])\
                 .agg(financeiro=('financeiro', 'sum'), 
                     aporte=('aporte', 'sum'), 
                     retirada=('retirada', 'sum'), 
                     rendimento=('rendimento', 'sum'))\
                 .reset_index().fillna(0)
 
-        df_return['%'] = df_return['rendimento'] / df_return['financeiro'] * 100
+        df_return['%'] = df_return['rendimento'] / (df_return['financeiro'] + df_return['retirada']) * 100
         df_return['renda_acum'] = df_return['rendimento'].cumsum()
         df_return['aporte_acum'] = df_return['aporte'].cumsum()
         df_return['retirada_acum'] = df_return['retirada'].cumsum()
@@ -153,6 +153,9 @@ class MainController():
 
     def patrimonio_pie_chart(self):
         return graphics.resume_pie_chart(self.resume(), 'patrimonio')
+
+    def compare_havings_chart(self, type):
+        return graphics.compare_havings(self.resume(), type)
 
 
     def get_revenue_dataset(self):

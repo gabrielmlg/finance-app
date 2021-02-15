@@ -14,17 +14,19 @@ from app_server import app
 from app_server import server
 
 # Connect to your app pages
-from apps import resume, resume_detail
+from apps import bdrs, resume, resume_detail, stocks, fis
 
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("Resumo", href="/")),
+        dbc.NavItem(dbc.NavLink("Analitico", href="/detail")),
+        dbc.NavItem(dbc.NavLink("Comparativo", href="/")),
         dbc.DropdownMenu(
             children=[
                 dbc.DropdownMenuItem("Mais", header=True),
-                dbc.DropdownMenuItem("Detalhes", href="/detail"),
-                dbc.DropdownMenuItem("Comparativo", href="/"),
-                dbc.DropdownMenuItem("Ações", href="/"),
+                dbc.DropdownMenuItem("Ações", href="/stocks"),
+                dbc.DropdownMenuItem("BDRs", href="/bdrs"),
+                dbc.DropdownMenuItem("FIs", href="/fis"),
             ],
             nav=True,
             in_navbar=True,
@@ -56,6 +58,12 @@ def display_page(pathname):
         return resume.layout
     if pathname == '/detail':
         return resume_detail.layout
+    if pathname == '/stocks':
+        return stocks.layout
+    if pathname == '/bdrs':
+        return bdrs.layout
+    if pathname == '/fis':
+        return fis.layout
     else:
         return "404 Page Error! Please choose a link"
 

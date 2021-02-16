@@ -10,10 +10,25 @@ from dash_table import DataTable, FormatTemplate
 from app_server import app
 from app_server import controller
 
+import numpy as np
+
 df = controller.resume()
 
 # teste
-df3 = df[df['periodo_cont'] > 0].sort_values(['Tipo', 'Nome', 'periodo_cont'])
+df3 = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
+df3 = df3\
+    .groupby(['Tipo', 'Data'])\
+    .agg(financeiro=('financeiro', 'sum'), 
+        aporte=('aporte', 'sum'), 
+        retirada=('retirada', 'sum'), 
+        rendimento=('rendimento', 'sum'))\
+    .reset_index()
+df3['teste'] = (df3['aporte'].cumsum() - df3['retirada'].cumsum())
+df3['%'] = df3['rendimento'] / (df3['financeiro'] - df3['retirada']) * 100
+
+df3.fillna(0, inplace=True)
+
+#df3 = df[df['periodo_cont'] > 0].sort_values(['Tipo', 'Nome', 'periodo_cont'])
 
 money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(2)
@@ -32,7 +47,6 @@ df_resume = df.groupby(['Tipo', 'Nome'])\
             .reset_index()\
             .sort_values('financeiro', ascending=False)
 df_resume['%'] = df_resume['rendimento'] / df_resume['aporte']
-
 
 df2 = df.groupby(['Tipo', 'Nome'])\
     .agg(financeiro=('financeiro', 'last'), 
@@ -68,6 +82,19 @@ cols1 = [
 ]
 
 layout = html.Div([
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("AÇÕES"),    
+                dbc.CardBody(
+                    dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_types_chart(), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=10, width={'offset': 1}
+        )
+    ]),
+    html.Br(),
 
     dbc.Row([
         dbc.Col(

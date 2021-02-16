@@ -12,7 +12,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("COMPARATIVO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('BDR'), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('BDR', 'Data'), config={'displayModeBar': False}),
                 )
             ]), 
             lg=10, width={'offset': 1}

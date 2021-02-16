@@ -1,3 +1,4 @@
+import dash_core_components
 from apps.src.model import Posicao, Extrato, AwsModel
 from apps.src.views import FundoInvestimento, Acao, FundoImobiliario
 from apps.src import graphics
@@ -154,8 +155,24 @@ class MainController():
     def patrimonio_pie_chart(self):
         return graphics.resume_pie_chart(self.resume(), 'patrimonio')
 
-    def compare_havings_chart(self, type):
-        return graphics.compare_havings(self.resume(), type)
+    def compare_havings_chart(self, type, col_x):
+        return graphics.compare_havings(self.resume(), type, col_x)
+
+    def timeline_by_types_chart(self):
+        df = self.resume()
+        df = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
+        df = df\
+            .groupby(['Tipo', 'Data'])\
+            .agg(financeiro=('financeiro', 'sum'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'))\
+            .reset_index()
+        df['%'] = df['rendimento'] / (df['financeiro'] + df['retirada']) * 100
+
+        print(df.head(30))
+
+        return graphics.timeline_by_types(df)
 
 
     def get_revenue_dataset(self):

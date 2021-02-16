@@ -10,9 +10,9 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("COMPARATIVO"),    
+                dbc.CardHeader("CALENDARIO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('Ação'), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('Ação', 'Data'), config={'displayModeBar': False}),
                 )
             ]), 
             lg=10, width={'offset': 1}

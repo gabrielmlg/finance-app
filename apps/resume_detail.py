@@ -25,8 +25,12 @@ df3 = df3\
     .reset_index()
 df3['teste'] = (df3['aporte'].cumsum() - df3['retirada'].cumsum())
 df3['%'] = df3['rendimento'] / (df3['financeiro'] - df3['retirada']) * 100
-
 df3.fillna(0, inplace=True)
+
+#df3 = controller.acoes.dividendo.groupby(['Papel', 'Tipo']).agg(Valor=('Valor', 'sum')).reset_index().sort_values('Papel')
+print(controller.fiis.dividendo)
+df3 = controller.fiis.dividendo.groupby('Descricao').agg(Valor=('Valor', 'sum')).reset_index().sort_values('Valor', ascending=False)
+#df3 = controller.fiis.dividendo.groupby(['Papel']).agg(Valor=('Valor Provisionado', 'sum')).reset_index().sort_values('Papel')
 
 #df3 = df[df['periodo_cont'] > 0].sort_values(['Tipo', 'Nome', 'periodo_cont'])
 
@@ -293,7 +297,7 @@ layout = html.Div([
                     )
                 )
             ]),
-            #lg=10, width={'offset': 1}
+            lg=10, sm=10, width={'offset': 1}
         )
     ]),
     html.Br(),

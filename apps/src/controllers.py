@@ -20,8 +20,12 @@ class MainController():
         )
         # ToDo: Terminar o envio do dataset de dividendos, verificar se estou enviando certo. 
         self.acoes = Acao(posicao=self.posicao_model.acoes, extrato=self.extrato.extrato_acoes, dividendo=self.posicao_model.dividendo_acoes)
-        self.fiis = FundoImobiliario(posicao=self.posicao_model.fiis, extrato=self.extrato.extrato_fiis)
+        self.fiis = FundoImobiliario(posicao=self.posicao_model.fiis, extrato=self.extrato.extrato_fiis, dividendo=self.extrato.dividendos_fii)
         print(self.fiis.resumo['Data'].max())
+
+    
+    #def dividends_timelime():
+        
 
 
     def load_new_filter(self, de_ano, ate_ano):
@@ -169,8 +173,6 @@ class MainController():
                 rendimento=('rendimento', 'sum'))\
             .reset_index()
         df['%'] = df['rendimento'] / (df['financeiro'] + df['retirada']) * 100
-
-        print(df.head(30))
 
         return graphics.timeline_by_types(df)
 

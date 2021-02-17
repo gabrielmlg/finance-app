@@ -51,7 +51,7 @@ def timeline_by_types(df):
 
         fig.add_trace(go.Scatter(x=df_tmp['Data'], 
                     y=df_tmp['%'].cumsum(),
-                    line=dict(width=1.5),
+                    line=dict(width=2),
                     marker={'size': 4}, 
                     mode='lines+markers',
                     name=type))

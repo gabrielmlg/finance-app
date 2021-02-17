@@ -321,6 +321,9 @@ class Posicao:
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12', 'BCFF11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12B', 'BCFF11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'OULG11B', 'OULG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG13', 'XPLG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG14', 'XPLG11', df_aportesresult['Papel'])
 
         return df_aportesresult.groupby(['Papel']).sum().reset_index()
 
@@ -358,7 +361,9 @@ class Extrato:
         self.retiradas_xp = pd.DataFrame()
         self.__aportes_fi_hist = pd.DataFrame()
         self.__resgates_fi_hist = pd.DataFrame()
+        self.__dividendos_hist = pd.DataFrame()
         self.ir_fi_hist = pd.DataFrame()
+        
 
         self.df = df_extrato
         self.__transform_data(dt_inicio, dt_fim)
@@ -366,7 +371,9 @@ class Extrato:
 
         self.extrato_acoes = pd.DataFrame()
         self.extrato_fiis = pd.DataFrame()
+        self.dividendos_fii = pd.DataFrame()
         self.load_extrato_acoes(df_extrato_acoes)
+        self.dividendos_fii = self.__dividendos_hist
 
 
     def load_extrato_acoes(self, df_extrato_acoes):
@@ -412,6 +419,29 @@ class Extrato:
             'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
         self.ir_fi_hist.loc[:, 'Nome'] = self.ir_fi_hist['Descricao'].apply(self.__map_fi)
 
+        self.__dividendos_hist = self.df[self.df['Descricao'].str.contains(
+            'RENDIMENTOS DE CLIENTES')]
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('HGLG11'), 'HGLG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('HGLG14'), 'HGLG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('CNES11'), 'CNES11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('CNES11B'), 'CNES11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('CNES12B'), 'CNES11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF11'), 'BCFF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF11B'), 'BCFF11B', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF12'), 'BCFF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF12'), 'BCFF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('OULG11'), 'OULG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('OULG11B'), 'OULG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('IBFF11'), 'IBFF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('IBFF12'), 'IBFF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('XPLG11'), 'XPLG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('XPLG13'), 'XPLG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('XPLG14'), 'XPLG11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RNGO11'), 'RNGO11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('TBOF11'), 'TBOF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('TBOF13'), 'TBOF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RENDIMENTOS DE CLIENTES CNES'), 'CNES11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist = self.__dividendos_hist[~self.__dividendos_hist['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
 
     def __set_extrato_fis(self):
         #print(self.extrato_hist)

@@ -310,6 +310,7 @@ def timeline_pickings_chart(df):
 
     fig.update_xaxes(
         #rangeslider_visible=True,
+        tickformat="%b\n%Y", 
         ticklabelmode="period", 
         rangeselector=dict(
             buttons=list([
@@ -326,6 +327,7 @@ def timeline_pickings_chart(df):
         barmode='stack',
         template='plotly_white', 
         legend_orientation='v', 
+        margin=dict(l=0, r=0, t=10, b=10), 
         #height=600, 
         #width=1000, 
         title={

@@ -91,7 +91,7 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("AÇÕES"),    
+                dbc.CardHeader("RENDIMENTO POR TIPO DE INVESTIMENTO"),    
                 dbc.CardBody(
                     dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_types_chart(), config={'displayModeBar': False}),
                 )
@@ -104,7 +104,7 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("AÇÕES"),    
+                dbc.CardHeader("DIVIDENDOS"),    
                 dbc.CardBody(
                     dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_pickings_chart(), config={'displayModeBar': False}),
                 )

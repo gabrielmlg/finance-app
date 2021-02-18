@@ -177,6 +177,23 @@ class MainController():
         return graphics.timeline_by_types(df)
 
 
+    def timeline_by_pickings_chart(self):
+        df_stocks = self.acoes.dividendo\
+                            .groupby(['Papel', 'data_posicao'])\
+                                .agg(Valor=('Valor', 'sum'))\
+                            .reset_index().sort_values('Papel')\
+                            .rename(columns={'data_posicao': 'Data'})
+        df_fiis = self.fiis.dividendo\
+                        .groupby(['Descricao', 'Mov'])\
+                            .agg(Valor=('Valor', 'sum'))\
+                        .reset_index()\
+                        .rename(columns={'Descricao': 'Papel', 
+                                        'Mov': 'Data'})
+                        
+        df = df_stocks.append(df_fiis, ignore_index=True).sort_values('Valor', ascending=False)
+        return graphics.timeline_pickings_chart(df) 
+
+
     def get_revenue_dataset(self):
         df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2021-01-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 

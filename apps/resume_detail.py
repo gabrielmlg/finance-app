@@ -27,10 +27,11 @@ df3['teste'] = (df3['aporte'].cumsum() - df3['retirada'].cumsum())
 df3['%'] = df3['rendimento'] / (df3['financeiro'] - df3['retirada']) * 100
 df3.fillna(0, inplace=True)
 
+df3 = controller.acoes.dividendo 
+df4 = controller.fiis.dividendo
+
 #df3 = controller.acoes.dividendo.groupby(['Papel', 'Tipo']).agg(Valor=('Valor', 'sum')).reset_index().sort_values('Papel')
-print(controller.fiis.dividendo)
-df3 = controller.fiis.dividendo.groupby('Descricao').agg(Valor=('Valor', 'sum')).reset_index().sort_values('Valor', ascending=False)
-#df3 = controller.fiis.dividendo.groupby(['Papel']).agg(Valor=('Valor Provisionado', 'sum')).reset_index().sort_values('Papel')
+#df4 = controller.fiis.dividendo.groupby('Descricao').agg(Valor=('Valor', 'sum')).reset_index().sort_values('Valor', ascending=False)
 
 #df3 = df[df['periodo_cont'] > 0].sort_values(['Tipo', 'Nome', 'periodo_cont'])
 
@@ -93,6 +94,19 @@ layout = html.Div([
                 dbc.CardHeader("AÇÕES"),    
                 dbc.CardBody(
                     dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_types_chart(), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=10, width={'offset': 1}
+        )
+    ]),
+    html.Br(),
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("AÇÕES"),    
+                dbc.CardBody(
+                    dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_pickings_chart(), config={'displayModeBar': False}),
                 )
             ]), 
             lg=10, width={'offset': 1}
@@ -271,7 +285,7 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("DETALHE"),    
+                dbc.CardHeader("DIVIDENDO AÇÕES"),    
                 dbc.CardBody(
                     html.Div(
 
@@ -302,5 +316,39 @@ layout = html.Div([
     ]),
     html.Br(),
 
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("DIVIDENDO FII"),    
+                dbc.CardBody(
+                    html.Div(
+
+                        DataTable(
+                            id='table',
+                            columns=[{"name": i, "id": i} for i in df4.columns],
+                            data=df4.to_dict('records'),
+                            style_cell_conditional=[
+                                {
+                                    'if': {'column_id': c},
+                                    'textAlign': 'left'
+                                } for c in ['Nome']
+                            ],
+                            fixed_rows={'headers': True},
+                            #style_table={'height': 400}, 
+                            style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            },
+                        )
+
+                    )
+                )
+            ]),
+            lg=10, sm=10, width={'offset': 1}
+        )
+    ]),
+    html.Br(),
     
 ])

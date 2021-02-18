@@ -286,3 +286,53 @@ def revenue_cumsum_chart(df):
     )
 
     return fig
+
+def timeline_pickings_chart(df):
+    fig = go.Figure()
+
+    for having in df['Papel'].unique():
+        df_tmp = df[df['Papel'] == having]
+
+        fig.add_trace(
+            go.Bar(x=df_tmp['Data'],
+                    y=df_tmp['Valor'],
+                    #mode='lines',
+                    name=having,
+                    textposition='outside',
+                    xperiod="M1",
+                    #text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                    #marker=dict(size=7),
+                    #marker_color=df['color'], 
+                    #line=dict(color='#6A12E8', width=1.8),
+                    #opacity=.8
+            )
+    )  
+
+    fig.update_xaxes(
+        #rangeslider_visible=True,
+        ticklabelmode="period", 
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    fig.update_layout(
+        barmode='stack',
+        template='plotly_white', 
+        legend_orientation='v', 
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig

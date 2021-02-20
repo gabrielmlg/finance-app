@@ -188,6 +188,20 @@ layout = html.Div([
             width={'offset': 1}
         )
     ]),
+    html.Br(),
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("DIVIDENDOS"),    
+                dbc.CardBody(
+                    dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_pickings_chart(), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=9, sm=10, width={'offset': 1}
+        )
+    ]),
+    
     
     #dbc.Alert("Em construção, aguarde ...", className="m-3"), 
     #controller.graph_fis()[0]

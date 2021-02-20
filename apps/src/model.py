@@ -189,6 +189,7 @@ class Posicao:
         # ToDo: Alterar BPAC6 para BPAC11 e a outra. 
         pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC9', 'BPAC11', pd_stock['Papel'])
         pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC12', 'BPAC11', pd_stock['Papel'])
+        pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC6', 'BPAC11', pd_stock['Papel'])
 
         return pd_stock.groupby(['Papel']).sum().reset_index()
         #return pd_stock

@@ -14,9 +14,6 @@ from views import FundoInvestimento, Acao, FundoImobiliario
 from graphics import fis_graph
 from controllers import MainController
 
-
-# POSICAO
-# ToDo: Refatorar jogando para dentro da Controller. 
 main_controller = MainController()
 
 app = dash.Dash(

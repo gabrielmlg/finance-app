@@ -21,7 +21,6 @@ class MainController():
         # ToDo: Terminar o envio do dataset de dividendos, verificar se estou enviando certo. 
         self.acoes = Acao(posicao=self.posicao_model.acoes, extrato=self.extrato.extrato_acoes, dividendo=self.posicao_model.dividendo_acoes)
         self.fiis = FundoImobiliario(posicao=self.posicao_model.fiis, extrato=self.extrato.extrato_fiis, dividendo=self.extrato.dividendos_fii)
-        print(self.fiis.resumo['Data'].max())
 
     
     #def dividends_timelime():
@@ -191,6 +190,7 @@ class MainController():
                                         'Mov': 'Data'})
                         
         df = df_stocks.append(df_fiis, ignore_index=True).sort_values('Valor', ascending=False)
+        print(df) # ToDo: Analisar 
         return graphics.timeline_pickings_chart(df) 
 
 
@@ -257,9 +257,6 @@ class MainController():
         return df
     
     
-    def graph_fis(self):
-        return graphics.fis_graph(self.posicao_model.fis)
-
     def revenue_chart(self):
         df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2021-01-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 

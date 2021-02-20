@@ -2,6 +2,7 @@ from _plotly_utils.colors.carto import Sunset
 import plotly.graph_objs as go
 import dash_core_components as dcc
 import plotly.express as px
+import numpy as np
 
 
 pie_color_map = {
@@ -12,9 +13,18 @@ pie_color_map = {
      'Ouro': '#FECC53'            
 }
 
-#color_list = px.colors.qualitative.Pastel + px.colors.qualitative.Pastel2 + px.colors.qualitative.Pastel1
-color_seq_list = px.colors.sequential.Agsunset + px.colors.sequential.Sunset + px.colors.sequential.Plasma_r
-color_list = px.colors.qualitative.Light24
+color_list = px.colors.qualitative.Pastel + px.colors.qualitative.Pastel2 + px.colors.qualitative.Pastel1
+color_seq_list = px.colors.sequential.Agsunset + px.colors.sequential.matter + px.colors.sequential.Sunset
+#color_list = px.colors.qualitative.Light24
+
+pie_color_map = {
+    'Ação': color_list[0], #'#343AE9', 
+     'FI': color_list[2], #'#5157FF', 
+     'FII': color_list[3], #'#01CABB', 
+     'BDR': color_list[4], #'#F74AA8', 
+     'Ouro': color_list[5], #'#FECC53'            
+}
+
 
 def compare_havings(df, type, col_x):
     df_ = df[(df['periodo_cont'] > 0) & (df['Tipo'] == type)].sort_values(['Tipo', 'Nome', 'Data', 'periodo_cont'])
@@ -124,6 +134,7 @@ def resume_pie_chart(df, col_value):
 
 
 def revenue_chart(df):
+    df['color'] = np.where(df['%'] >= 0, color_list[0], color_list[1])
     fig = go.Figure()
 
     fig.add_trace(
@@ -178,7 +189,7 @@ def revenue_cumsum_chart(df):
             name = 'Rendimento Acumulado',
             text=df['renda_acum'].apply(lambda x: f'{x/1000:,.0f}K'),
             #textposition='outside',
-            line=dict(color='#8B09FF'), 
+            line=dict(color=color_list[0]), 
             line_shape='linear'
             ))            
     
@@ -265,7 +276,7 @@ def timeline_pickings_chart(df):
                     xperiod="M1",
                     #text=df['%'].apply(lambda x: f'{x:,.2f}%'),
                     #marker=dict(size=7),
-                    marker_color=color_seq_list[index], 
+                    marker_color=color_list[index], 
                     #line=dict(color='#6A12E8', width=1.8),
                     #opacity=.8
             )

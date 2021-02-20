@@ -256,7 +256,7 @@ class MainController():
 
         return df
     
-    
+
     def revenue_chart(self):
         df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2021-01-31'].groupby(['Data', 'ano', 'mes'])\
         .agg(financeiro=('Financeiro', 'sum'), 
@@ -295,7 +295,7 @@ class MainController():
         df_graph1['investido'] = df_graph1['aporte_acum'] - df_graph1['retirada_acum']
         df_graph1['% renda_acum'] = df_graph1['rendimento'].cumsum() / (df_graph1['investido']) * 100  
         df_graph1 = df_graph1.fillna(0)
-        df_graph1['color'] = np.where(df_graph1['%'] >= 0, '#2B04E8', '#F24171')
+        #df_graph1['color'] = np.where(df_graph1['%'] >= 0, '#2B04E8', '#F24171')
         df_graph1 = df_graph1[(df_graph1['Data'] >= '2014-01-01')]
 
         return graphics.revenue_chart(df_graph1) 

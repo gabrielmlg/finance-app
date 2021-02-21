@@ -134,7 +134,7 @@ def resume_pie_chart(df, col_value):
 
 
 def revenue_chart(df):
-    df['color'] = np.where(df['%'] >= 0, color_list[0], color_list[1])
+    df['color'] = np.where(df['%'] >= 0, color_list[0], color_list[6])
     fig = go.Figure()
 
     fig.add_trace(
@@ -167,6 +167,7 @@ def revenue_chart(df):
     fig.update_layout(
         template='plotly_white', 
         legend_orientation='h', 
+        margin=dict(l=20, r=20, t=20, b=20), 
         #height=600, 
         #width=1000, 
         title={
@@ -185,11 +186,11 @@ def revenue_cumsum_chart(df):
     fig.add_trace(
         go.Scatter(x=df['Data'],
             y=df['renda_acum'],
-            mode='lines',
+            mode='lines+markers',
             name = 'Rendimento Acumulado',
             text=df['renda_acum'].apply(lambda x: f'{x/1000:,.0f}K'),
             #textposition='outside',
-            line=dict(color=color_list[0]), 
+            line=dict(color=color_list[0], width=3),  
             line_shape='linear'
             ))            
     
@@ -209,6 +210,7 @@ def revenue_cumsum_chart(df):
     fig.update_layout(
         template='plotly_white', 
         legend_orientation='h', 
+        margin=dict(l=20, r=20, t=20, b=20), 
         #height=600, 
         #width=1000, 
         title={
@@ -220,46 +222,6 @@ def revenue_cumsum_chart(df):
 
     return fig
 
-def timeline_pickings_chart_(df):
-    fig = px.bar(df, 
-                x='Data', 
-                y='Valor', 
-                color='Papel', 
-                hover_data={"date": "|%b, %Y"},
-                color_discrete_sequence=px.colors.qualitative.Light24) 
-
-    fig.update_xaxes(
-        #rangeslider_visible=True,
-        #xperiod="M1",
-        dtick="M1",
-        tickformat="%b\n%Y", 
-        ticklabelmode="period", 
-        rangeselector=dict(
-            buttons=list([
-                dict(count=1, label="1m", step="month", stepmode="backward"),
-                dict(count=6, label="6m", step="month", stepmode="backward"),
-                dict(count=1, label="YTD", step="year", stepmode="todate"),
-                dict(count=1, label="1y", step="year", stepmode="backward"),
-                dict(step="all")
-            ])
-        )
-    )
-
-    fig.update_layout(
-        barmode='stack',
-        template='plotly_white', 
-        legend_orientation='v', 
-        margin=dict(l=0, r=0, t=10, b=10), 
-        #height=600, 
-        #width=1000, 
-        title={
-            'y':0.9,
-            'xanchor': 'left',
-            'yanchor': 'top'}
-        
-    )
-
-    return fig 
 
 def timeline_pickings_chart(df):
     fig = go.Figure()
@@ -301,7 +263,7 @@ def timeline_pickings_chart(df):
         barmode='stack',
         template='plotly_white', 
         legend_orientation='v', 
-        margin=dict(l=0, r=0, t=10, b=10), 
+        margin=dict(l=20, r=20, t=20, b=20), 
         #height=600, 
         #width=1000, 
         title={

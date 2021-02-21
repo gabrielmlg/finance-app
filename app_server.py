@@ -1,4 +1,4 @@
-from apps.src.controllers import MainController
+from apps.src.controller import MainController
 import dash
 import dash_bootstrap_components as dbc
 

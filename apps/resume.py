@@ -201,7 +201,7 @@ layout = html.Div([
             lg=9, sm=10, width={'offset': 1}
         )
     ]),
-    
+    html.Br(),
     
     #dbc.Alert("Em construção, aguarde ...", className="m-3"), 
     #controller.graph_fis()[0]

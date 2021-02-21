@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 
 from apps.src.model import Posicao, Extrato
 from apps.src.views import FundoInvestimento, Acao, FundoImobiliario
-from apps.src.controllers import MainController
+from apps.src.controller import MainController
 
 # Connect to main app.py file
 from app_server import app

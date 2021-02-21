@@ -21,9 +21,35 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("FI"),    
+                dbc.CardHeader("BDRs"),    
+                dbc.CardBody(
+                    dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('BDR', 'periodo_cont'), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=10, width={'offset': 1}
+        )
+    ]),
+    html.Br(),
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("FIs"),    
                 dbc.CardBody(
                     dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('FI', 'periodo_cont'), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=10, width={'offset': 1}
+        )
+    ]),
+    html.Br(),
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("FIIs"),    
+                dbc.CardBody(
+                    dcc.Graph(id="compare_havings_chart", figure=controller.compare_havings_chart('FII', 'periodo_cont'), config={'displayModeBar': False}),
                 )
             ]), 
             lg=10, width={'offset': 1}

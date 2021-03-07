@@ -17,13 +17,56 @@ color_list = px.colors.qualitative.Pastel + px.colors.qualitative.Pastel2 + px.c
 color_seq_list = px.colors.sequential.Agsunset + px.colors.sequential.matter + px.colors.sequential.Sunset
 #color_list = px.colors.qualitative.Light24
 
+colors = [
+    '#694AF0', '#4D5CFA', '#4F63E6', #f92424
+    '#5285E3', '#4DB8FA', 
+    '#4ADCF0', '#80FFE0', 
+    '#FAE692', '#8130E6', 
+    '#F2D984', 
+    '#F04162', # vermelho
+    '#E64F4F'
+]
+
+colors2 = [
+    # '#f92424', 
+    '#2432f9', # azul
+    '#2824f9', 
+    '#4124f9', 
+    '#5a24f9', 
+    '#6f24f9', 
+    '#7924f9', 
+    '#9624f9', 
+    '#b924f9', 
+    '#e424f9',  # rosa
+    '#f924b2', 
+    '#f92468', # vermelho
+    '#f92424', 
+    '#f93d24', 
+    '#f96424', # laranja
+    '#f9a124', 
+    '#f9cb24', 
+    '#f92424', # amarelo
+    '#f9f924' # esse aqui
+    '#ddf924', 
+    '#c1f924', 
+    '#92f924', 
+    '#5df924', 
+    '#24f968', 
+    '#24f988', 
+    '#24f6f9', 
+    '#24d9f9', 
+    '#249df9'
+]
+
 pie_color_map = {
-    'Ação': color_list[0], #'#343AE9', 
-     'FI': color_list[2], #'#5157FF', 
-     'FII': color_list[3], #'#01CABB', 
-     'BDR': color_list[4], #'#F74AA8', 
-     'Ouro': color_list[5], #'#FECC53'            
+    'Ação': '#343AE9', 
+     'FI': '#5157FF', 
+     'FII': '#01CABB', 
+     'BDR': '#F74AA8', 
+     'Ouro': '#FECC53'            
 }
+
+color_list = colors2
 
 
 def compare_havings(df, type, col_x):
@@ -69,7 +112,7 @@ def timeline_by_types(df):
                     y=df_tmp['%'].cumsum(),
                     line=dict(width=2),
                     marker={'size': 4}, 
-                    marker_color=color_list[index], 
+                    marker_color=colors[index], 
                     mode='lines+markers',
                     name=type))
 
@@ -134,7 +177,7 @@ def resume_pie_chart(df, col_value):
 
 
 def revenue_chart(df):
-    df['color'] = np.where(df['%'] >= 0, color_list[0], color_list[6])
+    df['color'] = np.where(df['%'] >= 0, colors[2], colors[11])
     fig = go.Figure()
 
     fig.add_trace(

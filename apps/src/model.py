@@ -7,12 +7,12 @@ import boto3
 import io
 
 # LOCAL
-#from apps.src.config import config
-#ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
-#SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
+from apps.src.config import config
+ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
+SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
 
-ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
-SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
+#ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
+#SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
 
 bucket= 'balbi-finance-app'
 
@@ -290,6 +290,7 @@ class Posicao:
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG13', 'XPLG11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG14', 'XPLG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'RBRF14', 'RBRF11', df_aportesresult['Papel'])
 
         return df_aportesresult.groupby(['Papel']).sum().reset_index()
 
@@ -325,6 +326,7 @@ class Posicao:
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG13', 'XPLG11', df_aportesresult['Papel'])
         df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG14', 'XPLG11', df_aportesresult['Papel'])
+        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'RBRF14', 'RBRF11', df_aportesresult['Papel'])
 
         return df_aportesresult.groupby(['Papel']).sum().reset_index()
 
@@ -441,6 +443,7 @@ class Extrato:
         self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RNGO11'), 'RNGO11', self.__dividendos_hist['Descricao'])
         self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('TBOF11'), 'TBOF11', self.__dividendos_hist['Descricao'])
         self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('TBOF13'), 'TBOF11', self.__dividendos_hist['Descricao'])
+        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RBRF14'), 'RBRF11', self.__dividendos_hist['Descricao'])
         self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RENDIMENTOS DE CLIENTES CNES'), 'CNES11', self.__dividendos_hist['Descricao'])
         self.__dividendos_hist = self.__dividendos_hist[~self.__dividendos_hist['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
 

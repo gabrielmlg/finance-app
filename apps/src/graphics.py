@@ -13,9 +13,20 @@ pie_color_map = {
      'Ouro': '#FECC53'            
 }
 
-color_list = px.colors.qualitative.Pastel + px.colors.qualitative.Pastel2 + px.colors.qualitative.Pastel1
+color_list = [
+    '#6837A9', '#7C37A9' '#A136A9', 
+    '#A93677', '#A9363E',
+    '#C67D44', '#EDE375',
+    '#86BE3D', '#35A968',
+    '#3DA936', '#35A9A0',
+    '#3678A9', '#373EA9',
+    '', ''
+]
+
+#color_list = px.colors.qualitative.Pastel + px.colors.qualitative.Pastel2 + px.colors.qualitative.Pastel1
 color_seq_list = px.colors.sequential.Agsunset + px.colors.sequential.matter + px.colors.sequential.Sunset
 #color_list = px.colors.qualitative.Light24
+color_list = px.colors.qualitative.Dark24
 
 colors = [
     '#694AF0', '#4D5CFA', '#4F63E6', #f92424
@@ -66,7 +77,7 @@ pie_color_map = {
      'Ouro': '#FECC53'            
 }
 
-color_list = colors2
+#color_list = colors
 
 
 def compare_havings(df, type, col_x):
@@ -84,6 +95,7 @@ def compare_havings(df, type, col_x):
                     marker={'size': 4}, 
                     marker_color=color_list[index], 
                     mode='lines+markers',
+                    line_shape='spline',
                     name=having))
 
     fig.update_layout(
@@ -112,13 +124,14 @@ def timeline_by_types(df):
                     y=df_tmp['%'].cumsum(),
                     line=dict(width=2),
                     marker={'size': 4}, 
-                    marker_color=colors[index], 
+                    marker_color=color_list[index], 
                     mode='lines+markers',
+                    line_shape='spline', 
                     name=type))
 
     fig.update_layout(
         template='plotly_white', 
-        legend_orientation='v', 
+        legend_orientation='h', 
         margin=dict(l=10, r=10, t=10, b=10),
         #height=600, 
         #width=1000, 
@@ -186,7 +199,7 @@ def revenue_chart(df):
                 #mode='lines',
                 name='% Rendimento',
                 textposition='outside',
-                #text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                text=df['%'].apply(lambda x: f'{x:,.2f}%'),
                 #marker=dict(size=7),
                 marker_color=df['color'], 
                 #line=dict(color='#6A12E8', width=1.8),
@@ -223,20 +236,29 @@ def revenue_chart(df):
     return fig
 
 def revenue_cumsum_chart(df):
+    # ToDo: Estou aqui!!! Adicionar novos traces por Tipo.
 
     fig = go.Figure()
+
 
     fig.add_trace(
         go.Scatter(x=df['Data'],
             y=df['renda_acum'],
-            mode='lines+markers',
-            name = 'Rendimento Acumulado',
-            text=df['renda_acum'].apply(lambda x: f'{x/1000:,.0f}K'),
+            xperiod='M1',  
+            #mode='none',
+            #fill='tozeroy', 
+            hoverinfo='x+y',
+            mode='lines',
+            line=dict(width=0.5, color=color_list[0]), 
+            stackgroup='one'
+            #name = 'Rendimento Acumulado',
+            #text=df['renda_acum'].apply(lambda x: f'{x/1000:,.0f}K'),
             #textposition='outside',
-            line=dict(color=color_list[0], width=3),  
-            line_shape='linear'
-            ))            
-    
+            #line=dict(color=color_list[0], width=3),  
+            #line_shape='linear'
+        )
+    )  
+ 
     fig.update_xaxes(
         #rangeslider_visible=True,
         rangeselector=dict(

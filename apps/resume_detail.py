@@ -91,12 +91,21 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("RENDIMENTO POR TIPO DE INVESTIMENTO"),    
+                dbc.CardHeader("RENDIMENTO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=controller.timeline_by_types_chart(), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=controller.revenue_chart(), config={'displayModeBar': False}),
                 )
             ]), 
-            lg=10, width={'offset': 1}
+            lg=5, width={'offset': 1}
+        ), 
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("RENDIMENTO ACUMULADO"),    
+                dbc.CardBody(
+                    dcc.Graph(id="revenue_by_month_chart", figure=controller.timeline_by_types_chart(), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=5
         )
     ]),
     html.Br(),

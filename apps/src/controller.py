@@ -303,26 +303,26 @@ class MainController():
 
     def revenue_cumsum_chart(self):
         df1 = self.acoes.resumo[self.acoes.resumo['Data'] <= '2021-02-28'].groupby(['Data', 'ano', 'mes'])\
-        .agg(financeiro=('Financeiro', 'sum'), 
-            aporte=('aporte', 'sum'), 
-            retirada=('retirada', 'sum'), 
-            rendimento=('rendimento', 'sum'))\
-        .reset_index()
+            .agg(financeiro=('Financeiro', 'sum'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'))\
+            .reset_index()
 
         df2 = self.fiis.resumo[self.fiis.resumo['Data'] <= '2021-02-28'].groupby(['Data', 'ano', 'mes'])\
-        .agg(financeiro=('Financeiro', 'sum'), 
-            aporte=('aporte', 'sum'), 
-            retirada=('retirada', 'sum'), 
-            rendimento=('rendimento', 'sum'))\
-        .reset_index()  
+            .agg(financeiro=('Financeiro', 'sum'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'))\
+            .reset_index()
 
         df3 = self.fi.resumo[self.fi.resumo['data_posicao'] <= '2021-02-28'].groupby(['data_posicao', 'ano', 'mes'])\
-        .agg(financeiro=('Total Bruto', 'sum'), 
-            aporte=('aporte', 'sum'), 
-            retirada=('retirada', 'sum'), 
-            rendimento=('rendimento', 'sum'))\
-        .reset_index()\
-        .rename(columns={'data_posicao': 'Data'})      
+            .agg(financeiro=('Total Bruto', 'sum'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'))\
+            .reset_index()\
+            .rename(columns={'data_posicao': 'Data'})    
 
         df_graph1 = df1.append(df2, ignore_index=True).append(df3, ignore_index=True)
         df_graph1 = df_graph1.groupby(['Data', 'ano', 'mes'])\
@@ -341,4 +341,5 @@ class MainController():
         df_graph1 = df_graph1.fillna(0)
         df_graph1 = df_graph1[(df_graph1['Data'] >= '2014-01-01')]
 
+        print(df_graph1.head())
         return graphics.revenue_cumsum_chart(df_graph1)

@@ -7,17 +7,17 @@ import boto3
 import io
 
 # LOCAL
-#from apps.src.config import config
-#ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
-#SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
+from config import config
+ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
+SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
 
-ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
-SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
+#ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
+#SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
 
 bucket= 'balbi-finance-app'
 
 
-class AwsModel:
+class AwsClient:
     def __init__(self):
         self.extrato = pd.DataFrame()
         self.extrato_bolsa = pd.DataFrame()
@@ -48,15 +48,15 @@ class AwsModel:
                 self.extrato_bolsa = pd.read_excel(io.BytesIO(obj['Body'].read()), sheet_name='Planilha2')
 
 
-class Posicao:
+class Position:
 
     def __init__(self, df_list_pos):
         self.df_list_pos = df_list_pos
-        self.acoes = pd.DataFrame()
-        self.dividendo_acoes = pd.DataFrame()
+        self.stocks = pd.DataFrame()
+        self.stocks_profits = pd.DataFrame()
         self.fis = pd.DataFrame()
         self.fiis = pd.DataFrame()
-        self.dividendo_fiis = pd.DataFrame()
+        self.fiis_profits = pd.DataFrame()
         self.__load()
 
 
@@ -69,42 +69,42 @@ class Posicao:
             month = int(date_position.dt.month.values)
             year = int(date_position.dt.year.values)
             period = str(year) + '/' + str(month)
-            dt_posicao = date_position.values[0]
+            dt_position = date_position.values[0]
 
-            df_stocks = self.__get_acoes(df)
+            df_stocks = self.__get_stocks(df)
             df_stocks['period'] = period
             df_stocks['mes'] = month
             df_stocks['ano'] = year
-            df_stocks['data_posicao'] = dt_posicao
-            self.acoes = self.acoes.append(df_stocks, ignore_index=True)
+            df_stocks['data_posicao'] = dt_position
+            self.stocks = self.stocks.append(df_stocks, ignore_index=True)
 
-            df_pickings = self.__get_acoes_provento(df)
+            df_pickings = self.__get_stocks_profits(df)
             df_pickings['period'] = period
             df_pickings['mes'] = month
             df_pickings['ano'] = year
-            df_pickings['data_posicao'] = dt_posicao
-            self.dividendo_acoes = self.dividendo_acoes.append(df_pickings, ignore_index=True)
+            df_pickings['data_posicao'] = dt_position
+            self.stocks_profits = self.stocks_profits.append(df_pickings, ignore_index=True)
 
-            df_fi = self.__get_fi(df)
+            df_fi = self.__get_fis(df)
             df_fi['period'] = period
             df_fi['mes'] = month
             df_fi['ano'] = year
-            df_fi['data_posicao'] = dt_posicao
+            df_fi['data_posicao'] = dt_position
             self.fis = self.fis.append(df_fi, ignore_index=True)
 
-            df_fii = self.__get_fii(df)
+            df_fii = self.__get_fiis(df)
             df_fii['period'] = period
             df_fii['mes'] = month
             df_fii['ano'] = year
-            df_fii['data_posicao'] = dt_posicao
+            df_fii['data_posicao'] = dt_position
             self.fiis = self.fiis.append(df_fii, ignore_index=True)
 
-            df_picking_fii = self.__get_fii_proventos(df)
+            df_picking_fii = self.__get_fiis_profits(df)
             df_picking_fii['period'] = period
             df_picking_fii['mes'] = month
             df_picking_fii['ano'] = year
-            df_picking_fii['data_posicao'] = dt_posicao
-            self.dividendo_fiis = self.dividendo_fiis.append(df_picking_fii, ignore_index=True)
+            df_picking_fii['data_posicao'] = dt_position
+            self.fiis_profits = self.fiis_profits.append(df_picking_fii, ignore_index=True)
 
 
 
@@ -130,43 +130,43 @@ class Posicao:
             period = str(year) + '/' + str(month)
             dt_posicao = date_position.values[0]
 
-            df_stocks = self.__get_acoes(df)
+            df_stocks = self.__get_stocks(df)
             df_stocks['period'] = period
             df_stocks['mes'] = month
             df_stocks['ano'] = year
             df_stocks['data_posicao'] = dt_posicao
-            self.acoes = self.acoes.append(df_stocks, ignore_index=True)
+            self.stocks = self.stocks.append(df_stocks, ignore_index=True)
 
-            df_pickings = self.__get_acoes_provento(df)
+            df_pickings = self.__get_stocks_profits(df)
             df_pickings['period'] = period
             df_pickings['mes'] = month
             df_pickings['ano'] = year
             df_pickings['data_posicao'] = dt_posicao
-            self.dividendo_acoes = self.dividendo_acoes.append(df_pickings, ignore_index=True)
+            self.stocks_profits = self.stocks_profits.append(df_pickings, ignore_index=True)
 
-            df_fi = self.__get_fi(df)
+            df_fi = self.__get_fis(df)
             df_fi['period'] = period
             df_fi['mes'] = month
             df_fi['ano'] = year
             df_fi['data_posicao'] = dt_posicao
             self.fis = self.fis.append(df_fi, ignore_index=True)
 
-            df_fii = self.__get_fii(df)
+            df_fii = self.__get_fiis(df)
             df_fii['period'] = period
             df_fii['mes'] = month
             df_fii['ano'] = year
             df_fii['data_posicao'] = dt_posicao
             self.fiis = self.fiis.append(df_fii, ignore_index=True)
 
-            df_picking_fii = self.__get_fii_proventos(df)
+            df_picking_fii = self.__get_fiis_profits(df)
             df_picking_fii['period'] = period
             df_picking_fii['mes'] = month
             df_picking_fii['ano'] = year
             df_picking_fii['data_posicao'] = dt_posicao
-            self.dividendo_fiis = self.dividendo_fiis.append(df_picking_fii, ignore_index=True)
+            self.fiis_profits = self.fiis_profits.append(df_picking_fii, ignore_index=True)
 
 
-    def __get_acoes(self, df):
+    def __get_stocks(self, df):
         acoes = []
 
         for index, row in df[~df['Unnamed: 2'].isnull()].iterrows():
@@ -186,17 +186,16 @@ class Posicao:
                                          'Qtd Estruturados', 'Liq Termo',
                                          'Qtd Total', 'Cotacao', 'Financeiro'], data=acoes)
         
-        # ToDo: Alterar BPAC6 para BPAC11 e a outra. 
-        pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC9', 'BPAC11', pd_stock['Papel'])
-        pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC12', 'BPAC11', pd_stock['Papel'])
-        pd_stock['Papel'] = np.where(pd_stock['Papel'] == 'BPAC6', 'BPAC11', pd_stock['Papel'])
+        pd_stock.loc[:, 'Papel'] = np.where(pd_stock['Papel'] == 'BPAC9', 'BPAC11', pd_stock['Papel'])
+        pd_stock.loc[:, 'Papel'] = np.where(pd_stock['Papel'] == 'BPAC12', 'BPAC11', pd_stock['Papel'])
+        pd_stock.loc[:, 'Papel'] = np.where(pd_stock['Papel'] == 'BPAC6', 'BPAC11', pd_stock['Papel'])
 
         return pd_stock.groupby(['Papel']).sum().reset_index()
         #return pd_stock
 
 
-    def __get_acoes_provento(self, df):
-        proventos = []
+    def __get_stocks_profits(self, df):
+        profits = []
         start = False
 
         for index, row in df[~df['Unnamed: 2'].isnull()].iterrows():
@@ -208,17 +207,17 @@ class Posicao:
             elif row['Unnamed: 2'] == 'Renda Fixa':
                 break
             elif start == True:
-                proventos.append(row[['Unnamed: 2', 'Unnamed: 11',
+                profits.append(row[['Unnamed: 2', 'Unnamed: 11',
                                       'Unnamed: 22', 'Unnamed: 60',
                                       'Unnamed: 77']].values)
 
-        pd_proventos = pd.DataFrame(columns=['Papel', 'Qtd Provisionada',
-                                             'Tipo', 'Data Pagamento', 'Valor'], data=proventos)
+        df_profits = pd.DataFrame(columns=['Papel', 'Qtd Provisionada',
+                                             'Tipo', 'Data Pagamento', 'Valor'], data=profits)
 
-        return pd_proventos
+        return df_profits
 
 
-    def __get_fi(self, df):
+    def __get_fis(self, df):
         x = []
         start = False
 
@@ -244,21 +243,21 @@ class Posicao:
                     x.append(data.values[0])
                     # display(data.head())
 
-        pd_fi = pd.DataFrame(columns=['Nome', 'Data', 'Qtd Cotas',
+        df_fis = pd.DataFrame(columns=['Nome', 'Data', 'Qtd Cotas',
                                       'Valor Cota', 'Valor Bruto',
                                       'IR', 'IOF', 'Valor Liquido',
                                       'Aplicacao Pendente', 'Total Bruto'], data=x)
                                       
         # Bahia AM Maraú Advisory FIC de 
-        pd_fi['Nome'] = np.where(pd_fi['Nome'] == 'Bahia AM Maraú Advisory FIC de ', 'Bahia AM Maraú FIC de FIM', pd_fi['Nome'])                                     
+        df_fis['Nome'] = np.where(df_fis['Nome'] == 'Bahia AM Maraú Advisory FIC de ', 'Bahia AM Maraú FIC de FIM', df_fis['Nome'])                                     
                                       
         #if len(pd_fi[pd_fi['Nome'].str.contains('Azul')]) > 0:
         #print(pd_fi[['Nome', 'Data']])
 
-        return pd_fi
+        return df_fis
 
 
-    def __get_fii(self, df):
+    def __get_fiis(self, df):
         fii = []
         start = False
 
@@ -276,26 +275,26 @@ class Posicao:
                                 'Unnamed: 45', 'Unnamed: 55',
                                 'Unnamed: 74']].values)
 
-        df_aportesresult = pd.DataFrame(columns=['Papel', 'Qtd Disponivel',
+        df_result = pd.DataFrame(columns=['Papel', 'Qtd Disponivel',
                                                  'Qtd Projetada', 'Qtd Dia', 'Qtde Total',
                                                  'Ult Cotacao', 'Financeiro'], data=fii)
 
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'HGLG14', 'HGLG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES11B', 'CNES11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES12B', 'CNES11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF11B', 'BCFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12', 'BCFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12B', 'BCFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'OULG11B', 'OULG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG13', 'XPLG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG14', 'XPLG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'RBRF14', 'RBRF11', df_aportesresult['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'HGLG14', 'HGLG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CNES11B', 'CNES11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CNES12B', 'CNES11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'BCFF11B', 'BCFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'BCFF12', 'BCFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'BCFF12B', 'BCFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'OULG11B', 'OULG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'IBFF12', 'IBFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG13', 'XPLG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG14', 'XPLG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'RBRF14', 'RBRF11', df_result['Papel'])
 
-        return df_aportesresult.groupby(['Papel']).sum().reset_index()
+        return df_result.groupby(['Papel']).sum().reset_index()
 
 
-    def __get_fii_proventos(self, df):
+    def __get_fiis_profits(self, df):
         p_fii = []
         start = False
 
@@ -312,27 +311,27 @@ class Posicao:
                                   'Unnamed: 22', 'Unnamed: 60',
                                   'Unnamed: 77']].values)
 
-        df_aportesresult = pd.DataFrame(columns=['Papel', 'Tipo',
+        df_result = pd.DataFrame(columns=['Papel', 'Tipo',
                                                  'Qtd Provisionada', 'Dt Pagamento',
                                                  'Valor Provisionado'], data=p_fii)
 
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'HGLG14', 'HGLG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES11B', 'CNES11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'CNES12B', 'CNES11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF11B', 'BCFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12', 'BCFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'BCFF12B', 'BCFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'OULG11B', 'OULG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'IBFF12', 'IBFF11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG13', 'XPLG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'XPLG14', 'XPLG11', df_aportesresult['Papel'])
-        df_aportesresult['Papel'] = np.where(df_aportesresult['Papel'] == 'RBRF14', 'RBRF11', df_aportesresult['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'HGLG14', 'HGLG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CNES11B', 'CNES11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CNES12B', 'CNES11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'BCFF11B', 'BCFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'BCFF12', 'BCFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'BCFF12B', 'BCFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'OULG11B', 'OULG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'IBFF12', 'IBFF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG13', 'XPLG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG14', 'XPLG11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'RBRF14', 'RBRF11', df_result['Papel'])
 
-        return df_aportesresult.groupby(['Papel']).sum().reset_index()
+        return df_result.groupby(['Papel']).sum().reset_index()
 
 
 
-class Extrato:
+class Extract:
     
     def __init__(self, dt_inicio, dt_fim, df_extrato, df_extrato_acoes):
         self.fi_map = {
@@ -359,12 +358,12 @@ class Extrato:
             'Macro FIC FIM': 'Mauá Macro FIC FIM'
         }
 
-        self.extrato_fis = pd.DataFrame()
-        self.aportes_xp = pd.DataFrame()
-        self.retiradas_xp = pd.DataFrame()
-        self.__aportes_fi_hist = pd.DataFrame()
-        self.__resgates_fi_hist = pd.DataFrame()
-        self.__dividendos_hist = pd.DataFrame()
+        self.extract_fis = pd.DataFrame()
+        self.cash_in_xp = pd.DataFrame()
+        self.cash_out_xp = pd.DataFrame()
+        self.__cashin_fi_hist = pd.DataFrame()
+        self.__cashout_fi_hist = pd.DataFrame()
+        self.fiis_profits = pd.DataFrame()
         self.ir_fi_hist = pd.DataFrame()
         
 
@@ -374,10 +373,8 @@ class Extrato:
 
         self.extrato_acoes = pd.DataFrame()
         self.extrato_fiis = pd.DataFrame()
-        self.dividendos_fii = pd.DataFrame()
         self.load_extrato_acoes(df_extrato_acoes)
-        self.dividendos_fii = self.__dividendos_hist
-
+        
 
     def load_extrato_acoes(self, df_extrato_acoes):
         df = df_extrato_acoes
@@ -407,56 +404,56 @@ class Extrato:
         self.df = self.df[(self.df['Mov'].dt.year >= dt_inicio) 
                                 & (self.df['Mov'].dt.year <= dt_fim)]
 
-        self.aportes_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
-        self.retiradas_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
+        self.cash_in_xp = self.df[self.df['Descricao'].str.contains('TED - RECEBIMENTO DE TED - SPB|TED - CREDITO CONTA CORRENTE')]
+        self.cash_out_xp = self.df[self.df['Descricao'].str.contains('RETIRADA EM C/C')]
 
-        self.__aportes_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
-        self.__aportes_fi_hist.loc[:, 'Nome'] = self.__aportes_fi_hist['Descricao'].apply(self.__map_fi)
+        self.__cashin_fi_hist = self.df[self.df['Descricao'].str.contains('TED APLICA')]
+        self.__cashin_fi_hist.loc[:, 'Nome'] = self.__cashin_fi_hist['Descricao'].apply(self.__map_fi)
 
-        self.__resgates_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
+        self.__cashout_fi_hist = self.df[self.df['Descricao'].str.contains('RESGATE')]\
             .drop(self.df[self.df['Descricao']
                      .str.contains('IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')].index)
-        self.__resgates_fi_hist.loc[:, 'Nome'] = self.__resgates_fi_hist['Descricao'].apply(self.__map_fi)
+        self.__cashout_fi_hist.loc[:, 'Nome'] = self.__cashout_fi_hist['Descricao'].apply(self.__map_fi)
 
         self.ir_fi_hist = self.df[self.df['Descricao'].str.contains(
             'IRRF S/RESGATE FUNDOS|IRRF S/ RESGATE FUNDOS')]
         self.ir_fi_hist.loc[:, 'Nome'] = self.ir_fi_hist['Descricao'].apply(self.__map_fi)
 
-        self.__dividendos_hist = self.df[self.df['Descricao'].str.contains(
-            'RENDIMENTOS DE CLIENTES')]
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('HGLG11'), 'HGLG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('HGLG14'), 'HGLG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('CNES11'), 'CNES11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('CNES11B'), 'CNES11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('CNES12B'), 'CNES11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF11'), 'BCFF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF11B'), 'BCFF11B', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF12'), 'BCFF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('BCFF12'), 'BCFF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('OULG11'), 'OULG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('OULG11B'), 'OULG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('IBFF11'), 'IBFF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('IBFF12'), 'IBFF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('XPLG11'), 'XPLG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('XPLG13'), 'XPLG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('XPLG14'), 'XPLG11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RNGO11'), 'RNGO11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('TBOF11'), 'TBOF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('TBOF13'), 'TBOF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RBRF14'), 'RBRF11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist['Descricao'] = np.where(self.__dividendos_hist['Descricao'].str.contains('RENDIMENTOS DE CLIENTES CNES'), 'CNES11', self.__dividendos_hist['Descricao'])
-        self.__dividendos_hist = self.__dividendos_hist[~self.__dividendos_hist['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
+        self.fiis_profits = self.df[self.df['Descricao'].str.contains('RENDIMENTOS DE CLIENTES')]
+        
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('HGLG11'), 'HGLG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('HGLG14'), 'HGLG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('CNES11'), 'CNES11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('CNES11B'), 'CNES11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('CNES12B'), 'CNES11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('BCFF11'), 'BCFF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('BCFF11B'), 'BCFF11B', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('BCFF12'), 'BCFF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('BCFF12'), 'BCFF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('OULG11'), 'OULG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('OULG11B'), 'OULG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('IBFF11'), 'IBFF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('IBFF12'), 'IBFF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('XPLG11'), 'XPLG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('XPLG13'), 'XPLG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('XPLG14'), 'XPLG11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RNGO11'), 'RNGO11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('TBOF11'), 'TBOF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('TBOF13'), 'TBOF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RBRF14'), 'RBRF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES CNES'), 'CNES11', self.fiis_profits['Descricao'])
+        self.fiis_profits = self.fiis_profits[~self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
 
     def __set_extrato_fis(self):
         #print(self.extrato_hist)
-        df_aportes_fi = self.__aportes_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_aportes_fi = self.__cashin_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Aporte'})
 
         df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
 
-        df_fi_resgates = self.__resgates_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_fi_resgates = self.__cashout_fi_hist.groupby(['Nome', 'ano', 'mes'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
             .rename(columns={'Valor': 'Vlr Resgate'})
@@ -483,17 +480,17 @@ class Extrato:
         # display(df_fi_resgates)
 
         df_aportesgroup['Vlr Aporte'] = df_aportesgroup['Vlr Aporte'].abs()
-        df_aportesgroup['Rendimento Resgatado'] = np.where(df_aportesgroup['Vlr Resgate'] > 0,
+        df_aportesgroup.loc[:, 'Rendimento Resgatado'] = np.where(df_aportesgroup['Vlr Resgate'] > 0,
                                                            df_aportesgroup['Vlr Resgate'] -
                                                            df_aportesgroup['Vlr Aporte'],
                                                            0)
         # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
 
-        self.extrato_fis = df_aportesgroup.fillna(0)
+        self.extract_fis = df_aportesgroup.fillna(0)
 
 
     def total_investido(self):
-        return self.aportes_xp['Valor'].sum() - self.retiradas_xp['Valor'].abs().sum()
+        return self.cash_in_xp['Valor'].sum() - self.cash_out_xp['Valor'].abs().sum()
 
 
     def periodos(self):

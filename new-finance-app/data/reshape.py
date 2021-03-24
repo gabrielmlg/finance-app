@@ -1,0 +1,155 @@
+from data.source import Position, Extract
+import numpy as np
+import pandas as pd
+
+class Transform:
+
+    def __init__(self):
+        None
+
+    def append_investiments(self, position, extract):
+        df1 = position.stocks[['Papel', 'Qtd Disponivel',
+                    'Cotacao', 'Financeiro', 'period', 'mes', 'ano',
+                    'data_posicao']]
+
+        df2 = position.fiis[['Papel', 'Qtd Disponivel', 
+                    'Ult Cotacao', 'Financeiro', 'period', 'mes', 'ano', 
+                    'data_posicao']]\
+                .rename(columns={'Ult Cotacao': 'Cotacao'})
+
+        
+        df2['Financeiro'] = np.where(df2['Financeiro'] == 0, 
+                df2['Qtd Disponivel'] * df2['Cotacao'], 
+                df2['Financeiro']) # trata os valores vazios de Financeiro. 
+
+        # ToDo: Depois acrescentar esses campos: 'IR', 'IOF', 'Valor Liquido'
+        df3 = position.fis[['Nome', 'Qtd Cotas', 'Valor Cota', 'Valor Bruto', 
+                            'period', 'mes',
+                            'ano', 'data_posicao']]\
+                    .rename(columns={'Nome': 'Papel',
+                                    'Qtd Cotas': 'Qtd Disponivel', 
+                                    'Valor Cota': 'Cotacao', 
+                                    'Valor Bruto': 'Financeiro'})                            
+
+        df4 = position.stocks_profits\
+                .groupby(['Papel', 'data_posicao'])\
+                    .agg(Valor=('Valor', 'sum'))\
+                .reset_index()
+
+        df5 = extract.fiis_profits\
+                    .groupby(['Descricao', 'ano', 'mes'])\
+                        .agg(Valor=('Valor', 'sum'))\
+                    .reset_index()\
+                    .rename(columns={'Descricao': 'Papel'})
+
+        df_result = df1.append(df2, ignore_index=True).append(df3, ignore_index=True)   
+
+
+        df_result = df_result.merge(df4, 
+                                how='outer', 
+                                left_on=['Papel', 'data_posicao'], 
+                                right_on=['Papel', 'data_posicao'])\
+                            .fillna(0)
+                            
+        df_result = df_result.merge(df5, 
+                                how='left', # existem dividendos de periodos sem posicao ex.: BCFF11
+                                left_on=['Papel', 'ano', 'mes'], 
+                                right_on=['Papel', 'ano', 'mes'])\
+                            .fillna(0)
+        df_result['dividendo'] = df_result['Valor_x'] + df_result['Valor_y']
+        df_result.drop(columns=['Valor_x', 'Valor_y'], inplace=True)
+
+        return df_result
+        #df_result.sort_values(by=['data_posicao', 'Papel']).tail()
+
+    
+    def transform_extract_stocks(self, extract):
+        df1 = extract.extrato_acoes\
+                    .append(extract.extrato_fiis, ignore_index=True)
+
+        tmp = df1.pivot_table(index=['Papel', 'ano', 'mes'], columns=['Tipo'], aggfunc=np.sum, fill_value=0).reset_index()
+        tmp['total_compra'] = tmp.Preco.COMPRA * tmp.Qtde.COMPRA
+        tmp['total_venda'] = tmp.Preco.VENDA * tmp.Qtde.VENDA
+
+        return pd.DataFrame({
+            'Papel': tmp['Papel'],
+            'ano': tmp['ano'], 
+            'mes': tmp['mes'], 
+            'aporte': tmp['total_compra'], 
+            'retirada': tmp['total_venda']
+        })
+
+
+    def resume(self, position, extract):
+        features = self.append_investiments(position, extract)
+        stock_extract = self.transform_extract_stocks(extract)
+
+        # merge cash in e out by stocks and fiis
+        df1 = features.merge(stock_extract, 
+            how='outer', 
+            left_on=['Papel', 'ano', 'mes'], 
+            right_on=['Papel', 'ano', 'mes']).fillna(0).reset_index()
+
+        df2 = extract.extract_fis.rename(columns={
+            'Nome': 'Papel'#, 
+            #'Vlr Aporte': 'aporte', 
+            #'Vlr Resgate': 'retirada'
+        })
+
+        df2 = df2.groupby(['Papel', 'ano', 'mes'])\
+                .agg(vlr_aporte=('Vlr Aporte', 'sum'), 
+                    vlr_resgate=('Vlr Resgate', 'sum'), 
+                    rendimento_resgatado=('Rendimento Resgatado', 'sum')).reset_index()
+
+        df3 = df1.merge(df2, 
+                how='outer', 
+                left_on=['ano', 'mes', 'Papel'], 
+                right_on=['ano', 'mes', 'Papel']).fillna(0)
+
+        df3['aporte'] = df3['vlr_aporte'] + df3['aporte']
+        df3['retirada'] = df3['vlr_resgate'] + df3['retirada']
+        df3.drop(columns=['vlr_aporte', 'vlr_resgate'], inplace=True)
+
+        df_return = pd.DataFrame([])
+
+        for ativo in df3['Papel'].unique():
+            df_ = df3[df3['Papel'] == ativo].sort_values(by=['ano', 'mes']).reset_index()
+            rendimento = []
+            rendimento_percent = []
+            periodo_cont = []
+            count = 0
+
+            for row in df_.index:
+                if (df_[df_.index == row]['Financeiro'].sum() > 1) | (df_[df_.index == row]['retirada'].sum() > 1):
+                    if count == 0: # primeiro rendimento
+                        count += 1
+                        rend_ = df_[df_.index == row]['Financeiro'].sum() - df_[df_.index <= row]['aporte'].sum()
+                        rend_per_ = rend_ / df_[df_.index <= row]['aporte'].sum() * 100
+
+                        rendimento.append(rend_)
+                        rendimento_percent.append(rend_per_)
+                        periodo_cont.append(1)
+                    else:
+                        count += 1
+                        valor = df_[df_.index == row]['Financeiro'].sum()\
+                                    + df_[df_.index == row]['retirada'].sum()\
+                                    - df_[df_.index == row -1]['Financeiro'].sum()\
+                                    - df_[df_.index == row]['aporte'].sum()
+                        rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() * 100
+                        rendimento.append(valor)
+                        rendimento_percent.append(rend_per_)
+                        periodo_cont.append(count)
+                        
+                else:
+                    rendimento.append(0)
+                    rendimento_percent.append(0)
+                    periodo_cont.append(0)
+                    count = 0
+
+            df_['rendimento'] = rendimento
+            df_['rendimento_percent'] = rendimento_percent
+            df_['periodo_cont'] = periodo_cont
+            #df_['rendimento_acum'] = df_['rendimento'].cumsum()
+            df_return = df_return.append(df_)
+
+        return df_return

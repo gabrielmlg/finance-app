@@ -1,6 +1,9 @@
+from datetime import datetime
 from data.source import Position, Extract
 import numpy as np
 import pandas as pd
+
+from components import utils
 
 class Transform:
 
@@ -11,11 +14,15 @@ class Transform:
         df1 = position.stocks[['Papel', 'Qtd Disponivel',
                     'Cotacao', 'Financeiro', 'period', 'mes', 'ano',
                     'data_posicao']]
+        df1['Tipo'] = np.where(df1['Papel'].str.contains('34'), 
+                                'BDR', 
+                                'Ação')
 
         df2 = position.fiis[['Papel', 'Qtd Disponivel', 
                     'Ult Cotacao', 'Financeiro', 'period', 'mes', 'ano', 
                     'data_posicao']]\
                 .rename(columns={'Ult Cotacao': 'Cotacao'})
+        df2['Tipo'] = 'FII'
 
         
         df2['Financeiro'] = np.where(df2['Financeiro'] == 0, 
@@ -30,6 +37,7 @@ class Transform:
                                     'Qtd Cotas': 'Qtd Disponivel', 
                                     'Valor Cota': 'Cotacao', 
                                     'Valor Bruto': 'Financeiro'})                            
+        df3['Tipo'] = 'FI'
 
         df4 = position.stocks_profits\
                 .groupby(['Papel', 'data_posicao'])\
@@ -42,6 +50,11 @@ class Transform:
                     .reset_index()\
                     .rename(columns={'Descricao': 'Papel'})
 
+        #print(df1[df1['data_posicao'].isnull()].head())
+        #print(df2[df2['data_posicao'].isnull()].head())
+        #print(df3[df3['data_posicao'].isnull()].head())
+        #print(df1[df4['data_posicao'].isnull()].head())
+        
         df_result = df1.append(df2, ignore_index=True).append(df3, ignore_index=True)   
 
 
@@ -64,17 +77,33 @@ class Transform:
 
     
     def transform_extract_stocks(self, extract):
-        df1 = extract.extrato_acoes\
-                    .append(extract.extrato_fiis, ignore_index=True)
+        
+        #Estou aqui!! Todo:
+        #[] Renomear a coluna Tipo para outro nome para poder criar a coluna 'Tipo'
+        # [] Criar a coluna 'Tipo'
+        stocks = extract.extrato_acoes.copy()
+        stocks.rename(columns={'Tipo': 'Operacao'}, inplace=True)
+        stocks['Tipo'] = np.where(stocks['Papel'].str.contains('34'), 
+                                'BDR', 
+                                'Ação')
 
-        tmp = df1.pivot_table(index=['Papel', 'ano', 'mes'], columns=['Tipo'], aggfunc=np.sum, fill_value=0).reset_index()
+        fiis = extract.extrato_fiis.copy()
+        fiis.rename(columns={'Tipo': 'Operacao'}, inplace=True)
+        fiis['Tipo'] = 'FII'
+
+        df1 = stocks.append(fiis, ignore_index=True)
+
+        tmp = df1.pivot_table(index=['Tipo', 'Papel', 'ano', 'mes'], columns=['Operacao'], aggfunc=np.sum, fill_value=0).reset_index()
         tmp['total_compra'] = tmp.Preco.COMPRA * tmp.Qtde.COMPRA
         tmp['total_venda'] = tmp.Preco.VENDA * tmp.Qtde.VENDA
-
+        tmp['data_posicao'] = tmp.apply(lambda x: utils.last_day_of_month(datetime(x['ano'], x['mes'], 1)), axis=1)
+ 
         return pd.DataFrame({
+            'Tipo': tmp['Tipo'], 
             'Papel': tmp['Papel'],
             'ano': tmp['ano'], 
             'mes': tmp['mes'], 
+            'data_posicao': tmp['data_posicao'], 
             'aporte': tmp['total_compra'], 
             'retirada': tmp['total_venda']
         })
@@ -87,24 +116,25 @@ class Transform:
         # merge cash in e out by stocks and fiis
         df1 = features.merge(stock_extract, 
             how='outer', 
-            left_on=['Papel', 'ano', 'mes'], 
-            right_on=['Papel', 'ano', 'mes']).fillna(0).reset_index()
-
+            left_on=['Tipo', 'Papel', 'ano', 'mes', 'data_posicao'], 
+            right_on=['Tipo', 'Papel', 'ano', 'mes', 'data_posicao']).fillna(0).reset_index()\
+                .rename(columns={'data_posicao': 'Data'})
+        
         df2 = extract.extract_fis.rename(columns={
             'Nome': 'Papel'#, 
             #'Vlr Aporte': 'aporte', 
             #'Vlr Resgate': 'retirada'
         })
 
-        df2 = df2.groupby(['Papel', 'ano', 'mes'])\
+        df2 = df2.groupby(['Tipo', 'Papel', 'ano', 'mes', 'Data'])\
                 .agg(vlr_aporte=('Vlr Aporte', 'sum'), 
                     vlr_resgate=('Vlr Resgate', 'sum'), 
                     rendimento_resgatado=('Rendimento Resgatado', 'sum')).reset_index()
 
         df3 = df1.merge(df2, 
                 how='outer', 
-                left_on=['ano', 'mes', 'Papel'], 
-                right_on=['ano', 'mes', 'Papel']).fillna(0)
+                left_on=['ano', 'mes', 'Papel', 'Tipo', 'Data'], 
+                right_on=['ano', 'mes', 'Papel', 'Tipo', 'Data']).fillna(0)
 
         df3['aporte'] = df3['vlr_aporte'] + df3['aporte']
         df3['retirada'] = df3['vlr_resgate'] + df3['retirada']
@@ -114,6 +144,7 @@ class Transform:
 
         for ativo in df3['Papel'].unique():
             df_ = df3[df3['Papel'] == ativo].sort_values(by=['ano', 'mes']).reset_index()
+            #print(df_.head())
             rendimento = []
             rendimento_percent = []
             periodo_cont = []
@@ -147,9 +178,11 @@ class Transform:
                     count = 0
 
             df_['rendimento'] = rendimento
-            df_['rendimento_percent'] = rendimento_percent
+            df_['%'] = rendimento_percent
             df_['periodo_cont'] = periodo_cont
             #df_['rendimento_acum'] = df_['rendimento'].cumsum()
             df_return = df_return.append(df_)
+
+        df_return.rename(columns={'Papel': 'Nome'}, inplace=True)
 
         return df_return

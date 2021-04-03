@@ -1,3 +1,4 @@
+from datetime import datetime
 import pandas as pd
 import os
 import xlrd
@@ -5,6 +6,8 @@ import numpy as np
 
 import boto3
 import io
+
+from components import utils
 
 # LOCAL
 from config import config
@@ -445,35 +448,37 @@ class Extract:
         self.fiis_profits = self.fiis_profits[~self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
 
     def __set_extrato_fis(self):
-        #print(self.extrato_hist)
-        df_aportes_fi = self.__cashin_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_aportes_fi = self.__cashin_fi_hist.groupby(['Nome', 'ano', 'mes', 'Mov'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
-            .rename(columns={'Valor': 'Vlr Aporte'})
+            .rename(columns={'Valor': 'Vlr Aporte', 
+                            'Mov': 'Data'})
 
         df_aportes_fi['Vlr Aporte'] = df_aportes_fi['Vlr Aporte'].abs()
 
-        df_fi_resgates = self.__cashout_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_fi_resgates = self.__cashout_fi_hist.groupby(['Nome', 'ano', 'mes', 'Mov'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
-            .rename(columns={'Valor': 'Vlr Resgate'})
+            .rename(columns={'Valor': 'Vlr Resgate', 
+                                'Mov': 'Data'})
 
-        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'ano', 'mes'])\
+        df_fi_ir = self.ir_fi_hist.groupby(['Nome', 'ano', 'mes', 'Mov'])\
             .agg({'Valor': 'sum'})\
             .reset_index()\
-            .rename(columns={'Valor': 'Vlr IR'})
+            .rename(columns={'Valor': 'Vlr IR', 
+                            'Mov': 'Data'})
 
         df_fi_ir['Vlr IR'] = df_fi_ir['Vlr IR'].abs()
 
         df_aportesgroup = df_aportes_fi.merge(
             df_fi_resgates,
             how='outer',
-            left_on=['Nome', 'ano', 'mes'],
-            right_on=['Nome', 'ano', 'mes'])\
+            left_on=['Nome', 'ano', 'mes', 'Data'],
+            right_on=['Nome', 'ano', 'mes', 'Data'])\
             .merge(df_fi_ir,
                    how='outer',
-                   left_on=['Nome', 'ano', 'mes'],
-                   right_on=['Nome', 'ano', 'mes']
+                   left_on=['Nome', 'ano', 'mes', 'Data'],
+                   right_on=['Nome', 'ano', 'mes', 'Data']
                    ).fillna(0)
 
         # display(df_fi_aportes)
@@ -484,8 +489,15 @@ class Extract:
                                                            df_aportesgroup['Vlr Resgate'] -
                                                            df_aportesgroup['Vlr Aporte'],
                                                            0)
-        # df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Aporte'] = df_aportesgroup[df_aportesgroup['Vlr Aporte'].isnull()]['Vlr Resgate']
+        df_aportesgroup['Tipo'] = 'FI' 
+        df_aportesgroup['Data'] = pd.to_datetime(df_aportesgroup['Data']).apply(lambda x: utils.last_day_of_month(x))
 
+        df_aportesgroup['Data2'] = df_aportesgroup.apply(lambda x: utils.last_day_of_month(datetime(x['ano'], x['mes'], 1)), axis=1)
+
+        #df_aportesgroup['Data'] = np.where(df_aportesgroup['Data'].isnull(), 
+        #                                    )
+
+        
         self.extract_fis = df_aportesgroup.fillna(0)
 
 

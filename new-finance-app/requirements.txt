@@ -1,0 +1,16 @@
+boto3==1.16.47
+botocore==1.19.47
+dash==1.18.1
+dash-bootstrap-components==0.11.1
+dash-core-components==1.14.1
+dash-html-components==1.1.1
+dash-renderer==1.8.3
+dash-table==4.11.1
+et-xmlfile==1.0.1
+iniconfig==1.1.1
+numpy==1.19.4
+openpyxl==3.0.5
+pandas==1.2.0
+plotly==4.14.1
+pytest==6.2.1
+xlrd==2.0.1

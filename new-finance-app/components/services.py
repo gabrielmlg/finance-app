@@ -40,8 +40,10 @@ class MainService:
                         .agg(financeiro=('Financeiro', 'sum'), 
                             aporte=('aporte', 'sum'), 
                             retirada=('retirada', 'sum'), 
-                            rendimento=('rendimento', 'sum'))\
-                        .reset_index()
+                            rendimento=('rendimento', 'sum'), 
+                            rendimento_percent=('%', 'mean'))\
+                        .reset_index()\
+                        .fillna(0)
         df['%'] = df['rendimento'] / df['financeiro'] * 100
         df['renda_acum'] = df['rendimento'].cumsum()
         df['aporte_acum'] = df['aporte'].cumsum()

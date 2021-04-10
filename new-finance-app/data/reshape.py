@@ -151,22 +151,48 @@ class Transform:
             count = 0
 
             for row in df_.index:
-                if (df_[df_.index == row]['Financeiro'].sum() > 1) | (df_[df_.index == row]['retirada'].sum() > 1):
+                if (df_[df_.index == row]['Financeiro'].sum() > 1)\
+                        | (df_[df_.index == row]['retirada'].sum() > 1)\
+                        | (df_[df_.index == row]['aporte'].sum() > 1):
                     if count == 0: # primeiro rendimento
                         count += 1
-                        rend_ = df_[df_.index == row]['Financeiro'].sum() - df_[df_.index <= row]['aporte'].sum()
-                        rend_per_ = rend_ / df_[df_.index <= row]['aporte'].sum() * 100
+                        
+                        if df_[df_.index == row]['Financeiro'].sum() > 0:
+                            rend_ = df_[df_.index == row]['Financeiro'].sum() - df_[df_.index <= row]['aporte'].sum()
+                        else: 
+                            rend_ = 0 #df_[df_.index <= row]['aporte'].sum()
+                        
+                        if df_[df_.index <= row]['aporte'].sum() > 0:
+                            rend_per_ = rend_ / df_[df_.index <= row]['aporte'].sum() * 100
+                        else: rend_per_ = 0
 
                         rendimento.append(rend_)
                         rendimento_percent.append(rend_per_)
                         periodo_cont.append(1)
                     else:
                         count += 1
-                        valor = df_[df_.index == row]['Financeiro'].sum()\
-                                    + df_[df_.index == row]['retirada'].sum()\
-                                    - df_[df_.index == row -1]['Financeiro'].sum()\
-                                    - df_[df_.index == row]['aporte'].sum()
-                        rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() * 100
+                        if (df_[df_.index == row]['Financeiro'].sum() > 0)\
+                            & (df_[df_.index == row -1]['Financeiro'].sum() == 0): # segunda linha (segundo mes de invetimento)
+                            valor = df_[df_.index == row]['Financeiro'].sum()\
+                                        + df_[df_.index <= row]['retirada'].sum()\
+                                        - df_[df_.index == row -1]['Financeiro'].sum()\
+                                        - df_[df_.index <= row]['aporte'].sum()
+                        elif (df_[df_.index == row]['Financeiro'].sum() > 0)\
+                            & (df_[df_.index == row -1]['Financeiro'].sum() > 0):
+                            valor = df_[df_.index == row]['Financeiro'].sum()\
+                                        + df_[df_.index == row]['retirada'].sum()\
+                                        - df_[df_.index == row -1]['Financeiro'].sum()\
+                                        - df_[df_.index == row]['aporte'].sum()
+                        else: 
+                            valor = 0
+
+                        if df_[df_.index == row - 1]['Financeiro'].sum() > 0: 
+                            rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() * 100
+                        elif df_[df_.index == row]['Financeiro'].sum() > 0:
+                            rend_per_ = valor / df_[df_.index <= row]['aporte'].sum() * 100
+                        else: 
+                            rend_per_ = 0
+                        #rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() * 100
                         rendimento.append(valor)
                         rendimento_percent.append(rend_per_)
                         periodo_cont.append(count)

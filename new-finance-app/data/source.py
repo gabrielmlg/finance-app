@@ -72,7 +72,9 @@ class Position:
             month = int(date_position.dt.month.values)
             year = int(date_position.dt.year.values)
             period = str(year) + '/' + str(month)
-            dt_position = date_position.values[0]
+            #dt_position = date_position.values[0]
+            dt_position = utils.last_day_of_month(datetime(year, month, 1))
+            print('Data antes: {}  ---> {}'.format(dt_position, date_position.values[0]))
 
             df_stocks = self.__get_stocks(df)
             df_stocks['period'] = period
@@ -403,6 +405,7 @@ class Extract:
         self.df['Liq'] = pd.to_datetime(self.df['Liq'], format='%d/%m/%Y')
         self.df['ano'] = self.df['Mov'].dt.year
         self.df['mes'] = self.df['Mov'].dt.month
+        self.df['Data'] = self.df.apply(lambda x: utils.last_day_of_month(datetime(x['ano'], x['mes'], 1)), axis=1)
 
         self.df = self.df[(self.df['Mov'].dt.year >= dt_inicio) 
                                 & (self.df['Mov'].dt.year <= dt_fim)]
@@ -492,12 +495,6 @@ class Extract:
         df_aportesgroup['Tipo'] = 'FI' 
         df_aportesgroup['Data'] = pd.to_datetime(df_aportesgroup['Data']).apply(lambda x: utils.last_day_of_month(x))
 
-        df_aportesgroup['Data2'] = df_aportesgroup.apply(lambda x: utils.last_day_of_month(datetime(x['ano'], x['mes'], 1)), axis=1)
-
-        #df_aportesgroup['Data'] = np.where(df_aportesgroup['Data'].isnull(), 
-        #                                    )
-
-        
         self.extract_fis = df_aportesgroup.fillna(0)
 
 

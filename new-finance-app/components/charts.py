@@ -69,18 +69,19 @@ def type_pie_chart(df, col_value):
 
 
 def revenue_chart(df):
-    df['color'] = np.where(df['%'] >= 0, colors[2], colors[11])
+    df_ = df[df['Data'] >= '2014-08-01']
+    df_['color'] = np.where(df_['%'] >= 0, colors[2], colors[11])
     fig = go.Figure()
 
     fig.add_trace(
-        go.Bar(x=df['Data'],
-                y=df['%'],
+        go.Bar(x=df_['Data'],
+                y=df_['%'],
                 #mode='lines',
                 name='% Rendimento',
                 textposition='outside',
-                text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                text=df_['%'].apply(lambda x: f'{x:,.2f}%'),
                 #marker=dict(size=7),
-                marker_color=df['color'], 
+                marker_color=df_['color'], 
                 #line=dict(color='#6A12E8', width=1.8),
                 #opacity=.8
         )

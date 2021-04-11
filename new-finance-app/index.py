@@ -9,7 +9,7 @@ from app_server import app
 import callbacks
 
 # Connect to your app pages
-from pages import resume, stocks
+from pages import resume, stocks, detail
 
 navbar = dbc.NavbarSimple(
     children=[
@@ -54,7 +54,7 @@ def display_page(pathname):
     if pathname == '/compare':
         return resume.layout #compare_havings.layout
     if pathname == '/detail':
-        return resume.layout #resume_detail.layout
+        return detail.layout #resume_detail.layout
     if pathname == '/stocks':
         return stocks.layout
     if pathname == '/bdrs':

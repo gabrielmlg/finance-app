@@ -190,7 +190,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("DIVIDENDOS"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure={}, config={'displayModeBar': False}),
+                    dcc.Graph(id="timeline_profits_chart_id", figure={}, config={'displayModeBar': False}),
                 )
             ]), 
             lg=9, sm=10, width={'offset': 1}

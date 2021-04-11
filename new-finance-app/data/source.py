@@ -74,7 +74,6 @@ class Position:
             period = str(year) + '/' + str(month)
             #dt_position = date_position.values[0]
             dt_position = utils.last_day_of_month(datetime(year, month, 1))
-            print('Data antes: {}  ---> {}'.format(dt_position, date_position.values[0]))
 
             df_stocks = self.__get_stocks(df)
             df_stocks['period'] = period

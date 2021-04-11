@@ -39,3 +39,10 @@ def aporte_pie_chart_update(periodo):
             services.type_pie_chart('patrimonio'))
 
 
+@app.callback(
+    Output('timeline_profits_chart_id', 'figure'), 
+    Input('period-range-slider', 'value')
+)
+def timeline_profits_chart(period):
+    return services.timeline_profits_chart()
+

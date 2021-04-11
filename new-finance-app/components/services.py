@@ -20,12 +20,58 @@ class MainService:
         return transform.resume(self.position, self.extract)
 
 
+    def groupby_date(self):
+        df = self.resume[self.resume['Data'] != 0]
+        df['Data'] = pd.to_datetime(df['Data'])
+        
+        df = df.groupby(['Data', 'ano', 'mes'])\
+                        .agg(financeiro=('Financeiro', 'sum'), 
+                            aporte=('aporte', 'sum'), 
+                            retirada=('retirada', 'sum'), 
+                            rendimento=('rendimento', 'sum'), 
+                            rendimento_percent=('%', 'mean'))\
+                        .reset_index()\
+                        .fillna(0)
+        df['%'] = df['rendimento'] / df['financeiro'] * 100
+        df['renda_acum'] = df['rendimento'].cumsum()
+        df['aporte_acum'] = df['aporte'].cumsum()
+        df['retirada_acum'] = df['retirada'].cumsum()
+        df['investido'] = df['aporte_acum'] - df['retirada_acum']
+        df['% renda_acum'] = df['rendimento'].cumsum() / (df['investido']) * 100  
+        df = df.fillna(0)
+        
+        return df
+
+
+    def groupby_date_and_investiment(self):
+        df = self.resume[self.resume['Data'] != 0]
+        df['Data'] = pd.to_datetime(df['Data'])
+        
+        df = df.groupby(['Nome', 'Data', 'ano', 'mes'])\
+                        .agg(financeiro=('Financeiro', 'sum'), 
+                            aporte=('aporte', 'sum'), 
+                            retirada=('retirada', 'sum'), 
+                            rendimento=('rendimento', 'sum'), 
+                            rendimento_percent=('%', 'mean'))\
+                        .reset_index()\
+                        .fillna(0)
+        df['%'] = df['rendimento'] / df['financeiro'] * 100
+        df['renda_acum'] = df['rendimento'].cumsum()
+        df['aporte_acum'] = df['aporte'].cumsum()
+        df['retirada_acum'] = df['retirada'].cumsum()
+        df['investido'] = df['aporte_acum'] - df['retirada_acum']
+        df['% renda_acum'] = df['rendimento'].cumsum() / (df['investido']) * 100  
+        df = df.fillna(0)
+        
+        return df
+
+
     def compare_investiment(self, type, col_x):
         #print(self.resume.head(10))
         #print(self.resume.columns)
         df_ = self.resume[self.resume['Tipo'] == type].sort_values(['Tipo', 'Nome', 'Data'])
-
         return charts.compare_investiments_chart(df_, col_x)
+
 
     def resume_cards(self):
         total_aportes = self.extract.total_investido()
@@ -106,10 +152,48 @@ class MainService:
             "R$ {:,.2f}".format(total_aporte_bdrs + rendimento_bdrs), 
             "R$ {:,.2f}".format(total_aporte_fi + rendimento_fi),
             "R$ {:,.2f}".format(total_aporte_fiis + rendimento_fiis),  
-            charts.revenue_chart(df), {}
+            charts.revenue_chart(df), 
+            charts.revenue_cumsum_chart(df)
             #self.revenue_cumsum_chart()
         )
 
 
+    def revenue_timeline_chart(self):
+        df = self.groupby_date()
+        return charts.revenue_chart(df)
+
     def type_pie_chart(self, measure):
         return charts.type_pie_chart(self.resume, measure)
+
+
+    def timeline_profits_chart(self):
+        df = self.resume[self.resume['dividendo'] > 0]
+        df = df.groupby(['Tipo', 'Nome', 'Data'])\
+            .agg(dividendo=('dividendo', 'sum'))\
+            .reset_index()
+
+        names_sort = df.groupby('Nome')\
+            .agg(dividendo=('dividendo', 'sum')).reset_index().sort_values('dividendo', ascending=False)['Nome']
+
+        df['Nome'] = pd.Categorical(df['Nome'],
+                             categories=names_sort,
+                             ordered=True)
+        df = df.sort_values('Nome', ascending=False)
+        
+        return charts.timeline_pickings_chart(df)
+
+
+    def timeline_by_types_chart(self):
+        df = self.resume[self.resume['Data'] != 0]
+        df = df[df['Data'] >= '2014-08-01']
+        df = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
+        df = df\
+            .groupby(['Tipo', 'Data'])\
+            .agg(financeiro=('Financeiro', 'sum'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'))\
+            .reset_index()
+        df['%'] = df['rendimento'] / (df['financeiro'] + df['retirada']) * 100
+
+        return charts.timeline_by_types(df)

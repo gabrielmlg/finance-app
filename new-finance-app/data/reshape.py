@@ -177,12 +177,20 @@ class Transform:
                                         + df_[df_.index <= row]['retirada'].sum()\
                                         - df_[df_.index == row -1]['Financeiro'].sum()\
                                         - df_[df_.index <= row]['aporte'].sum()
+                        
                         elif (df_[df_.index == row]['Financeiro'].sum() > 0)\
                             & (df_[df_.index == row -1]['Financeiro'].sum() > 0):
                             valor = df_[df_.index == row]['Financeiro'].sum()\
                                         + df_[df_.index == row]['retirada'].sum()\
                                         - df_[df_.index == row -1]['Financeiro'].sum()\
                                         - df_[df_.index == row]['aporte'].sum()
+                        
+                        elif (df_[df_.index == row]['Financeiro'].sum() == 0)\
+                            & (df_[df_.index == row]['retirada'].sum() > 0)\
+                            & (df_[df_.index == row -1 ]['Financeiro'].sum() > 0):
+                            valor = df_[df_.index == row]['retirada'].sum()\
+                                 - df_[df_.index == row -1 ]['Financeiro'].sum()
+                        
                         else: 
                             valor = 0
 

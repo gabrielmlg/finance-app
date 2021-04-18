@@ -282,3 +282,54 @@ def timeline_by_types(df):
     )
 
     return fig
+
+
+def timeline_by_type_relative(df):
+    fig = go.Figure()
+
+    for index, type in enumerate(df['Tipo'].unique()):
+        df_tmp = df[df['Tipo'] == type]
+        print('rendimento percent: {} - {}'.format(df_tmp['rend_percent'], df_tmp['%']))
+        fig.add_trace(go.Bar(x=df_tmp['Data'],
+                    y=df_tmp['%'],
+                    #mode='lines',
+                    name=type,
+                    textposition='outside',
+                    xperiod="M1",
+                    #text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                    #marker=dict(size=7),
+                    marker_color=color_list[index], 
+                    #line=dict(color='#6A12E8', width=1.8),
+                    #opacity=.8
+            ))
+
+    fig.update_xaxes( 
+        #rangeslider_visible=True,
+        tickformat="%b\n%Y", 
+        ticklabelmode="period", 
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    fig.update_layout(
+        barmode='stack',
+        template='plotly_white', 
+        legend_orientation='v', 
+        margin=dict(l=20, r=20, t=20, b=20), 
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig

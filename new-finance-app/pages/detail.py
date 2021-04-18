@@ -35,7 +35,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("RENDIMENTO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=services.revenue_timeline_chart(), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=services.timeline_by_type_relative_chart(), config={'displayModeBar': False}),
                 )
             ]), 
             lg=5, width={'offset': 1}

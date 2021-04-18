@@ -218,5 +218,11 @@ class Transform:
             df_return = df_return.append(df_)
 
         df_return.rename(columns={'Papel': 'Nome'}, inplace=True)
+        
+        #Coorreções manuais:
+        df_return[(df_return['Nome'] == 'BCFF11') & (df_return['Data'] == '2014-05-31')]['rendimento'] = 0
+        df_return = df_return[
+            df_return['Data'] >= '2014-08-01'
+        ]  
 
         return df_return

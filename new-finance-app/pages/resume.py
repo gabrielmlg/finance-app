@@ -70,7 +70,7 @@ layout = html.Div([
                                     dcc.Graph(id="aporte_pie_chart", 
                                                 figure={}, 
                                                 config={'displayModeBar': False}, 
-                                                #style={'margin-top': '20px'}
+                                                style={'margin-top': '20px'}
                                     ),
                                 )
                             ])

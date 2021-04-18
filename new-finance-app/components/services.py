@@ -197,3 +197,18 @@ class MainService:
         df['%'] = df['rendimento'] / (df['financeiro'] + df['retirada']) * 100
 
         return charts.timeline_by_types(df)
+
+    def timeline_by_type_relative_chart(self):
+        df = self.resume
+        df = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
+        df = df\
+            .groupby(['Tipo', 'Data'])\
+            .agg(financeiro=('Financeiro', 'sum'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'), 
+                rend_percent=('%', 'mean'))\
+            .reset_index()
+        df['%'] = df['rendimento'] / (df['financeiro'] + df['retirada']) * 100
+
+        return charts.timeline_by_type_relative(df)

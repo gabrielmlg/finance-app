@@ -14,8 +14,8 @@ from pages import resume, stocks, detail
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("Resumo", href="/")),
-        dbc.NavItem(dbc.NavLink("Analitico", href="/detail")),
-        dbc.NavItem(dbc.NavLink("Comparativo", href="/compare")),
+        dbc.NavItem(dbc.NavLink("Comparativo", href="/detail")),
+        #dbc.NavItem(dbc.NavLink("Comparativo", href="/compare")),
         dbc.DropdownMenu(
             children=[
                 dbc.DropdownMenuItem("Mais", header=True),

@@ -130,7 +130,7 @@ def revenue_cumsum_chart(df):
             #fill='tozeroy', 
             hoverinfo='x+y',
             mode='lines',
-            line=dict(width=0.5, color=color_list[0]), 
+            line=dict(width=0.5, color=color_list[1]), 
             stackgroup='one'
             #name = 'Rendimento Acumulado',
             #text=df['renda_acum'].apply(lambda x: f'{x/1000:,.0f}K'),
@@ -156,6 +156,59 @@ def revenue_cumsum_chart(df):
     fig.update_layout(
         template='plotly_white', 
         legend_orientation='h', 
+        margin=dict(l=20, r=20, t=20, b=20), 
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig
+
+
+def timeline_profits_per_type_chart(df, col_category):
+    fig = go.Figure()
+
+    for index, having in enumerate(df[col_category].unique()):
+        df_tmp = df[df[col_category] == having]
+
+        fig.add_trace(
+            go.Bar(x=df_tmp['Data'],
+                    y=df_tmp['dividendo'],
+                    #mode='lines',
+                    name=having,
+                    textposition='outside',
+                    xperiod="M1",
+                    #text=df['%'].apply(lambda x: f'{x:,.2f}%'),
+                    #marker=dict(size=7),
+                    marker_color=color_list[index], 
+                    #line=dict(color='#6A12E8', width=1.8),
+                    #opacity=.8
+            )
+    )  
+
+    fig.update_xaxes(
+        #rangeslider_visible=True,
+        tickformat="%b\n%Y", 
+        ticklabelmode="period", 
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    fig.update_layout(
+        barmode='stack',
+        template='plotly_white', 
+        legend_orientation='v', 
         margin=dict(l=20, r=20, t=20, b=20), 
         #height=600, 
         #width=1000, 

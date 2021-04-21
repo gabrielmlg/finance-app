@@ -183,6 +183,23 @@ class MainService:
         return charts.timeline_pickings_chart(df)
 
 
+    def timeline_profits_per_type_chart(self):
+        df = self.resume[self.resume['dividendo'] > 0]
+        df = df.groupby(['Tipo', 'Data'])\
+            .agg(dividendo=('dividendo', 'sum'))\
+            .reset_index()
+
+        names_sort = df.groupby('Tipo')\
+            .agg(dividendo=('dividendo', 'sum')).reset_index().sort_values('dividendo', ascending=False)['Tipo']
+
+        df['Tipo'] = pd.Categorical(df['Tipo'],
+                             categories=names_sort,
+                             ordered=True)
+        df = df.sort_values('Tipo', ascending=False)
+        
+        return charts.timeline_profits_per_type_chart(df, 'Tipo')
+
+
     def timeline_by_types_chart(self):
         df = self.resume[self.resume['Data'] != 0]
         df = df[df['Data'] >= '2014-08-01']

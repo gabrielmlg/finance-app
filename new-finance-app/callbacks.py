@@ -44,5 +44,5 @@ def aporte_pie_chart_update(periodo):
     Input('period-range-slider', 'value')
 )
 def timeline_profits_chart(period):
-    return services.timeline_profits_chart()
+    return services.timeline_profits_per_type_chart()
 

@@ -6,10 +6,11 @@ import dash_bootstrap_components as dbc
 
 # Connect to main app.py file
 from app_server import app
-import callbacks
+#import callbacks
+import flask
 
 # Connect to your app pages
-from pages import resume, stocks, detail
+from pages import resume, stocks, detail, bdrs, fis
 
 navbar = dbc.NavbarSimple(
     children=[
@@ -58,9 +59,10 @@ def display_page(pathname):
     if pathname == '/stocks':
         return stocks.layout
     if pathname == '/bdrs':
-        return resume.layout #bdrs.layout
+        print('PARAMETROS: {}'.format(flask.request.args.get('type')))
+        return bdrs.layout #bdrs.layout
     if pathname == '/fis':
-        return resume.layout #fis.layout
+        return fis.layout #fis.layout
     else:
         return "404 Page Error! Please choose a link"
 

@@ -229,3 +229,44 @@ class MainService:
         df['%'] = df['rendimento'] / (df['financeiro'] + df['retirada']) * 100
 
         return charts.timeline_by_type_relative(df)
+
+
+    ''' POR TIPO DE ATIVO  '''
+
+    def datatable_investiment_resume(self, type):
+        '''
+        Return a dataframe with describe by name.  
+        '''
+        df = self.resume.copy()
+        df = df[(df['periodo_cont'] > 0) & (df['Tipo'] == type)].sort_values(['Nome', 'Data'])
+
+        df = df\
+            .groupby(['Nome'])\
+            .agg(financeiro=('Financeiro', 'last'), 
+                aporte=('aporte', 'sum'), 
+                retirada=('retirada', 'sum'), 
+                rendimento=('rendimento', 'sum'))\
+            .reset_index()\
+            .sort_values('financeiro', ascending=False)
+        
+        df['%'] = df['rendimento'] / df['aporte']
+        df.fillna(0, inplace=True)
+
+        return df
+
+
+    def investiment_pie(self, type):
+        '''
+        Return a position investiment pie chart 
+        '''
+
+        df_pie = self.resume[self.resume['Tipo'] == type]\
+            .groupby('Nome')\
+            .agg(financeiro=('Financeiro', 'last'), 
+                aporte=('aporte', 'sum'), 
+                rendimento=('rendimento', 'sum'), 
+                retirada=('retirada', 'sum'))\
+            .reset_index()\
+            .sort_values(by='financeiro', ascending=False)
+            
+        return charts.investiment_pie_chart(df_pie)

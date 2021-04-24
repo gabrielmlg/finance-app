@@ -386,3 +386,41 @@ def timeline_by_type_relative(df):
     )
 
     return fig
+
+
+####
+# BDR, Ações, FIS, FIIS
+#####
+
+def investiment_pie_chart(df):
+    labels = df['Nome']
+    values = df['financeiro'].astype(int)
+    colors = color_list
+
+    # Use `hole` to create a donut-like pie chart
+    fig = go.Figure(
+        data=[
+            go.Pie(
+                labels=labels, 
+                values=values, 
+                marker_colors=colors,
+                hole=.2,  
+                hoverinfo='label+value+percent',
+                textinfo='label+percent',
+                textfont=dict(size=12),
+                scalegroup='one', 
+                #rotation=45
+            )
+        ]
+    )
+
+    fig.update_layout(
+        #height=125,
+        showlegend=False, 
+        margin=dict(l=20, r=20, t=20, b=20), 
+        uniformtext_mode='hide', # esconde caso nao caiba na figura
+        uniformtext_minsize=7, 
+        template='plotly_white', 
+    )
+
+    return fig

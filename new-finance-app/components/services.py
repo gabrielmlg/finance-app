@@ -74,6 +74,7 @@ class MainService:
 
 
     def resume_cards(self):
+        print('ESTA CHAMANDO A SERVICES')
         total_aportes = self.extract.total_investido()
         fi_resumo = self.resume[self.resume['Tipo'] == 'FI']
         acoes_resumo = self.resume[self.resume['Tipo'] == 'Ação']
@@ -268,5 +269,5 @@ class MainService:
                 retirada=('retirada', 'sum'))\
             .reset_index()\
             .sort_values(by='financeiro', ascending=False)
-            
+
         return charts.investiment_pie_chart(df_pie)

@@ -3,7 +3,7 @@ import numpy as np
 
 from dash.dependencies import Input, Output
 
-from app_server import app, services
+from app_server import app, main_service
 
 @app.callback(
 [Output('total_aportes_text', 'children'), 
@@ -25,7 +25,7 @@ Output('revenue_chart', 'figure'),
 Output('revenue_cumsum_chart', 'figure')],
 [Input('period-range-slider', 'value')])
 def filter_period(periodo):
-    return services.resume_cards()
+    return main_service.resume_cards()
 
 @app.callback(
     [Output('aporte_pie_chart', 'figure'), 
@@ -34,9 +34,9 @@ def filter_period(periodo):
     Input('period-range-slider', 'value')
 )
 def aporte_pie_chart_update(periodo):
-    return (services.type_pie_chart('investido'), 
-            services.type_pie_chart('rendimento'),
-            services.type_pie_chart('patrimonio'))
+    return (main_service.type_pie_chart('investido'), 
+            main_service.type_pie_chart('rendimento'),
+            main_service.type_pie_chart('patrimonio'))
 
 
 @app.callback(
@@ -44,5 +44,5 @@ def aporte_pie_chart_update(periodo):
     Input('period-range-slider', 'value')
 )
 def timeline_profits_chart(period):
-    return services.timeline_profits_per_type_chart()
+    return main_service.timeline_profits_per_type_chart()
 

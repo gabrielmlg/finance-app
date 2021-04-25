@@ -11,4 +11,4 @@ app = dash.Dash(__name__,
                 )
 server = app.server
 
-services = MainService()
+main_service = MainService()

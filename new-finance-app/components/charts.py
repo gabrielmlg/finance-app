@@ -292,7 +292,7 @@ def compare_investiments_chart(df_, col_x):
 
     fig.update_layout(
         template='plotly_white', 
-        legend_orientation='v', 
+        legend_orientation='h',
         margin=dict(l=10, r=10, t=10, b=10),
         #height=600, 
         #width=1000, 
@@ -342,7 +342,7 @@ def timeline_by_type_relative(df):
 
     for index, type in enumerate(df['Tipo'].unique()):
         df_tmp = df[df['Tipo'] == type]
-        print('rendimento percent: {} - {}'.format(df_tmp['rend_percent'], df_tmp['%']))
+        
         fig.add_trace(go.Bar(x=df_tmp['Data'],
                     y=df_tmp['%'],
                     #mode='lines',
@@ -417,7 +417,7 @@ def investiment_pie_chart(df):
     fig.update_layout(
         #height=125,
         showlegend=False, 
-        margin=dict(l=20, r=20, t=20, b=20), 
+        margin=dict(l=50, r=50, t=50, b=50), 
         uniformtext_mode='hide', # esconde caso nao caiba na figura
         uniformtext_minsize=7, 
         template='plotly_white', 

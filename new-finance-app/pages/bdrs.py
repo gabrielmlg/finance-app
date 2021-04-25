@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash_table import DataTable, FormatTemplate
 
-from app_server import services
+from app_server import main_service
 
 money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(2)
@@ -24,19 +24,19 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("DISTRIBUIÇÃO DA CARTEIRA"),    
                 dbc.CardBody(
-                    dcc.Graph(id="position_pie_chart", figure=services.investiment_pie('BDR'), config={'displayModeBar': False}),
+                    dcc.Graph(id="position_pie_chart", figure=main_service.investiment_pie('BDR'), config={'displayModeBar': False}),
                 )
             ]), 
-            lg=5, width={'offset': 1}
+            lg=3, width={'offset': 1}
         ), 
         dbc.Col(
             dbc.Card([
                 dbc.CardHeader("CALENDARIO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=services.compare_investiment('BDR', 'Data'), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=main_service.compare_investiment('BDR', 'Data'), config={'displayModeBar': False}),
                 )
             ]), 
-            lg=5
+            lg=7
         )
     ]),
     html.Br(),
@@ -51,7 +51,7 @@ layout = html.Div([
                         DataTable(
                             id='table',
                             columns=cols1, #[{"name": i, "id": i} for i in df2.columns],
-                            data=services.datatable_investiment_resume('BDR').to_dict('records'),
+                            data=main_service.datatable_investiment_resume('BDR').to_dict('records'),
                             style_cell={'fontSize':14, 'font-family':'sans-serif'}, 
                             style_cell_conditional=[
                                 {

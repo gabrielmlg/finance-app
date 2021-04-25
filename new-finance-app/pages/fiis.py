@@ -24,7 +24,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("DISTRIBUIÇÃO DA CARTEIRA"),    
                 dbc.CardBody(
-                    dcc.Graph(id="position_pie_chart", figure=main_service.investiment_pie('FI'), config={'displayModeBar': False}),
+                    dcc.Graph(id="position_pie_chart", figure=main_service.investiment_pie('FII'), config={'displayModeBar': False}),
                 )
             ]), 
             lg=3, width={'offset': 1}
@@ -33,7 +33,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("CALENDARIO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=main_service.compare_investiment('FI', 'Data'), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=main_service.compare_investiment('FII', 'Data'), config={'displayModeBar': False}),
                 )
             ]), 
             lg=7
@@ -51,7 +51,7 @@ layout = html.Div([
                         DataTable(
                             id='table',
                             columns=cols1, #[{"name": i, "id": i} for i in df2.columns],
-                            data=main_service.datatable_investiment_resume('FI').to_dict('records'),
+                            data=main_service.datatable_investiment_resume('FII').to_dict('records'),
                             style_cell={'fontSize':14, 'font-family':'sans-serif'}, 
                             style_cell_conditional=[
                                 {

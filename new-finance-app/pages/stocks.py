@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash_table import DataTable, FormatTemplate
 
-from app_server import services
+from app_server import main_service
 
 money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(2)
@@ -22,12 +22,21 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("CALENDARIO"),    
+                dbc.CardHeader("DISTRIBUIÇÃO DA CARTEIRA"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=services.compare_investiment('Ação', 'Data'), config={'displayModeBar': False}),
+                    dcc.Graph(id="position_pie_chart", figure=main_service.investiment_pie('Ação'), config={'displayModeBar': False}),
                 )
             ]), 
-            lg=10, width={'offset': 1}
+            lg=3, width={'offset': 1}
+        ), 
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader("CALENDARIO"),    
+                dbc.CardBody(
+                    dcc.Graph(id="compare_havings_chart", figure=main_service.compare_investiment('Ação', 'Data'), config={'displayModeBar': False}),
+                )
+            ]), 
+            lg=7
         )
     ]),
     html.Br(),
@@ -35,14 +44,14 @@ layout = html.Div([
     dbc.Row([
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader("AÇÕES"),    
+                dbc.CardHeader("Ativos"),    
                 dbc.CardBody(
                     html.Div(
 
                         DataTable(
                             id='table',
                             columns=cols1, #[{"name": i, "id": i} for i in df2.columns],
-                            data=services.datatable_investiment_resume('Ação').to_dict('records'),
+                            data=main_service.datatable_investiment_resume('Ação').to_dict('records'),
                             style_cell={'fontSize':14, 'font-family':'sans-serif'}, 
                             style_cell_conditional=[
                                 {
@@ -62,7 +71,7 @@ layout = html.Div([
                             #style_table={'height': 400}, 
                             style_as_list_view=True,
                             style_header={
-                                'backgroundColor': 'white',
+                                #'backgroundColor': 'white',
                                 'fontWeight': 'bold', 
                                 'fontSize': 16, 
                                 'font-family':'sans-serif' 

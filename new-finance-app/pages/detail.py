@@ -8,13 +8,13 @@ from dash_html_components.Br import Br
 from dash_table import DataTable, FormatTemplate
 
 from app_server import app
-from app_server import services
+from app_server import main_service
 
 
 money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(2)
 
-df = services.resume
+df = main_service.resume
 
 # teste
 df3 = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
@@ -50,7 +50,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("RENDIMENTO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="compare_havings_chart", figure=services.timeline_by_type_relative_chart(), config={'displayModeBar': False}),
+                    dcc.Graph(id="compare_havings_chart", figure=main_service.timeline_by_type_relative_chart(), config={'displayModeBar': False}),
                 )
             ]), 
             lg=5, width={'offset': 1}
@@ -59,7 +59,7 @@ layout = html.Div([
             dbc.Card([
                 dbc.CardHeader("RENDIMENTO ACUMULADO"),    
                 dbc.CardBody(
-                    dcc.Graph(id="revenue_by_month_chart", figure=services.timeline_by_types_chart(), config={'displayModeBar': False}),
+                    dcc.Graph(id="revenue_by_month_chart", figure=main_service.timeline_by_types_chart(), config={'displayModeBar': False}),
                 )
             ]), 
             lg=5

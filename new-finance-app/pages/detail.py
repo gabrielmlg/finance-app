@@ -20,13 +20,13 @@ df = main_service.resume
 df3 = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
 df3 = df3\
     .groupby(['Tipo'])\
-    .agg(financeiro=('Financeiro', 'sum'), 
+    .agg(financeiro=('Financeiro', 'last'), 
         aporte=('aporte', 'sum'), 
         retirada=('retirada', 'sum'), 
         rendimento=('rendimento', 'sum'))\
     .reset_index()
 #df3['teste'] = (df3['aporte'].cumsum() - df3['retirada'].cumsum())
-df3['%'] = df3['rendimento'] / (df3['financeiro'] - df3['retirada']) * 100
+df3['%'] = df3['rendimento'] / (df3['financeiro'] - df3['retirada']) 
 df3.fillna(0, inplace=True)
 
 df_resume = df3

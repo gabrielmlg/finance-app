@@ -404,7 +404,7 @@ def investiment_pie_chart(df):
                 labels=labels, 
                 values=values, 
                 marker_colors=colors,
-                hole=.2,  
+                hole=.3,  
                 hoverinfo='label+value+percent',
                 textinfo='label+percent',
                 textfont=dict(size=12),

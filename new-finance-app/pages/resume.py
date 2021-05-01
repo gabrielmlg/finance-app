@@ -79,7 +79,7 @@ layout = html.Div([
                     ),
                 ], 
                 className="mb-3", 
-                #color="light"
+                #color="dark", 
             ), 
             lg=3, 
             #className='ml-3', 
@@ -113,7 +113,7 @@ layout = html.Div([
                             ),
                         ], 
                         className="mb-3", 
-                        color="light"
+                        #color="dark"
                     ), 
                     lg=3
         ),
@@ -143,7 +143,9 @@ layout = html.Div([
                     
                 )
             ),
-        ], color="light"), lg=3, width={'offset': -1}),
+        ], 
+        #color="dark", 
+        ), lg=3, width={'offset': -1}),
     ]), 
 
     dbc.Row([
@@ -175,7 +177,7 @@ layout = html.Div([
                         ]
                     ),
                 ], 
-                className="mb-9", 
+                className="mb-9",  
                 #color="light"
             ), 
             lg=9, 

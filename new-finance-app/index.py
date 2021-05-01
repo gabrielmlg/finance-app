@@ -32,7 +32,7 @@ navbar = dbc.NavbarSimple(
     ],
     brand="MEUS INVESTIMENTOS",
     brand_href="/",
-    color="dark",
+    color="#3C61EC",
     dark=True,
 )
 

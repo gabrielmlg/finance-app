@@ -1,5 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
+from dash_bootstrap_components._components.Col import Col
 from dash_bootstrap_components._components.Row import Row
 import dash_html_components as html
 import dash_core_components as dcc
@@ -44,6 +45,19 @@ cols_resume = [
 #df4 = controller.fiis.dividendo
 
 layout = html.Div([
+
+    # dbc.Row([
+    #     dbc.Col(
+    #         dbc.Card([
+    #             dbc.CardHeader("APORTES"),    
+    #             dbc.CardBody(
+    #                 dcc.Graph(id="cashin_timeline_chart", figure=main_service.cashin_timeline_chart(), config={'displayModeBar': False}),
+    #             )
+    #         ]), 
+    #         lg=3, width={'offset': 1}
+    #     ), 
+    # ]), 
+    # html.Br(),
 
     dbc.Row([
         dbc.Col(

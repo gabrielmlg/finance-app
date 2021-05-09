@@ -275,7 +275,7 @@ def timeline_pickings_chart(df):
     return fig
 
 
-def compare_investiments_chart(df_, col_x):
+def compare_investiments_cumsum_chart(df_, col_x):
     fig = go.Figure()
     
     for index, having in enumerate(df_['Nome'].unique()):
@@ -284,10 +284,41 @@ def compare_investiments_chart(df_, col_x):
         fig.add_trace(go.Scatter(x=df_tmp[col_x], 
                     y=df_tmp['%'].cumsum(),
                     line=dict(width=1.5),
-                    marker={'size': 4}, 
+                    marker={'size': 3}, 
                     marker_color=color_list[index], 
                     mode='lines+markers',
-                    line_shape='spline',
+                    #line_shape='spline',
+                    name=having))
+
+    fig.update_layout(
+        template='plotly_white', 
+        legend_orientation='h',
+        margin=dict(l=10, r=10, t=10, b=10),
+        #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig
+
+
+def compare_investiments_chart(df_, col_x):
+    fig = go.Figure()
+    
+    for index, having in enumerate(df_['Nome'].unique()):
+        df_tmp = df_[df_['Nome'] == having]
+
+        fig.add_trace(go.Scatter(x=df_tmp[col_x], 
+                    y=df_tmp['%'],
+                    line=dict(width=1.5),
+                    marker={'size': 3}, 
+                    marker_color=color_list[index], 
+                    mode='lines+markers',
+                    #line_shape='spline',
                     name=having))
 
     fig.update_layout(
@@ -377,6 +408,38 @@ def timeline_by_type_relative(df):
         legend_orientation='v', 
         margin=dict(l=20, r=20, t=20, b=20), 
         #height=600, 
+        #width=1000, 
+        title={
+            'y':0.9,
+            'xanchor': 'left',
+            'yanchor': 'top'}
+        
+    )
+
+    return fig
+
+# PAGE DETAIL    
+
+
+def cashin_timeline(df, col):
+    fig = go.Figure()
+   
+    fig.add_trace(go.Scatter(x=df['Data'], 
+                    y=df[col].cumsum(),
+                    line=dict(width=2, color='#1F8DF1'),
+                    marker={'size': 4}, 
+                    fill='tozeroy', 
+                    #marker_color=color_list[index], 
+                    #mode='lines+markers',
+                    #line_shape='spline', 
+                    name=col))
+
+    fig.update_layout(
+        barmode='stack',
+        template='plotly_white', 
+        legend_orientation='v', 
+        margin=dict(l=20, r=20, t=20, b=20), 
+        height=200, 
         #width=1000, 
         title={
             'y':0.9,

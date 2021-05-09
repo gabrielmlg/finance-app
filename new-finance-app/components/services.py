@@ -70,11 +70,10 @@ class MainService:
         #print(self.resume.head(10))
         #print(self.resume.columns)
         df_ = self.resume[self.resume['Tipo'] == type].sort_values(['Tipo', 'Nome', 'Data'])
-        return charts.compare_investiments_chart(df_, col_x)
+        return charts.compare_investiments_cumsum_chart(df_, col_x)
 
 
     def resume_cards(self):
-        print('ESTA CHAMANDO A SERVICES')
         total_aportes = self.extract.total_investido()
         fi_resumo = self.resume[self.resume['Tipo'] == 'FI']
         acoes_resumo = self.resume[self.resume['Tipo'] == 'Ação']
@@ -216,6 +215,20 @@ class MainService:
 
         return charts.timeline_by_types(df)
 
+# DETAIL  PAGE
+
+    def cashin_timeline_chart(self):
+        df = self.resume
+        df = df[(df['periodo_cont'] > 0)].sort_values(['Data'])
+        df = df.groupby('Data')\
+                .agg(aporte=('aporte', 'sum'), 
+                        retirada=('retirada', 'sum'))\
+                .reset_index()
+        df['aporte'] = df['aporte'] - df['retirada']
+
+        return charts.cashin_timeline(df, 'aporte')
+
+
     def timeline_by_type_relative_chart(self):
         df = self.resume
         df = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
@@ -232,7 +245,7 @@ class MainService:
         return charts.timeline_by_type_relative(df)
 
 
-    ''' POR TIPO DE ATIVO  '''
+# ''' POR TIPO DE ATIVO  '''
 
     def datatable_investiment_resume(self, type):
         '''

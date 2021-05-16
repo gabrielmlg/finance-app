@@ -456,6 +456,7 @@ def cashin_timeline(df, col):
 #####
 
 def investiment_pie_chart(df):
+    df = df[df['financeiro'] > 0]
     labels = df['Nome']
     values = df['financeiro'].astype(int)
     colors = color_list

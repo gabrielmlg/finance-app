@@ -46,3 +46,4 @@ def aporte_pie_chart_update(periodo):
 def timeline_profits_chart(period):
     return main_service.timeline_profits_per_type_chart()
 
+

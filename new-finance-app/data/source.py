@@ -10,12 +10,12 @@ import io
 from components import utils
 
 # LOCAL
-# from config import config
-# ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
-# SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
+from config import config
+ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID') 
+SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
 
-ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
-SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
+#ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
+#SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
 
 bucket= 'balbi-finance-app'
 

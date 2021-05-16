@@ -284,3 +284,35 @@ class MainService:
             .sort_values(by='financeiro', ascending=False)
 
         return charts.investiment_pie_chart(df_pie)
+
+
+# RANKING PAGE
+
+    def top_investiment(self, type):
+        '''
+            Return Ranking top 5 investiment by type
+        '''
+        df_ = self.resume[
+            (self.resume['Tipo'] == type) & 
+            (self.resume['Data'] == self.resume['Data'].max())
+        ]
+
+        df_ = df_[(df_['Financeiro'] > 0)].sort_values(by='%', ascending=False)
+        print(df_.head(5))
+        return df_.head(5)
+
+    
+    def tail_investiment(self, type):
+        '''
+            Return Ranking tail 5 investiment by type
+        '''
+        df_ = self.resume[
+            (self.resume['Tipo'] == type) & 
+            (self.resume['Data'] == self.resume['Data'].max())
+        ]
+
+        df_ = df_[(df_['Financeiro'] > 0)].sort_values(by='%', ascending=False)
+        print(df_.tail(5))
+        return df_.tail(5)
+        
+        

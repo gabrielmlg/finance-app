@@ -10,11 +10,12 @@ from app_server import app, main_service
 import callbacks
 
 # Connect to your app pages
-from pages import resume, stocks, detail, bdrs, fis, fiis
+from pages import resume, stocks, detail, bdrs, fis, fiis, ranking
 
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("Resumo", href="/")),
+        dbc.NavItem(dbc.NavLink("Ranking", href="/ranking")),
         dbc.NavItem(dbc.NavLink("Comparativo", href="/detail")),
         #dbc.NavItem(dbc.NavLink("Comparativo", href="/compare")),
         dbc.DropdownMenu(
@@ -53,6 +54,8 @@ def display_page(pathname):
         return resume.layout
     if pathname == '/resumo':
         return resume.layout
+    if pathname == '/ranking':
+        return ranking.layout #compare_havings.layout
     if pathname == '/compare':
         return resume.layout #compare_havings.layout
     if pathname == '/detail':

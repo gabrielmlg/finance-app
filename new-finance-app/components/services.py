@@ -312,7 +312,6 @@ class MainService:
         ]
 
         df_ = df_[(df_['Financeiro'] > 0)].sort_values(by='%', ascending=False)
-        print(df_.tail(5))
-        return df_.tail(5)
+        return df_.tail(5).sort_values(by='%')
         
         

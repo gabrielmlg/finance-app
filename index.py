@@ -1,30 +1,29 @@
+from components import services
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
-from apps.src.model import Posicao, Extrato
-from apps.src.views import FundoInvestimento, Acao, FundoImobiliario
-from apps.src.controller import MainController
-
 # Connect to main app.py file
-from app_server import app
-from app_server import server
+from app_server import app, main_service
+import callbacks
 
 # Connect to your app pages
-from apps import bdrs, resume, resume_detail, stocks, fis, compare_havings
+from pages import resume, stocks, detail, bdrs, fis, fiis, ranking
 
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("Resumo", href="/")),
-        dbc.NavItem(dbc.NavLink("Analitico", href="/detail")),
-        dbc.NavItem(dbc.NavLink("Comparativo", href="/compare")),
+        dbc.NavItem(dbc.NavLink("Ranking", href="/ranking")),
+        dbc.NavItem(dbc.NavLink("Comparativo", href="/detail")),
+        #dbc.NavItem(dbc.NavLink("Comparativo", href="/compare")),
         dbc.DropdownMenu(
             children=[
                 dbc.DropdownMenuItem("Mais", header=True),
                 dbc.DropdownMenuItem("Ações", href="/stocks"),
                 dbc.DropdownMenuItem("BDRs", href="/bdrs"),
+                dbc.DropdownMenuItem("FIIs", href="/fiis"),
                 dbc.DropdownMenuItem("FIs", href="/fis"),
             ],
             nav=True,
@@ -34,7 +33,7 @@ navbar = dbc.NavbarSimple(
     ],
     brand="MEUS INVESTIMENTOS",
     brand_href="/",
-    color="dark",
+    color="#3C61EC",
     dark=True,
 )
 
@@ -55,19 +54,23 @@ def display_page(pathname):
         return resume.layout
     if pathname == '/resumo':
         return resume.layout
+    if pathname == '/ranking':
+        return ranking.layout #compare_havings.layout
     if pathname == '/compare':
-        return compare_havings.layout
+        return resume.layout #compare_havings.layout
     if pathname == '/detail':
-        return resume_detail.layout
+        return detail.layout #resume_detail.layout
     if pathname == '/stocks':
         return stocks.layout
     if pathname == '/bdrs':
-        return bdrs.layout
+        return bdrs.layout #bdrs.layout
     if pathname == '/fis':
-        return fis.layout
+        return fis.layout #fis.layout
+    if pathname == '/fiis':
+        return fiis.layout #fis.layout
     else:
         return "404 Page Error! Please choose a link"
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8051)

@@ -27,7 +27,7 @@ df3 = df3\
         rendimento=('rendimento', 'sum'))\
     .reset_index()
 #df3['teste'] = (df3['aporte'].cumsum() - df3['retirada'].cumsum())
-df3['%'] = df3['rendimento'] / (df3['financeiro'] - df3['retirada']) 
+df3['%'] = df3['rendimento'] / df3['aporte']
 df3.fillna(0, inplace=True)
 
 df_resume = df3
@@ -112,5 +112,64 @@ layout = html.Div([
         )
     ]),
     html.Br(),
+
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader('ANALITICO | EVOLUÇÃO DE CADA ATIVO AO LONGO DO TEMPO'), 
+                dbc.CardBody(
+                    DataTable(
+                        id='tb_investiments_detail', 
+                        columns=[
+                            {'id': 'Tipo', 'name': 'Tipo'},  
+                            {'id': 'Nome', 'name': 'Ativo'}, 
+                            {'id': 'Data', 'name': 'Data', 'type': 'datetime'},   
+                            {'id': 'Financeiro', 'name': 'Posição', 'type': 'numeric', 'format': money},  
+                            {'id': 'aporte', 'name': 'Aporte', 'type': 'numeric', 'format': money},  
+                            {'id': 'retirada', 'name': 'Retirada', 'type': 'numeric', 'format': money},  
+                            {'id': 'rendimento', 'name': 'Rendimento', 'type': 'numeric', 'format': money},  
+                            {'id': '%', 'name': '%', 'type': 'numeric', 'format': percentage}
+                        ], 
+                        data=main_service.resume.to_dict('records'), 
+                        filter_action='native', 
+                        sort_action="native",
+                        style_table={'overflowX': 'auto'},
+                        style_data={
+                            'whiteSpace': 'normal',
+                            'height': 'auto',
+                        },
+                        style_data_conditional=[
+                            {
+                                'if': {'row_index': 'odd'},
+                                'backgroundColor': 'rgb(248, 248, 248)', 
+                            }
+                        ],
+                        style_cell={'fontSize':14, 
+                                    'font-family':'sans-serif', 
+                                    #'textAlign': 'left',  
+                                    'maxWidth': '180px'}, 
+                        style_cell_conditional=[
+                            {
+                                'fontSize': 14,
+                                'if': {'column_id': c},
+                                'textAlign': 'left',  
+                            } for c in ['Tipo', 'Nome']
+                        ],
+                        fixed_rows={'headers': True},
+                        #style_table={'height': 400}, 
+                        style_as_list_view=True,
+                        style_header={
+                            #'backgroundColor': 'white',
+                            'fontWeight': 'bold', 
+                            'fontSize': 16, 
+                            'font-family':'sans-serif', 
+                            'textAlign': 'left',  
+                        },
+                    )
+                )
+            ]), 
+            lg=10, sm=10, width={'offset': 1}
+        )
+    ])
 
 ])

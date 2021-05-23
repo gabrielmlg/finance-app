@@ -6,12 +6,6 @@ from dash_core_components.Graph import Graph
 import dash_html_components as html
 import dash_core_components as dcc
 from dash_html_components.Br import Br
-from dash_table import DataTable, FormatTemplate
-
-from app_server import main_service
-
-percentage = FormatTemplate.percentage(2)
-money = FormatTemplate.money(2)
 
 layout = html.Div([
 
@@ -207,65 +201,6 @@ layout = html.Div([
         )
     ]),
     html.Br(),
-
-    dbc.Row([
-        dbc.Col(
-            dbc.Card([
-                dbc.CardHeader('ANALITICO | EVOLUÇÃO DE CADA ATIVO AO LONGO DO TEMPO'), 
-                dbc.CardBody(
-                    DataTable(
-                        id='tb_investiments_detail', 
-                        columns=[
-                            {'id': 'Tipo', 'name': 'Tipo'},  
-                            {'id': 'Nome', 'name': 'Ativo'}, 
-                            {'id': 'Data', 'name': 'Data', 'type': 'datetime'},   
-                            {'id': 'Financeiro', 'name': 'Posição', 'type': 'numeric', 'format': money},  
-                            {'id': 'aporte', 'name': 'Aporte', 'type': 'numeric', 'format': money},  
-                            {'id': 'retirada', 'name': 'Retirada', 'type': 'numeric', 'format': money},  
-                            {'id': 'rendimento', 'name': 'Rendimento', 'type': 'numeric', 'format': money},  
-                            {'id': '%', 'name': '%', 'format': percentage},  
-                            {'id': 'period_count', 'name': 'Periodo', 'type': 'numeric'},  
-                        ], 
-                        data=main_service.resume.to_dict('records'), 
-                        filter_action='native', 
-                        sort_action="native",
-                        style_table={'overflowX': 'auto'},
-                        style_data={
-                            'whiteSpace': 'normal',
-                            'height': 'auto',
-                        },
-                        style_data_conditional=[
-                            {
-                                'if': {'row_index': 'odd'},
-                                'backgroundColor': 'rgb(248, 248, 248)', 
-                            }
-                        ],
-                        style_cell={'fontSize':14, 
-                                    'font-family':'sans-serif', 
-                                    'maxWidth': '180px'}, 
-                        style_cell_conditional=[
-                            {
-                                'fontSize': 14,
-                                'font-family':'sans-serif',
-                                'if': {'column_id': c},
-                                'textAlign': 'left',  
-                            } for c in ['Nome']
-                        ],
-                        fixed_rows={'headers': True},
-                        #style_table={'height': 400}, 
-                        style_as_list_view=True,
-                        style_header={
-                            #'backgroundColor': 'white',
-                            'fontWeight': 'bold', 
-                            'fontSize': 16, 
-                            'font-family':'sans-serif' 
-                        },
-                    )
-                )
-            ]), 
-            lg=9, sm=10, width={'offset': 1}
-        )
-    ])
     
     #dbc.Alert("Em construção, aguarde ...", className="m-3"), 
     #controller.graph_fis()[0]

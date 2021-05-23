@@ -163,7 +163,7 @@ class Transform:
                             rend_ = 0 #df_[df_.index <= row]['aporte'].sum()
                         
                         if df_[df_.index <= row]['aporte'].sum() > 0:
-                            rend_per_ = rend_ / df_[df_.index <= row]['aporte'].sum() * 100
+                            rend_per_ = rend_ / df_[df_.index <= row]['aporte'].sum() #* 100
                         else: rend_per_ = 0
 
                         rendimento.append(rend_)
@@ -195,9 +195,9 @@ class Transform:
                             valor = 0
 
                         if df_[df_.index == row - 1]['Financeiro'].sum() > 0: 
-                            rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() * 100
+                            rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() #* 100
                         elif df_[df_.index == row]['Financeiro'].sum() > 0:
-                            rend_per_ = valor / df_[df_.index <= row]['aporte'].sum() * 100
+                            rend_per_ = valor / df_[df_.index <= row]['aporte'].sum() #* 100
                         else: 
                             rend_per_ = 0
                         #rend_per_ = valor / df_[df_.index == row - 1]['Financeiro'].sum() * 100

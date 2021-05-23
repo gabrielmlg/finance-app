@@ -57,7 +57,7 @@ layout = html.Div([
     dbc.Row([
         dbc.Col([
             dbc.Card([
-                dbc.CardHeader('MELHORES RENDIMENTOS'), 
+                dbc.CardHeader('MELHORES RENDIMENTOS | ÚLTIMO MÊS'), 
                 dbc.CardBody(
                     html.Div(
                         DataTable(
@@ -86,7 +86,7 @@ layout = html.Div([
         ], lg=5, width={'offset': 1}), 
         dbc.Col(
             dbc.Card([
-                dbc.CardHeader('PIORES RENDIMENTOS'), 
+                dbc.CardHeader('PIORES RENDIMENTOS | ÚLTIMO MÊS'), 
                 dbc.CardBody(
                     html.Div(
                         DataTable(

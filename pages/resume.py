@@ -6,6 +6,16 @@ from dash_core_components.Graph import Graph
 import dash_html_components as html
 import dash_core_components as dcc
 from dash_html_components.Br import Br
+from dash_table import DataTable, FormatTemplate
+
+money = FormatTemplate.money(2)
+percentage = FormatTemplate.percentage(2)
+
+top5_cols = [
+    dict(id='Nome', name='Nome'),
+    dict(id='rendimento', name='Rendimento', type='numeric', format=money),
+    dict(id='%', name='%', type='numeric', format=percentage)
+]
 
 layout = html.Div([
 
@@ -167,7 +177,67 @@ layout = html.Div([
             width={'offset': 1}
         )
     ]),
+    html.Br(),
 
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader('MELHORES RENDIMENTOS | ÚLTIMO MÊS'), 
+                dbc.CardBody(
+                    html.Div(
+                        DataTable(
+                            id='top_investiment_table_id',
+                            columns=top5_cols, 
+                            data=[], 
+                            style_data={'width': 'auto'}, 
+                            style_cell={'font-family':'sans-serif', 'width': 'auto'},
+                            style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold',  
+                                'font-family':'sans-serif', 
+                                'width': 'auto'
+                            },
+                            style_cell_conditional=[
+                                {
+                                    'if': {'column_id': c},
+                                        'textAlign': 'left' 
+                                } for c in ['Nome']
+                            ],
+                        )
+                    )
+                )
+            ])
+        ], lg=5, width={'offset': 1}), 
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader('PIORES RENDIMENTOS | ÚLTIMO MÊS'), 
+                dbc.CardBody(
+                    html.Div(
+                        DataTable(
+                            id='tail_investiment_table_id',
+                            columns=top5_cols, 
+                            data=[], 
+                            style_cell={'font-family':'sans-serif'},
+                            fixed_rows={'headers': True},
+                            style_as_list_view=True,
+                            style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold',  
+                                'font-family':'sans-serif' 
+                            },
+                            style_cell_conditional=[
+                                {
+                                    'if': {'column_id': c},
+                                    'textAlign': 'left',  
+                                } for c in ['Nome']
+                            ],
+                        )
+                    )
+                )
+            ]), lg=4
+        )
+    ]), 
     html.Br(),
 
     dbc.Row([

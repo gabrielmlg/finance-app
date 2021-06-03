@@ -292,13 +292,20 @@ class MainService:
         '''
             Return Ranking top 5 investiment by type
         '''
-        df_ = self.resume[
-            (self.resume['Tipo'] == type) & 
-            (self.resume['Data'] == self.resume['Data'].max())
-        ]
+        if type is None:
+            return []
+        elif type == 'All':
+            df_ = self.resume[
+                (self.resume['Data'] == self.resume['Data'].max())
+            ]
+        else:
+            df_ = self.resume[
+                (self.resume['Tipo'] == type) & 
+                (self.resume['Data'] == self.resume['Data'].max())
+            ]
 
         df_ = df_[(df_['Financeiro'] > 0)].sort_values(by='%', ascending=False)
-        print(df_.head(5))
+        #print(df_.head(5))
         return df_.head(5)
 
     
@@ -306,10 +313,17 @@ class MainService:
         '''
             Return Ranking tail 5 investiment by type
         '''
-        df_ = self.resume[
-            (self.resume['Tipo'] == type) & 
-            (self.resume['Data'] == self.resume['Data'].max())
-        ]
+        if type is None:
+            return []
+        elif type == 'All':
+            df_ = self.resume[
+                (self.resume['Data'] == self.resume['Data'].max())
+            ]
+        else:
+            df_ = self.resume[
+                (self.resume['Tipo'] == type) & 
+                (self.resume['Data'] == self.resume['Data'].max())
+            ]
 
         df_ = df_[(df_['Financeiro'] > 0)].sort_values(by='%', ascending=False)
         return df_.tail(5).sort_values(by='%')

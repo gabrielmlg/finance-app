@@ -27,6 +27,7 @@ Output('revenue_cumsum_chart', 'figure')],
 def filter_period(periodo):
     return main_service.resume_cards()
 
+
 @app.callback(
     [Output('aporte_pie_chart', 'figure'), 
     Output('rendimento_pie_chart', 'figure'), 
@@ -45,5 +46,26 @@ def aporte_pie_chart_update(periodo):
 )
 def timeline_profits_chart(period):
     return main_service.timeline_profits_per_type_chart()
+
+
+@app.callback(
+    Output('top_investiment_table_id', 'data'), 
+    Input('period-range-slider', 'value')
+)
+def top_investiment_table(period):
+    print('Passei por aqui')
+    return main_service.top_investiment(type='All').to_dict('records')
+
+
+@app.callback(
+    Output('tail_investiment_table_id', 'data'), 
+    Input('period-range-slider', 'value')
+)
+def top_investiment_table(period):
+    print('Passei por aqui')
+    return main_service.tail_investiment(type='All').to_dict('records')
+
+
+
 
 

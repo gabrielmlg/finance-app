@@ -292,7 +292,7 @@ def compare_investiments_cumsum_chart(df_, col_x):
 
     fig.update_layout(
         template='plotly_white', 
-        legend_orientation='h',
+        legend_orientation='v',
         margin=dict(l=10, r=10, t=10, b=10),
         #height=600, 
         #width=1000, 

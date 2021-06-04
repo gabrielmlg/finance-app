@@ -282,12 +282,12 @@ def compare_investiments_cumsum_chart(df_, col_x):
         df_tmp = df_[df_['Nome'] == having]
 
         fig.add_trace(go.Scatter(x=df_tmp[col_x], 
-                    y=df_tmp['%'].cumsum(),
+                    y=df_tmp['%'].cumsum() * 100,
                     line=dict(width=1.5),
                     marker={'size': 3}, 
                     marker_color=color_list[index], 
                     mode='lines+markers',
-                    #line_shape='spline',
+                    line_shape='spline',
                     name=having))
 
     fig.update_layout(

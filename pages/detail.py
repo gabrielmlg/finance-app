@@ -153,7 +153,7 @@ layout = html.Div([
                                 'fontSize': 14,
                                 'if': {'column_id': c},
                                 'textAlign': 'left',  
-                            } for c in ['Tipo', 'Nome']
+                            } for c in ['Tipo', 'Nome', 'Data']
                         ],
                         fixed_rows={'headers': True},
                         #style_table={'height': 400}, 

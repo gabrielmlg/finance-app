@@ -15,7 +15,7 @@ ACCESS_KEY= config.AWS_ACCESS_KEY_ID_GABRIEL # os.getenv('AWS_ACCESS_KEY_ID')
 SECRET_KEY= config.AWS_SECRET_KEY_ID_GABRIEL # os.getenv('AWS_SECRET_KEY_ID')  
 
 #ACCESS_KEY= os.getenv('AWS_ACCESS_KEY_ID') 
-#SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID')  
+#SECRET_KEY= os.getenv('AWS_SECRET_KEY_ID') 
 
 bucket= 'balbi-finance-app'
 
@@ -294,6 +294,7 @@ class Position:
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG13', 'XPLG11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG14', 'XPLG11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'RBRF14', 'RBRF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CPTS13', 'CPTS11', df_result['Papel'])
 
         return df_result.groupby(['Papel']).sum().reset_index()
 
@@ -330,6 +331,7 @@ class Position:
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG13', 'XPLG11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG14', 'XPLG11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'RBRF14', 'RBRF11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CPTS13', 'CPTS11', df_result['Papel'])
 
         return df_result.groupby(['Papel']).sum().reset_index()
 
@@ -446,6 +448,7 @@ class Extract:
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('TBOF11'), 'TBOF11', self.fiis_profits['Descricao'])
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('TBOF13'), 'TBOF11', self.fiis_profits['Descricao'])
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RBRF14'), 'RBRF11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('CPTS13'), 'CPTS11', self.fiis_profits['Descricao'])
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES CNES'), 'CNES11', self.fiis_profits['Descricao'])
         self.fiis_profits = self.fiis_profits[~self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
 

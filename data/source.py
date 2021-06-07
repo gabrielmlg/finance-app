@@ -332,6 +332,7 @@ class Position:
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'XPLG14', 'XPLG11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'RBRF14', 'RBRF11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CPTS13', 'CPTS11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'KNSC13', 'KNSC11', df_result['Papel'])
 
         return df_result.groupby(['Papel']).sum().reset_index()
 
@@ -449,6 +450,7 @@ class Extract:
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('TBOF13'), 'TBOF11', self.fiis_profits['Descricao'])
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RBRF14'), 'RBRF11', self.fiis_profits['Descricao'])
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('CPTS13'), 'CPTS11', self.fiis_profits['Descricao'])
+        self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('KNSC13'), 'KNSC11', self.fiis_profits['Descricao'])
         self.fiis_profits.loc[:, 'Descricao'] = np.where(self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES CNES'), 'CNES11', self.fiis_profits['Descricao'])
         self.fiis_profits = self.fiis_profits[~self.fiis_profits['Descricao'].str.contains('RENDIMENTOS DE CLIENTES PETR4')]
 

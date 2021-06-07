@@ -202,7 +202,7 @@ class MainService:
 
     def timeline_by_types_chart(self):
         df = self.resume[self.resume['Data'] != 0]
-        df = df[df['Data'] >= '2014-08-01']
+        #df = df[df['Data'] >= '2014-08-01']
         df = df[(df['periodo_cont'] > 0)].sort_values(['Tipo', 'Data'])
         df = df\
             .groupby(['Tipo', 'Data'])\

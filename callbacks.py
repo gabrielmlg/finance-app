@@ -53,7 +53,6 @@ def timeline_profits_chart(period):
     Input('period-range-slider', 'value')
 )
 def top_investiment_table(period):
-    print('Passei por aqui')
     return main_service.top_investiment(type='All').to_dict('records')
 
 
@@ -62,7 +61,6 @@ def top_investiment_table(period):
     Input('period-range-slider', 'value')
 )
 def top_investiment_table(period):
-    print('Passei por aqui')
     return main_service.tail_investiment(type='All').to_dict('records')
 
 

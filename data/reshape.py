@@ -14,7 +14,7 @@ class Transform:
         df1 = position.stocks[['Papel', 'Qtd Disponivel',
                     'Cotacao', 'Financeiro', 'period', 'mes', 'ano',
                     'data_posicao']]
-        df1['Tipo'] = np.where(df1['Papel'].str.contains('34'), 
+        df1.loc[:, 'Tipo'] = np.where(df1['Papel'].str.contains('34'), 
                                 'BDR', 
                                 'Ação')
 
@@ -150,6 +150,10 @@ class Transform:
             periodo_cont = []
             count = 0
 
+            # Print para validação 
+            #if ativo == 'RNGO11':
+            #    print(df_[['Data', 'Financeiro', 'aporte', 'retirada']])
+
             for row in df_.index:
                 if (df_[df_.index == row]['Financeiro'].sum() > 1)\
                         | (df_[df_.index == row]['retirada'].sum() > 1)\
@@ -159,6 +163,10 @@ class Transform:
                         
                         if df_[df_.index == row]['Financeiro'].sum() > 0:
                             rend_ = df_[df_.index == row]['Financeiro'].sum() - df_[df_.index <= row]['aporte'].sum()
+                            # Valida  se a primeira posição ta certo o aporte. 
+                            #if ativo == 'RNGO11': 
+                            #    print('Financeiro: {}'.format(df_[df_.index == row]['Financeiro'].sum()))
+                            #    print('Aporte: {}'.format(df_[df_.index <= row]['aporte'].sum()))
                         else: 
                             rend_ = 0 #df_[df_.index <= row]['aporte'].sum()
                         
@@ -220,7 +228,7 @@ class Transform:
         df_return.rename(columns={'Papel': 'Nome'}, inplace=True)
         
         #Coorreções manuais:
-        df_return[(df_return['Nome'] == 'BCFF11') & (df_return['Data'] == '2014-05-31')]['rendimento'] = 0
+        df_return[(df_return['Nome'] == 'BCFF11') & (df_return['Data'] == '2014-05-31')].loc[:'rendimento'] = 0
         df_return = df_return[
             df_return['Data'] >= '2014-08-01'
         ]  

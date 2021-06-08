@@ -274,10 +274,10 @@ def timeline_pickings_chart(df):
     return fig
 
 
-def compare_investiments_cumsum_chart(df_, col_x):
+def compare_investiments_cumsum_chart(df_, col_x, names):
     fig = go.Figure()
     
-    for index, having in enumerate(df_['Nome'].unique()):
+    for index, having in enumerate(names):
         df_tmp = df_[df_['Nome'] == having]
 
         fig.add_trace(go.Scatter(x=df_tmp[col_x], 

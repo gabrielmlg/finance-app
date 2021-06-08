@@ -66,11 +66,24 @@ class MainService:
         return df
 
 
+    def unique_investiment(self, type):
+        ''' return a list of investiment names filter by type '''
+        return self.resume[self.resume['Tipo'] == type]\
+                    .groupby('Nome')\
+                    .agg(financeiro=('Financeiro', 'last'), 
+                        aporte=('aporte', 'sum'), 
+                        rendimento=('rendimento', 'sum'), 
+                        retirada=('retirada', 'sum'))\
+                    .reset_index()\
+                    .sort_values(by='financeiro', ascending=False)\
+                        ['Nome'].unique()
+
+
     def compare_investiment(self, type, col_x):
         #print(self.resume.head(10))
         #print(self.resume.columns)
-        df_ = self.resume[self.resume['Tipo'] == type].sort_values(['Tipo', 'Nome', 'Data'])
-        return charts.compare_investiments_cumsum_chart(df_, col_x)
+        df_ = self.resume[self.resume['Tipo'] == type].sort_values(['Tipo', 'Nome', 'Data']) 
+        return charts.compare_investiments_cumsum_chart(df_, col_x, self.unique_investiment(type))
 
 
     def resume_cards(self):

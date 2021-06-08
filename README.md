@@ -42,6 +42,6 @@ docker run -p 8051:8051 --rm  <docker_image_name>:<image_version>
 Information about command options:
 ``` 
 
---rm removes the container after stopping it. There is always a fresh version of configuration and other features while running the app.
--v In the case of bind mounts, the first field is the path to the file or directory on the host machine. The second field is the path where the file or directory is mounted in the container.
--p maps a port from container to localhost
+* --rm removes the container after stopping it. There is always a fresh version of configuration and other features while running the app.
+* -v In the case of bind mounts, the first field is the path to the file or directory on the host machine. The second field is the path where the file or directory is mounted in the container.
+* -p maps a port from container to localhost

@@ -1,4 +1,9 @@
-FROM python:3.8
+FROM python:3.9
+
+USER root
+
+RUN apt-get update -y
+RUN apt-get install -y g++ libsasl2-dev libsasl2-modules
 
 WORKDIR /code
 

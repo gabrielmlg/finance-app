@@ -219,6 +219,7 @@ class Transform:
                     periodo_cont.append(0)
                     count = 0
 
+            df_['aporte_cumsum'] = df_['aporte'].cumsum()
             df_['rendimento'] = rendimento
             df_['%'] = rendimento_percent
             df_['periodo_cont'] = periodo_cont
@@ -229,8 +230,8 @@ class Transform:
         
         #Coorreções manuais:
         df_return[(df_return['Nome'] == 'BCFF11') & (df_return['Data'] == '2014-05-31')].loc[:'rendimento'] = 0
+        #df_return.to_excel('resumo.xlsx', index=False)
         df_return = df_return[
             df_return['Data'] >= '2014-08-01'
         ]  
-
         return df_return

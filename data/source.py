@@ -296,6 +296,7 @@ class Position:
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'RBRF14', 'RBRF11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CPTS13', 'CPTS11', df_result['Papel'])
         df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'KNSC13', 'KNSC11', df_result['Papel'])
+        df_result.loc[:, 'Papel'] = np.where(df_result['Papel'] == 'CVBI12', 'CVBI11', df_result['Papel'])
 
         return df_result.groupby(['Papel']).sum().reset_index()
 

@@ -127,6 +127,7 @@ layout = html.Div([
                             {'id': 'Financeiro', 'name': 'Posição', 'type': 'numeric', 'format': money},  
                             {'id': 'aporte', 'name': 'Aporte', 'type': 'numeric', 'format': money},  
                             {'id': 'retirada', 'name': 'Retirada', 'type': 'numeric', 'format': money},  
+                            {'id': 'aporte_cumsum', 'name': 'Aporte Acumulado', 'type': 'numeric', 'format': money},  
                             {'id': 'rendimento', 'name': 'Rendimento', 'type': 'numeric', 'format': money},  
                             {'id': '%', 'name': '%', 'type': 'numeric', 'format': percentage}
                         ], 
@@ -163,8 +164,13 @@ layout = html.Div([
                             'fontWeight': 'bold', 
                             'fontSize': 16, 
                             'font-family':'sans-serif', 
-                            'textAlign': 'left',  
+                            'textAlign': 'right',  
                         },
+                        style_header_conditional=[
+                            {
+                                'textAlign': 'left',  
+                            } for c in ['Tipo', 'Nome', 'Data']
+                        ]
                     )
                 )
             ]), 

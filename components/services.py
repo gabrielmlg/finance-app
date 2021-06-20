@@ -82,7 +82,7 @@ class MainService:
     def compare_investiment(self, type, col_x):
         #print(self.resume.head(10))
         #print(self.resume.columns)
-        df_ = self.resume[self.resume['Tipo'] == type].sort_values(['Tipo', 'Nome', 'Data']) 
+        df_ = self.resume[self.resume['Tipo'] == type].sort_values(['Nome', 'Data']) 
         return charts.compare_investiments_cumsum_chart(df_, col_x, self.unique_investiment(type))
 
 

@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output
 
 from app_server import app, main_service
 from components.services import TickerServices
+from components import utils
 
 import plotly.graph_objs as go
 
@@ -69,17 +70,19 @@ def top_investiment_table(period):
 
 @app.callback(
     Output('ticker-graphic', 'figure'),
-    Input('ticker-selected', 'value')
+    [Input('ticker-selected', 'value'), 
+    Input('periodRangeSliderId', 'value')]
 )
-def filterTicker(tickerCode):
+def filterTicker(tickerCode, periodRange):
     if tickerCode == 'Ticker':
         tickerCode = 'MGLU3.SA'
         
-    print('Codigo passado: {}'.format(tickerCode))
+    dateList = utils.rangeDateList('', '')
+    print('Cod.: {}'.format(periodRange[1]))
+    print('Codigo passado: {} --> {} - {}'.format(tickerCode, dateList[periodRange[0]], dateList[periodRange[1]]))
     
     service = TickerServices(tickerCode=tickerCode)
-    print(service.hist.head(10))
-    return service.tickerAnalysisGraphic(tickerCode)
+    return service.tickerAnalysisGraphic(tickerCode, dateList[periodRange[0]], dateList[periodRange[1]])
 
 
 

@@ -358,8 +358,11 @@ class TickerServices:
         self.hist = self.ticker.calculateMovingAverage(self.hist)
         self.ticker.setCrossUpMovingAverage(self.hist)
 
-    def tickerAnalysisGraphic(self, tickerCode):
-        return charts.tickerAnalysisGraphic(self.hist, tickerCode, self.ticker.averageMovingList)
+    def tickerAnalysisGraphic(self, tickerCode, startDate, endDate):
+        print('chegou aqui!! {} -- {}'.format(type(self.hist.index.date), type(startDate)))
+        df_ = self.hist[(self.hist.index.date >= startDate) \
+                        & (self.hist.index.date <= endDate)]
+        return charts.tickerAnalysisGraphic(df_, tickerCode, self.ticker.averageMovingList)
 
         
         

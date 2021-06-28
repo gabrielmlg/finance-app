@@ -4,6 +4,9 @@ import numpy as np
 from dash.dependencies import Input, Output
 
 from app_server import app, main_service
+from components.services import TickerServices
+
+import plotly.graph_objs as go
 
 @app.callback(
 [Output('total_aportes_text', 'children'), 
@@ -63,6 +66,20 @@ def top_investiment_table(period):
 def top_investiment_table(period):
     return main_service.tail_investiment(type='All').to_dict('records')
 
+
+@app.callback(
+    Output('ticker-graphic', 'figure'),
+    Input('ticker-selected', 'value')
+)
+def filterTicker(tickerCode):
+    if tickerCode == 'Ticker':
+        tickerCode = 'MGLU3.SA'
+        
+    print('Codigo passado: {}'.format(tickerCode))
+    
+    service = TickerServices(tickerCode=tickerCode)
+    print(service.hist.head(10))
+    return service.tickerAnalysisGraphic(tickerCode)
 
 
 

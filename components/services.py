@@ -1,5 +1,7 @@
+from yfinance import ticker
 from data.source import AwsClient, Position, Extract
 from data.reshape import Transform
+from data.stock import Ticker
 from components import charts
 import pandas as pd
 
@@ -340,5 +342,24 @@ class MainService:
 
         df_ = df_[(df_['Financeiro'] > 0)].sort_values(by='%', ascending=False)
         return df_.tail(5).sort_values(by='%')
+
+
+class TickerServices:
+    def __init__(self, tickerCode: str):
+        self._loadData(tickerCode=tickerCode)
+
+    def _loadData(self, tickerCode: str):
+        print('Serice --> {}'.format(tickerCode))
+        self.ticker = Ticker(tickerCode=tickerCode)
+        ticker_ = self.ticker.getTicker()
+
+        self.hist = self.ticker.history(ticker_)
+        self.hist = self.ticker.calculateYield(self.hist)
+        self.hist = self.ticker.calculateMovingAverage(self.hist)
+        self.ticker.setCrossUpMovingAverage(self.hist)
+
+    def tickerAnalysisGraphic(self, tickerCode):
+        return charts.tickerAnalysisGraphic(self.hist, tickerCode, self.ticker.averageMovingList)
+
         
         

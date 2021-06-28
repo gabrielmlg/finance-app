@@ -1,5 +1,6 @@
 #from _plotly_utils.colors.carto import Sunset
 import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 import dash_core_components as dcc
 import plotly.express as px
 import numpy as np
@@ -484,6 +485,86 @@ def investiment_pie_chart(df):
         uniformtext_mode='hide', # esconde caso nao caiba na figura
         uniformtext_minsize=7, 
         template='plotly_white', 
+    )
+
+    return fig
+
+
+# ANALYSIS PAGE
+
+def tickerAnalysisGraphic(df, ticket, lines=[]):
+    df_ = df.tail(360*2)
+    trace = {
+        'x': df_.index, 
+        'open': df_['Open'], 
+        'close': df_['Close'], 
+        'high': df_['High'], 
+        'low': df_['Low'], 
+        'type': 'candlestick', 
+        'increasing_line_color': '#03A688', 
+        'decreasing_line_color': '#F20544', 
+        'name': ticket, 
+        'showlegend': False, 
+        'yaxis':'y1'
+    }
+
+    data = [trace]
+    layout = go.Layout(
+        template='plotly_white', 
+        margin=dict(l=50, r=10, t=50, b=10), 
+    )
+
+    fig_ = go.Figure(data=data, layout=layout)
+    fig = make_subplots(specs=[[{"secondary_y": True}]], figure=fig_)
+
+    if len(lines) > 0:
+        for col in lines:
+            fig.add_trace(
+                go.Scatter(
+                    x=list(df_.index), 
+                    y=df_[col], 
+                    mode='lines', 
+                    name=col, 
+                    yaxis='y1'
+                )
+            )
+
+    fig.add_trace(
+        go.Bar(x=df_.index,
+            y=df_['Volume'],
+            name = 'Volume',
+            marker=dict(color='gray'), 
+            yaxis='y2'
+            ))
+
+    fig.add_trace(
+        go.Scatter(
+            x=list(df_.index), 
+            y=df_['mm_vol_60d'], 
+            mode='lines', 
+            name=col, 
+            yaxis='y2', 
+            line=dict(color='rgb(241,149,18)', width=0.8),
+        )
+    )
+
+    fig.update_xaxes(
+        rangeslider_visible=False,
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    fig.update_layout(
+        yaxis2=dict(
+            range=[0, df_['Volume'].max()*5]
+        )
     )
 
     return fig
